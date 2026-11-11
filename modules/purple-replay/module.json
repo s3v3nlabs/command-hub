@@ -1,0 +1,13 @@
+{
+  "id": "purple-replay",
+  "name": "Purple-Team Replay",
+  "version": "1.0.0",
+  "description": "Record lab attack runs (event sequences) and replay them through Heimdall's detection path to regression-test defenses. Pass/fail detection report. No traffic is sent — events are evaluated locally.",
+  "route": "/offsec/replay",
+  "nav": { "label": "Purple Replay", "group": "ops", "order": 25, "badge": "new" },
+  "permissions": ["ui", "read", "ops"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
