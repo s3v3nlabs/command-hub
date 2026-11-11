@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose an improvement (iterative, not waterfall)
+labels: [enhancement]
+body:
+  - type: textarea
+    id: why
+    attributes:
+      label: Problem / why
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: Proposed change
+      description: Keep it scoped. Prefer a stub + staged-ladder gate over a mega-feature.
+    validations: { required: true }
+  - type: dropdown
+    id: legal
+    attributes:
+      label: Legal / authorization
+      options:
+        - Operator-owned targets only
+        - Needs staged-ladder (third-party)
+        - WIP-by-law (wiretap / self-propagating malware) — do not implement

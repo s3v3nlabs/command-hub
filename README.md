@@ -191,6 +191,10 @@ A typical 3-minute call costs roughly $0.08 to $0.15 all-in.
 
 **Christian Wilford** (s3v3n), AI Architect and offensive security enthusiast, founder of Singular/ty Defense Solutions, LLC. GitHub: [@s3v3nlabs](https://github.com/s3v3nlabs).
 
+## Criticism welcome
+
+We want hard feedback — architecture, UX, legal gating, missing realism, dead ends. Open a [bug](https://github.com/s3v3nlabs/command-hub/issues/new?template=bug.yml), [feature](https://github.com/s3v3nlabs/command-hub/issues/new?template=feature.yml), or [security](https://github.com/s3v3nlabs/command-hub/issues/new?template=security.yml) report, or a PR. See [CONTRIBUTING.md](./CONTRIBUTING.md) and [ROADMAP.md](./ROADMAP.md).
+
 ## License
 
 Copyright 2026 Singular/ty Defense Solutions, LLC (Christian Wilford).

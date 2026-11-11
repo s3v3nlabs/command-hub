@@ -1,0 +1,19 @@
+name: Security / vuln report
+description: Private-friendly security finding (prefer GitHub Security Advisories for sensitive details)
+labels: [security]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Prefer a **private GitHub Security Advisory** for exploit details.
+        See SECURITY.md. Do not paste secrets or live payloads here.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (non-exploitable)
+    validations: { required: true }
+  - type: input
+    id: surface
+    attributes:
+      label: Affected surface
+      placeholder: /api/... · middleware · lib/security/...

@@ -1,0 +1,20 @@
+name: Bug report
+description: Something is broken or behaving wrongly
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, expected vs actual.
+    validations: { required: true }
+  - type: input
+    id: route
+    attributes:
+      label: Route / module
+      placeholder: /offsec/threat-field
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: Node version, OS, SECURE_MODE on/off (never paste secrets)
