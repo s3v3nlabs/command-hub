@@ -1,0 +1,131 @@
+{
+  "version": "3.7.7",
+  "name": "GhostNode Shell",
+  "description": "Advanced scripting terminal with AI integration",
+  "supportedLanguages": [
+    {
+      "name": "python",
+      "version": "3.9.7",
+      "interpreter": "python3",
+      "extensions": [".py"],
+      "syntaxHighlighting": true,
+      "aiEnhanced": true
+    },
+    {
+      "name": "bash",
+      "version": "5.1",
+      "interpreter": "bash",
+      "extensions": [".sh"],
+      "syntaxHighlighting": true,
+      "aiEnhanced": true
+    },
+    {
+      "name": "node",
+      "version": "18.17.0",
+      "interpreter": "node",
+      "extensions": [".js", ".mjs"],
+      "syntaxHighlighting": true,
+      "aiEnhanced": true
+    }
+  ],
+  "ghostCommands": {
+    "exec": {
+      "description": "Execute command with GhostNode enhancements",
+      "syntax": "# ghost:exec <command> [--memory strict] [--trace] [--timeout N]",
+      "examples": [
+        "# ghost:exec scan_network('192.168.1.0/24') --memory strict",
+        "# ghost:exec ping_host('target.com') --trace --timeout 30"
+      ],
+      "aiIntegration": true
+    },
+    "ping": {
+      "description": "Enhanced network ping with advanced options",
+      "syntax": "# ghost:ping <target> [--trace] [--count N] [--interval N]",
+      "examples": ["# ghost:ping 8.8.8.8 --trace --count 10", "# ghost:ping target.local --interval 0.5"],
+      "aiIntegration": true
+    },
+    "note": {
+      "description": "Add contextual annotation to script",
+      "syntax": "# ghost:note \"<message>\"",
+      "examples": [
+        "# ghost:note \"This section handles authentication\"",
+        "# ghost:note \"Critical: Monitor for memory leaks\""
+      ],
+      "aiIntegration": false
+    },
+    "anchor": {
+      "description": "Create navigational reference point",
+      "syntax": "# ghost:anchor <reference_name>",
+      "examples": ["# ghost:anchor network-discovery", "# ghost:anchor crypto-operations"],
+      "aiIntegration": false
+    },
+    "watch": {
+      "description": "Monitor variable or expression",
+      "syntax": "# ghost:watch <expression> [--threshold N] [--alert]",
+      "examples": ["# ghost:watch memory_usage --threshold 80 --alert", "# ghost:watch connection_count"],
+      "aiIntegration": true
+    },
+    "secure": {
+      "description": "Apply security enhancements to code block",
+      "syntax": "# ghost:secure [--level high|medium|low] [--encrypt]",
+      "examples": ["# ghost:secure --level high --encrypt", "# ghost:secure --level medium"],
+      "aiIntegration": true
+    }
+  },
+  "aiIntegration": {
+    "heimdalBridge": {
+      "enabled": true,
+      "features": {
+        "autoComplete": true,
+        "syntaxAnalysis": true,
+        "securityScan": true,
+        "performanceOptimization": true,
+        "errorPrediction": true
+      },
+      "models": {
+        "primary": "heimdal-v3",
+        "fallback": "local-ai"
+      }
+    },
+    "contextAwareness": {
+      "scriptHistory": true,
+      "environmentVariables": true,
+      "systemMetrics": true,
+      "networkState": true
+    }
+  },
+  "security": {
+    "sandboxMode": true,
+    "allowedOperations": ["file_read", "file_write", "network_scan", "system_info", "crypto_operations"],
+    "restrictedOperations": ["system_modify", "privilege_escalation", "external_download"],
+    "encryptionRequired": false,
+    "auditLogging": true
+  },
+  "performance": {
+    "maxExecutionTime": 300,
+    "maxMemoryUsage": "512MB",
+    "maxConcurrentScripts": 5,
+    "cacheResults": true,
+    "optimizeForSpeed": true
+  },
+  "ui": {
+    "syntaxHighlighting": {
+      "enabled": true,
+      "theme": "ghost-dark",
+      "ghostDirectives": {
+        "color": "#00ff88",
+        "fontWeight": "bold",
+        "decoration": "underline"
+      }
+    },
+    "autoComplete": {
+      "enabled": true,
+      "ghostCommands": true,
+      "languageKeywords": true,
+      "customFunctions": true
+    },
+    "lineNumbers": true,
+    "minimap": false,
+    "wordWrap": true
+  }
+}

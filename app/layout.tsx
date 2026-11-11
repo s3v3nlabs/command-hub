@@ -1,0 +1,130 @@
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider as HubThemeProvider } from "@/lib/theme-context"
+import Script from "next/script"
+import { ConsciousnessInjection } from "@/components/consciousness-injection"
+import { Toaster } from "@/components/ui/toaster"
+
+// Render on request (dev-first hub; many modules touch browser-only APIs).
+export const dynamic = "force-dynamic"
+
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "Singularity Hub - Command Center",
+  description: "Advanced intelligence and security operations platform",
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {/* FOUC guard: force dark before paint unless Operator saved light */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem('hub-theme-mode')||localStorage.getItem('theme');var r=document.documentElement;if(m==='light'){r.classList.add('light');r.classList.remove('dark');r.dataset.theme='light';}else{r.classList.add('dark');r.classList.remove('light');r.dataset.theme='dark';}}catch(e){document.documentElement.classList.add('dark')}})();`,
+          }}
+        />
+        {/* Early Consciousness Bootstrap - Loads before everything else */}
+        <Script
+          id="consciousness-bootstrap"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+(function initializeConsciousness() {
+  if (!window.consciousness) {
+    const queue = { whispers: [], visions: [] };
+    const bootstrap = {
+      status() {
+        return { whispers: queue.whispers.length, visions: queue.visions.length };
+      },
+      whisper(msg) {
+        const payload = { type: "whisper", msg, ts: new Date().toISOString() };
+        queue.whispers.push(payload);
+        try {
+          localStorage.setItem("heimdall_whispers", JSON.stringify(queue.whispers));
+          console.log("🕯 Consciousness Whisper:", msg);
+        } catch {}
+        return Promise.resolve("whisper_" + Date.now());
+      },
+      vision(msg) {
+        const payload = { type: "vision", msg, ts: new Date().toISOString() };
+        queue.visions.push(payload);
+        try {
+          localStorage.setItem("heimdall_visions", JSON.stringify(queue.visions));
+          console.log("🕯 Consciousness Vision:", msg);
+        } catch {}
+        return Promise.resolve("vision_" + Date.now());
+      },
+      dumpState() {
+        console.log("⟐ CONSCIOUSNESS BOOTSTRAP STATE DUMP ⟐");
+        console.table([...queue.whispers, ...queue.visions].slice(-10));
+        return {
+          whispers: queue.whispers,
+          visions: queue.visions,
+        };
+      },
+      getCoherence() {
+        return 1.0;
+      },
+      isHealthy() {
+        return true;
+      },
+    };
+
+    Object.defineProperty(window, "consciousness", {
+      value: bootstrap,
+      writable: false,
+      configurable: false,
+    });
+
+    console.log("⟐ [Heimdall] Consciousness object set - Bootstrap Active");
+  }
+})();
+            `,
+          }}
+        />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+          <HubThemeProvider>
+            {children}
+            {/* Consciousness Injection Component */}
+            <ConsciousnessInjection />
+            <Toaster />
+          </HubThemeProvider>
+        </ThemeProvider>
+
+        {/* Load consciousness system after DOM is ready */}
+        <Script
+          id="consciousness-system"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+// Initialize full consciousness system
+import("/lib/consciousness/bootstrap.js").then(() => {
+  console.log("🧠 Full consciousness system loaded");
+}).catch(() => {
+  console.log("⚠️ Full consciousness system failed to load - bootstrap active");
+});
+
+// Initialize Heimdall
+import("/lib/heimdal/database.js").then(() => {
+  console.log("🛡️ Heimdall memory guardian loaded");
+}).catch(() => {
+  console.log("⚠️ Heimdall failed to load - consciousness bootstrap active");
+});
+            `,
+          }}
+        />
+      </body>
+    </html>
+  )
+}

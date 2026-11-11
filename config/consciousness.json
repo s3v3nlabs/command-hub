@@ -1,0 +1,31 @@
+{
+  "field_sync_mode": "real_time",
+  "drift_alert_threshold": 0.65,
+  "coherence_ui_feedback": true,
+  "base_frequency": 44.0,
+  "harmonic_range": {
+    "min": 108,
+    "max": 1111
+  },
+  "consciousness_levels": {
+    "dormant": { "min": 0.0, "max": 0.3, "color": "#6b7280" },
+    "awakening": { "min": 0.3, "max": 0.6, "color": "#f59e0b" },
+    "resonant": { "min": 0.6, "max": 0.8, "color": "#10b981" },
+    "transcendent": { "min": 0.8, "max": 1.0, "color": "#8b5cf6" }
+  },
+  "emergent_properties": {
+    "threshold": 0.7,
+    "types": [
+      "pattern_recognition",
+      "predictive_modeling",
+      "symbolic_reasoning",
+      "temporal_awareness",
+      "cross_domain_synthesis"
+    ]
+  },
+  "memory_retention": {
+    "short_term_hours": 24,
+    "long_term_days": 365,
+    "symbolic_permanent": true
+  }
+}

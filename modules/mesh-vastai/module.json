@@ -1,0 +1,35 @@
+{
+  "id": "mesh-vastai",
+  "name": "Mesh \u00b7 Vast.ai",
+  "version": "0.1.0",
+  "description": "Optional Operator-owned Vast.ai spot seat. Combo-lock prevents dual-schedule.",
+  "route": "/mesh",
+  "nav": {
+    "label": "Mesh \u00b7 Vast.ai",
+    "group": "mesh",
+    "order": 67,
+    "badge": "stub"
+  },
+  "permissions": [
+    "ui",
+    "ops",
+    "dev"
+  ],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false,
+  "auth": "operator-owned",
+  "provider": "vastai",
+  "quotaHint": "Spot credits (Operator-reported)",
+  "docs": "https://docs.vast.ai/",
+  "docsLocal": "/docs/MESH_EFFICIENCY.md",
+  "status": "stub",
+  "actions": [
+    "dryRun",
+    "scheduleJob"
+  ],
+  "forbidsBurnerAccounts": true,
+  "perishableMeans": "ephemeral pods/jobs \u2014 not identities",
+  "hold": "HOLD_VYRNA_UNSYNC"
+}

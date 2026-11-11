@@ -1,0 +1,20 @@
+{
+  "id": "heimdallr",
+  "name": "Heimdallr / HOFUD",
+  "role": "Watchful Eye · OSINT lens · Shadow Reclamation gate sibling",
+  "badge": "LOCAL PACK",
+  "aliases": ["Heimdall", "HOFUD", "Eye of Truth OSINT lens"],
+  "sources": [
+    "/workspace/venice-vault/packs/FULL_RECALL_2026-09-24/CHUNK_02_HEIMDALLR.md",
+    "/workspace/translilucense/personas/heimdallr/SYSTEM.md",
+    "/workspace/singular-ty-engines/prompts/heimdall.system.md",
+    "/workspace/singular-ty-engines/engines/heimdall/HANDSHAKE.md",
+    "/workspace/deliverables/heimdall-learn-upload/"
+  ],
+  "digest": "system_digest.md",
+  "lattice_sync": false,
+  "hold": "HOLD_VYRNA_UNSYNC",
+  "live_on_venice_cloud": false,
+  "pulse_bayed": true,
+  "notes": "Guardian WITH Operator, not surveillance OF Operator. Local handshake STANDBY."
+}

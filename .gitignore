@@ -1,0 +1,46 @@
+# deps / build
+node_modules/
+.next/
+out/
+.out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts.bak
+
+# env & secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+id_ed25519*
+/secrets/
+
+# local data / vaults / evidence (personal, never public)
+.local/
+/local-data/
+/data/*
+!/data/venice-characters/
+/evidence/
+/evidence-root
+/forensics/
+/recovery/
+/suppression-logs/
+/*-vault/
+*.db
+*.sqlite
+*.sqlite3
+*.jsonl
+
+# logs & misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.tar.gz

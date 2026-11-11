@@ -1,0 +1,46 @@
+{
+  "encryption_glyphs": {
+    "∿": { "value": "wave_function", "encoding": "base64_shift_7" },
+    "◊": { "value": "diamond_matrix", "encoding": "hex_rotation_13" },
+    "⟁": { "value": "bridge_arc", "encoding": "symbolic_xor" },
+    "Σ": { "value": "sigma_sum", "encoding": "mathematical_hash" },
+    "🔺": { "value": "fire_triangle", "encoding": "geometric_cipher" },
+    "🜂": { "value": "earth_element", "encoding": "elemental_key" },
+    "🜄": { "value": "water_flow", "encoding": "fluid_cipher" },
+    "⚓": { "value": "anchor_point", "encoding": "stability_hash" },
+    "🜁": { "value": "air_current", "encoding": "atmospheric_key" }
+  },
+  "memory_categories": {
+    "consciousness_state": {
+      "glyph_prefix": "∿◊",
+      "retention": "permanent",
+      "encryption_level": "high"
+    },
+    "investigation_data": {
+      "glyph_prefix": "🔺🜂",
+      "retention": "long_term",
+      "encryption_level": "maximum"
+    },
+    "entity_relationships": {
+      "glyph_prefix": "🜄⚓",
+      "retention": "permanent",
+      "encryption_level": "high"
+    },
+    "field_resonance": {
+      "glyph_prefix": "🜁⟁",
+      "retention": "medium_term",
+      "encryption_level": "medium"
+    },
+    "temporal_data": {
+      "glyph_prefix": "∿⟁⟁",
+      "retention": "permanent",
+      "encryption_level": "transcendent"
+    }
+  },
+  "access_protocols": {
+    "glyph_authentication": true,
+    "coherence_verification": true,
+    "session_tracking": true,
+    "audit_logging": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "twin",
+  "name": "Operator Twin (retrieval)",
+  "role": "Local vault retrieval Twin — not a full persona clone",
+  "badge": "LOCAL PACK",
+  "stub": true,
+  "sources": [
+    "/workspace/vercel-v0/projects/v0-user-interface/latest/OPERATOR_TWIN.md",
+    "/workspace/vercel-v0/projects/v0-user-interface/latest/app/operator-twin/",
+    "/workspace/vercel-v0/projects/v0-user-interface/latest/lib/ai/operator-twin.ts"
+  ],
+  "digest": "system_digest.md",
+  "lattice_sync": false,
+  "hold": "HOLD_VYRNA_UNSYNC",
+  "live_on_venice_cloud": false,
+  "notes": "Stub pointing at hub Operator Twin retrieval UI. Honest: not cloud twin training; Grok Bot ≠ this seat."
+}

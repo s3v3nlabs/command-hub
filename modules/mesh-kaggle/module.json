@@ -1,0 +1,35 @@
+{
+  "id": "mesh-kaggle",
+  "name": "Mesh \u00b7 Kaggle",
+  "version": "0.1.0",
+  "description": "Operator-owned Kaggle notebook seat. Quota ledger + dryRun/scheduleJob stubs. FORBIDDEN: burner accounts.",
+  "route": "/mesh",
+  "nav": {
+    "label": "Mesh \u00b7 Kaggle",
+    "group": "mesh",
+    "order": 60,
+    "badge": "stub"
+  },
+  "permissions": [
+    "ui",
+    "ops",
+    "dev"
+  ],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false,
+  "auth": "operator-owned",
+  "provider": "kaggle",
+  "quotaHint": "~30 GPU hrs/week (Operator-reported)",
+  "docs": "https://www.kaggle.com/docs/efficient-gpu-usage",
+  "docsLocal": "/docs/MESH_EFFICIENCY.md",
+  "status": "stub",
+  "actions": [
+    "dryRun",
+    "scheduleJob"
+  ],
+  "forbidsBurnerAccounts": true,
+  "perishableMeans": "ephemeral pods/jobs \u2014 not identities",
+  "hold": "HOLD_VYRNA_UNSYNC"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "example-status-chip",
+  "name": "Example Status Chip",
+  "version": "0.1.0",
+  "description": "ADD-ONLY example module manifest pointing at Module Bay. Registration only — does not move pages.",
+  "route": "/modules",
+  "nav": { "label": "Example Status Chip", "group": "examples", "order": 90, "badge": "example" },
+  "permissions": ["ui", "dev"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}

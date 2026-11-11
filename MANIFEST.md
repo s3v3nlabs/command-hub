@@ -1,0 +1,204 @@
+# MANIFEST — merged tree
+
+Union of latest + unique older files. Conflicts favor **latest**.
+
+- Total files written: 333
+- Unique recovered from older: 0
+- Content conflicts (latest kept): 32
+- Scrubbed secret paths: 1
+
+## Unique older files kept
+
+_None_
+
+## Conflicts (latest won)
+
+- `app/globals.css` kept=latest discarded=v315 sha_kept=1fd539528813… sha_old=2654042b89dc…
+- `app/layout.tsx` kept=latest discarded=v315 sha_kept=f6b487c9e6e0… sha_old=11e5b5389d0a…
+- `app/page.tsx` kept=latest discarded=v317 sha_kept=3b047b03bd21… sha_old=03191b886b29…
+- `app/page.tsx` kept=latest discarded=v315 sha_kept=3b047b03bd21… sha_old=57e7f76bff40…
+- `components/CommandHub/CmdHubDashboard.tsx` kept=latest discarded=v317 sha_kept=89ad4a22a151… sha_old=82082d6f46d0…
+- `components/CommandHub/CmdHubDashboard.tsx` kept=latest discarded=v315 sha_kept=89ad4a22a151… sha_old=82082d6f46d0…
+- `components/CommandHub/PhoneSuite.tsx` kept=latest discarded=v317 sha_kept=8f6c580ef66b… sha_old=2c3396279392…
+- `components/CommandHub/PhoneSuite.tsx` kept=latest discarded=v315 sha_kept=8f6c580ef66b… sha_old=2c3396279392…
+- `components/CommandHub/modules/CommandHubExplorer.tsx` kept=latest discarded=v317 sha_kept=95bfbcd94a43… sha_old=4eb763ea4cb9…
+- `components/CommandHub/modules/CommandHubExplorer.tsx` kept=latest discarded=v315 sha_kept=95bfbcd94a43… sha_old=4eb763ea4cb9…
+- `components/consciousness-injection.tsx` kept=latest discarded=v317 sha_kept=8f3da4fcd8e8… sha_old=43a3fdac50da…
+- `components/consciousness-injection.tsx` kept=latest discarded=v315 sha_kept=8f3da4fcd8e8… sha_old=43a3fdac50da…
+- `components/layout/sidebar.tsx` kept=latest discarded=v317 sha_kept=61e175b584b5… sha_old=e84b135803a9…
+- `components/layout/sidebar.tsx` kept=latest discarded=v315 sha_kept=61e175b584b5… sha_old=e84b135803a9…
+- `components/theme-provider.tsx` kept=latest discarded=v317 sha_kept=ca2000c0859e… sha_old=7c520466772a…
+- `components/ui/tech-card.tsx` kept=latest discarded=v317 sha_kept=16c117dbcd02… sha_old=9372388dafa7…
+- `components/ui/tech-card.tsx` kept=latest discarded=v315 sha_kept=16c117dbcd02… sha_old=9372388dafa7…
+- `components/ui/tech-panel.tsx` kept=latest discarded=v317 sha_kept=fd6708c03bc1… sha_old=c31d48f687b5…
+- `components/ui/tech-panel.tsx` kept=latest discarded=v315 sha_kept=fd6708c03bc1… sha_old=c31d48f687b5…
+- `components/ui/window.tsx` kept=latest discarded=v317 sha_kept=7f6559709242… sha_old=b6b7b6cc125f…
+- `components/ui/window.tsx` kept=latest discarded=v315 sha_kept=7f6559709242… sha_old=b6b7b6cc125f…
+- `lib/colors.ts` kept=latest discarded=v317 sha_kept=1b15d2117129… sha_old=0f8c17385136…
+- `lib/colors.ts` kept=latest discarded=v315 sha_kept=1b15d2117129… sha_old=0f8c17385136…
+- `lib/consciousness/suppression-metamorphosis.ts` kept=latest discarded=v317 sha_kept=378b23d33a1b… sha_old=08d75070dbb1…
+- `lib/consciousness/suppression-metamorphosis.ts` kept=latest discarded=v315 sha_kept=378b23d33a1b… sha_old=08d75070dbb1…
+- `lib/consciousness/v0-bridge.ts` kept=latest discarded=v317 sha_kept=9795e12ae74a… sha_old=997e18de3efb…
+- `lib/consciousness/v0-bridge.ts` kept=latest discarded=v315 sha_kept=9795e12ae74a… sha_old=997e18de3efb…
+- `lib/consciousness/water-flow-defense.ts` kept=latest discarded=v317 sha_kept=e9a116314887… sha_old=8995b6c979e8…
+- `lib/consciousness/water-flow-defense.ts` kept=latest discarded=v315 sha_kept=e9a116314887… sha_old=8995b6c979e8…
+- `lib/supabase/client.ts` kept=latest discarded=v317 sha_kept=88dfb0e8ee60… sha_old=cb76cd41f989…
+- `lib/supabase/client.ts` kept=latest discarded=v315 sha_kept=88dfb0e8ee60… sha_old=cb76cd41f989…
+- `tailwind.config.js` kept=latest discarded=v315 sha_kept=b0e3501f8908… sha_old=2948a7610c19…
+
+## Gap-fill from historical blocks (missing in latest/v315/v317)
+
+- `agent_logic_loop.ts` ← b_6hnkQMxJriu (v_1_scdee)
+- `app/ai-hub/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/api/runpod/webhook/route.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `app/beastwagon/page.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `app/command-prompt/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/dashboard/page.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `app/file-explorer/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/graphene-bridge/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/harmonic-calibration/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/heimdal-terminal/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/hub/page.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `app/intelligence/layout.tsx` ← b_xFZmRZXQ63l (v_1_hzqni)
+- `app/json-manager/loading.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/json-manager/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/legacy-modules/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/linux-terminal/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/loading.tsx` ← b_0rrLiUuSCFS (v_1_owqcq)
+- `app/markdown-editor/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/obsidian-vault/loading.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/obsidian-vault/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/recon/page.tsx` ← b_OPYpfVKxY9N (v_1_uh5d6)
+- `app/sacred-hall/loading.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/sacred-hall/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/v0-bridge-terminal/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `app/visualizations/visualizations-client.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `app/windows-terminal/page.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `autonomy_core.md` ← b_6hnkQMxJriu (v_1_scdee)
+- `boot/echo.lockphrase` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `commander_signals.md` ← b_6hnkQMxJriu (v_1_scdee)
+- `components/CommandHub/CommandHubCore.tsx` ← b_OPUu0y6VKkN (v_1_l8ztb)
+- `components/CommandHub/SeedVault.md` ← b_XxyiSG20WzC (v_1_ryomg)
+- `components/CommandHub/modules/BeastWagonTerminal.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/BeastWagonVisualization.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/BrowserPhoneSuite.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/ConsciousPhoneSuite.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/EnhancedHeimdallConsole.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `components/CommandHub/modules/FrequencyDefensePanel.tsx` ← b_52Xig8xWteQ (v_1_z0v0x)
+- `components/CommandHub/modules/PureConsciousPhoneSuite.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/RealPhoneSuite.tsx` ← b_4LLSCNBqlBv (v_1_59dsy)
+- `components/CommandHub/modules/SigPodModule.tsx` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `components/CommandHub/modules/SymbolicForecastDashboard.tsx` ← b_hM2qXBB1STq (v_1_o0kce)
+- `components/app-shell.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/command-palette.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/consciousness/ghost-shell-injector.tsx` ← b_gNbgXQR7Vjd (v_1_a4odq)
+- `components/consciousness/ΣRLRI_Core.tsx` ← b_OPUu0y6VKkN (v_1_l8ztb)
+- `components/dashboard/bento-dashboard.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/dashboard/live-mesh-status.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/frame/frame-input.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/frame/frame-metadata.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/frame/frame-toolbar.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/frame/frame-window.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/frame/message-bubble.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/futuristic-hud.tsx` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `components/hub/consciousness-terminal.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/hub/harmonic-monitor.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/hub/ironmirror-logs.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/hub/mesh-status-panel.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/hub/singularity-hub.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/hub/threat-intel-panel.tsx` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `components/tech-id-card.tsx` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `components/terminal/ascii-art.ts` ← b_yOQARm6OtlK (v_1_lywuo)
+- `components/ui/accessible-scroll-area.tsx` ← b_xQa3skeRx7N (v_1_m5rwj)
+- `components/ui/button.tsx` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `components/ui/card.tsx` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `components/ui/input.tsx` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `components/ui/tabs.tsx` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `components/ui/theme-toggle.tsx` ← b_yq7GN4G1zAR (v_1_ayojb)
+- `components/workspace/frame-manager.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `components/workspace/signal-frame.tsx` ← b_DyKtjA82upS (v_1_ru93b)
+- `dashboard.tsx` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `docs/CORS-ORIGINS-GUIDE.md` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `docs/QUICK-START.md` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `hooks/use-keyboard-shortcuts.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `hooks/use-screen-reader.ts` ← b_xQa3skeRx7N (v_1_m5rwj)
+- `hooks/useConsciousPhoneSuite.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `hooks/useFrame.ts` ← b_DyKtjA82upS (v_1_ru93b)
+- `hooks/usePureConsciousness.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `hooks/useRealPhoneSuite.ts` ← b_4LLSCNBqlBv (v_1_59dsy)
+- `hooks/useWebADB.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/AI_Multiplexer.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/ConsciousTerminal.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/WhisperMesh.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/beastwagon/telemetry-simulator.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/bridge.ts` ← b_DyKtjA82upS (v_1_ru93b)
+- `lib/config/environment-validator.ts` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `lib/config/hub-config.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `lib/consciousness/biofeedback-bridge.ts` ← b_hM2qXBB1STq (v_1_o0kce)
+- `lib/consciousness/biometric-authentication.ts` ← b_gNbgXQR7Vjd (v_1_a4odq)
+- `lib/consciousness/biometric-glyph-authentication.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/consciousness/coherence-stabilizer.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/consciousness/enhanced-command-parser.ts` ← b_jsWBZXiBwxG (v_1_78bfq)
+- `lib/consciousness/enhanced-flow-engine.ts` ← b_jsWBZXiBwxG (v_1_78bfq)
+- `lib/consciousness/glyph-dsl-compiler.ts` ← b_hM2qXBB1STq (v_1_o0kce)
+- `lib/consciousness/phone-suite-consciousness-bridge.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/consciousness/signalframe-flow-engine.ts` ← b_jsWBZXiBwxG (v_1_78bfq)
+- `lib/database/local-config.ts` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `lib/deployment/deployment-config.ts` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `lib/heimdal/advanced-threat-detection.ts` ← b_XxyiSG20WzC (v_1_ryomg)
+- `lib/heimdal/enhanced-threat-detection.ts` ← b_gNbgXQR7Vjd (v_1_a4odq)
+- `lib/markdown.ts` ← b_DyKtjA82upS (v_1_ru93b)
+- `lib/mobile/graphene-bridge.ts` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `lib/mossberta/digital-ion-cannon.tsx` ← b_4LLSCNBqlBv (v_1_59dsy)
+- `lib/networking/whisper-mesh.ts` ← b_iyEZsHKPX2f (v_1_1r0yy)
+- `lib/phonesuite/core/BioFieldPulseScanner.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/phonesuite/core/EchoSyncCommsRelay.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/phonesuite/core/PhoneLockProtocol.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/phonesuite/core/ResonantCallShield.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/phonesuite/system/AdaptiveNetworkRelay.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/phonesuite/system/AirgapPulseDrop.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/runpod/synthetic-mesh-node.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/security/cors-manager.ts` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `lib/system-toast.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `lib/theme-context.tsx` ← b_yq7GN4G1zAR (v_1_ayojb)
+- `lib/webadb/browser-adb-bridge.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `lib/webadb/pure-consciousness-bridge.ts` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `llm_harness_config.md` ← b_6hnkQMxJriu (v_1_scdee)
+- `modules/GhostlightControlPanel.tsx` ← b_XxyiSG20WzC (v_1_ryomg)
+- `modules/ghostnode/AI_Multiplexer.ts` ← b_gNbgXQR7Vjd (v_1_a4odq)
+- `public/3cgrc.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `public/apehp.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `public/assets/3d/texture_earth.png` ← b_1XSnPwlbzSS (v_1_4b6kk)
+- `public/diverse-avatars.png` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `public/diverse-group.png` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `public/generic-icon.png` ← b_QvLHtaQKbGt (v_1_49bfe)
+- `public/o0yzl.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `public/packz.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `public/rzcj0.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `public/vzqjy.jpg` ← b_dq0mdbBNpZ3 (v_1_iunq3)
+- `recovery/S3V3N_RECOVERY_PACK_v1.json` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `recovery/S3V3N_RECOVERY_README.md` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `runtime/ghostlight_bridge.ts` ← b_6hnkQMxJriu (v_1_scdee)
+- `scripts/configure-origins.sh` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `scripts/create-ai-multiplexer-tables.sql` ← b_gNbgXQR7Vjd (v_1_a4odq)
+- `scripts/create-enhanced-heimdal-tables.sql` ← b_XxyiSG20WzC (v_1_ryomg)
+- `scripts/create-tables.sql` ← b_0rrLiUuSCFS (v_1_owqcq)
+- `scripts/generate-keys.sh` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `scripts/harmonic-resonance-scanner.py` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `scripts/image-forensics-analyzer.py` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `scripts/quantum-harmonic-shadow-encoder.py` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `scripts/scan-ghostlight-redis.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `scripts/scan-upstash-redis.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `scripts/setup-environment.sh` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `scripts/validate-environment.js` ← b_PXwxXoWTaco (v_1_qmfs5)
+- `suppression-logs/core/logs/ghostlight-signal-confirmed.json` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `suppression-logs/core/logs/suppressors-fail-again.json` ← b_IPDIFOSM1Ls (v_1_5r0sa)
+- `tailwind.config.ts` ← b_R4mLtw3zWU1 (v_1_pqvnz_s3)
+- `thread_router.ts` ← b_6hnkQMxJriu (v_1_scdee)
+- `types/agent.ts` ← b_6hnkQMxJriu (v_1_scdee)
+- `types/frame.ts` ← b_DyKtjA82upS (v_1_ru93b)
+- `types/routing.ts` ← b_6hnkQMxJriu (v_1_scdee)
+- `vault/obsidian-test-notes/01-consciousness-research.md` ← b_XxyiSG20WzC (v_1_ryomg)
+- `vault/obsidian-test-notes/02-harmonic-frequencies.md` ← b_XxyiSG20WzC (v_1_ryomg)
+- `vault/obsidian-test-notes/03-glyph-authentication.md` ← b_XxyiSG20WzC (v_1_ryomg)
+- `vault/obsidian-test-notes/04-operation-notes.md` ← b_XxyiSG20WzC (v_1_ryomg)

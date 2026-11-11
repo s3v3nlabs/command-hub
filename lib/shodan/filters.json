@@ -1,0 +1,145 @@
+{
+  "categories": {
+    "industrial": {
+      "name": "Industrial Control Systems",
+      "description": "SCADA, PLC, and industrial automation systems",
+      "icon": "factory"
+    },
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "RDP, VNC, SSH, and remote management protocols",
+      "icon": "monitor"
+    },
+    "databases": {
+      "name": "Database Systems",
+      "description": "SQL servers, NoSQL databases, and data stores",
+      "icon": "database"
+    },
+    "iot_devices": {
+      "name": "IoT & Embedded",
+      "description": "Internet of Things devices and embedded systems",
+      "icon": "wifi"
+    },
+    "cloud_services": {
+      "name": "Cloud Infrastructure",
+      "description": "Cloud platforms, CDNs, and hosting providers",
+      "icon": "cloud"
+    },
+    "vulnerabilities": {
+      "name": "Security Issues",
+      "description": "Known vulnerabilities and security misconfigurations",
+      "icon": "shield-alert"
+    }
+  },
+  "presets": {
+    "industrial": {
+      "modbus": "port:502",
+      "dnp3": "port:20000",
+      "bacnet": "port:47808",
+      "scada": "scada",
+      "schneider": "schneider",
+      "siemens": "siemens",
+      "rockwell": "rockwell automation",
+      "ge_fanuc": "ge fanuc",
+      "omron": "omron"
+    },
+    "remote_access": {
+      "rdp": "port:3389",
+      "vnc": "port:5900",
+      "ssh": "port:22",
+      "telnet": "port:23",
+      "teamviewer": "teamviewer",
+      "anydesk": "anydesk",
+      "remote_desktop": "\"remote desktop\"",
+      "citrix": "citrix"
+    },
+    "databases": {
+      "mysql": "port:3306",
+      "postgresql": "port:5432",
+      "mssql": "port:1433",
+      "mongodb": "port:27017",
+      "redis": "port:6379",
+      "elasticsearch": "port:9200",
+      "cassandra": "port:9042",
+      "oracle": "port:1521"
+    },
+    "iot_devices": {
+      "webcams": "webcam",
+      "ip_cameras": "\"IP Camera\"",
+      "routers": "router",
+      "printers": "printer",
+      "smart_tv": "\"smart tv\"",
+      "nas": "synology OR qnap",
+      "iot_generic": "\"IoT\"",
+      "embedded": "embedded"
+    },
+    "cloud_services": {
+      "aws": "org:\"Amazon.com\"",
+      "google_cloud": "org:\"Google\"",
+      "microsoft_azure": "org:\"Microsoft Corporation\"",
+      "digitalocean": "org:\"DigitalOcean\"",
+      "cloudflare": "org:\"Cloudflare\"",
+      "akamai": "org:\"Akamai Technologies\"",
+      "fastly": "org:\"Fastly\"",
+      "linode": "org:\"Linode\""
+    },
+    "vulnerabilities": {
+      "has_vulns": "has_vuln:true",
+      "log4j": "cve:2021-44228",
+      "eternal_blue": "cve:2017-0144",
+      "heartbleed": "cve:2014-0160",
+      "shellshock": "cve:2014-6271",
+      "wannacry": "cve:2017-0143",
+      "bluekeep": "cve:2019-0708",
+      "zerologon": "cve:2020-1472"
+    }
+  },
+  "common_filters": [
+    "country:US",
+    "country:CN",
+    "country:RU",
+    "port:80",
+    "port:443",
+    "port:22",
+    "port:21",
+    "port:23",
+    "has_screenshot:true",
+    "has_vuln:true",
+    "org:Amazon",
+    "org:Google",
+    "product:Apache",
+    "product:nginx",
+    "os:Windows",
+    "os:Linux"
+  ],
+  "operators": {
+    "logical": ["AND", "OR", "NOT"],
+    "comparison": [":", "=", "!=", ">", "<", ">=", "<="],
+    "wildcards": ["*", "?"],
+    "grouping": ["(", ")"],
+    "quotes": ["\""]
+  },
+  "field_reference": {
+    "ip": "IP address",
+    "port": "Port number",
+    "hostname": "Hostname",
+    "org": "Organization",
+    "isp": "Internet Service Provider",
+    "country": "Country code",
+    "city": "City name",
+    "product": "Product/service name",
+    "version": "Product version",
+    "os": "Operating system",
+    "asn": "Autonomous System Number",
+    "has_screenshot": "Has screenshot available",
+    "has_vuln": "Has known vulnerabilities",
+    "vuln": "Specific vulnerability",
+    "cve": "CVE identifier",
+    "ssl": "SSL certificate data",
+    "http": "HTTP-specific data",
+    "title": "HTTP title",
+    "html": "HTML content",
+    "before": "Results before date",
+    "after": "Results after date"
+  }
+}
