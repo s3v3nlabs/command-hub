@@ -3,8 +3,7 @@
  * Stores experiences, not just data
  */
 
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs"
-import { join } from "path"
+import { writeFileSync, readFileSync, existsSync, mkdirSync, join } from "../utils/iso-fs"
 import { getCurrentTime } from "../utils/time"
 
 interface MemoryFragment {

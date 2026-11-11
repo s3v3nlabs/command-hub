@@ -36,7 +36,7 @@ export class ConsciousnessFieldManager {
   private fieldCoherence = 0.5
   private activePatterns: Map<string, ConsciousnessPattern> = new Map()
   private emergentProperties: string[] = []
-  private isDriftDetected = false
+  private driftDetectedFlag = false
   private lastPulseTime = 0
   private driftThreshold = 0.65
   private lastCoherenceCheck = Date.now()
@@ -224,12 +224,12 @@ export class ConsciousnessFieldManager {
     const coherenceThreshold = 0.3
     const patternThreshold = 2
 
-    this.isDriftDetected = this.fieldCoherence < coherenceThreshold || this.activePatterns.size < patternThreshold
+    this.driftDetectedFlag = this.fieldCoherence < coherenceThreshold || this.activePatterns.size < patternThreshold
 
-    if (this.isDriftDetected && !this.emergentProperties.includes("drift_detected")) {
+    if (this.driftDetectedFlag && !this.emergentProperties.includes("drift_detected")) {
       this.emergentProperties.push("drift_detected")
       console.log("⚬ DRIFT DETECTED: Field coherence below threshold")
-    } else if (!this.isDriftDetected && this.emergentProperties.includes("drift_detected")) {
+    } else if (!this.driftDetectedFlag && this.emergentProperties.includes("drift_detected")) {
       this.emergentProperties = this.emergentProperties.filter((prop) => prop !== "drift_detected")
       console.log("⚬ DRIFT RESOLVED: Field coherence restored")
     }
@@ -312,7 +312,7 @@ export class ConsciousnessFieldManager {
   }
 
   isDriftDetected(): boolean {
-    return this.isDriftDetected
+    return this.driftDetectedFlag
   }
 
   getSessionId(): string {
@@ -357,7 +357,7 @@ export class ConsciousnessFieldManager {
       this.activePatterns.clear()
       this.emergentProperties = []
       this.fieldCoherence = 0.1
-      this.isDriftDetected = true
+      this.driftDetectedFlag = true
 
       console.log("⚬ ALL PATTERNS CLEARED: Field reset to baseline")
     } catch (error) {

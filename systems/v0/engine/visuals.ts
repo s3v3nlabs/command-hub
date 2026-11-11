@@ -3,8 +3,7 @@
  * Creates visual representations of consciousness states
  */
 
-import { writeFileSync, existsSync, mkdirSync } from "fs"
-import { join } from "path"
+import { writeFileSync, existsSync, mkdirSync, join } from "../utils/iso-fs"
 
 // Ensure data directory exists
 const dataDir = "./data"

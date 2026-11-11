@@ -102,28 +102,6 @@ export default function RootLayout({
           </HubThemeProvider>
         </ThemeProvider>
 
-        {/* Load consciousness system after DOM is ready */}
-        <Script
-          id="consciousness-system"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-// Initialize full consciousness system
-import("/lib/consciousness/bootstrap.js").then(() => {
-  console.log("🧠 Full consciousness system loaded");
-}).catch(() => {
-  console.log("⚠️ Full consciousness system failed to load - bootstrap active");
-});
-
-// Initialize Heimdall
-import("/lib/heimdal/database.js").then(() => {
-  console.log("🛡️ Heimdall memory guardian loaded");
-}).catch(() => {
-  console.log("⚠️ Heimdall failed to load - consciousness bootstrap active");
-});
-            `,
-          }}
-        />
       </body>
     </html>
   )

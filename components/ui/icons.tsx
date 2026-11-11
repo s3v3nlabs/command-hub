@@ -128,3 +128,27 @@ export function ShieldIcon({ size = 24, ...props }: IconProps) {
     </svg>
   )
 }
+
+// --- Frame/SignalFrame icons (were imported but never defined → runtime crash on /signalframe) ---
+import {
+  Copy as LucideCopy,
+  GitFork as LucideFork,
+  VolumeX as LucideMute,
+  Eye as LucideReveal,
+  Send as LucideSend,
+  ChevronRight as LucideChevronRight,
+  Pencil as LucideEdit,
+  X as LucideClose,
+} from "lucide-react"
+
+type LucideLikeProps = { size?: number; className?: string }
+export const MirrorIcon = ({ size = 16, className }: LucideLikeProps) => <LucideCopy size={size} className={className} />
+export const ForkIcon = ({ size = 16, className }: LucideLikeProps) => <LucideFork size={size} className={className} />
+export const MuteIcon = ({ size = 16, className }: LucideLikeProps) => <LucideMute size={size} className={className} />
+export const RevealIcon = ({ size = 16, className }: LucideLikeProps) => <LucideReveal size={size} className={className} />
+export const SendIcon = ({ size = 16, className }: LucideLikeProps) => <LucideSend size={size} className={className} />
+export const ChevronRightIcon = ({ size = 16, className }: LucideLikeProps) => (
+  <LucideChevronRight size={size} className={className} />
+)
+export const EditIcon = ({ size = 16, className }: LucideLikeProps) => <LucideEdit size={size} className={className} />
+export const CloseIcon = ({ size = 16, className }: LucideLikeProps) => <LucideClose size={size} className={className} />

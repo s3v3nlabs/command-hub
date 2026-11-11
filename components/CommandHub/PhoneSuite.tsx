@@ -202,8 +202,11 @@ export default function PhoneSuite() {
         throw new Error(data.error || "Failed to scan for devices")
       }
 
-      setDevices(data.devices)
-      if (data.devices.length > 0 && !selectedDevice) {
+      setDevices(data.devices || [])
+      if (data.adbAvailable === false) {
+        setError(data.hint || "adb not available on this machine")
+      }
+      if ((data.devices || []).length > 0 && !selectedDevice) {
         setSelectedDevice(data.devices[0])
       }
     } catch (error) {

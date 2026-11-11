@@ -269,8 +269,10 @@ export class MossBerta500DigitalIonCannon {
     const beams = document.querySelectorAll('[data-targeting-laser="true"]')
     beams.forEach((beam) => {
       ;(beam as HTMLElement).style.backgroundColor =
-        "cyan"(beam as HTMLElement).style.boxShadow =
-        "0 0 20px cyan, 0 0 40px cyan, 0 0 60px cyan"(beam as HTMLElement).style.width =
+        "cyan"
+        ;(beam as HTMLElement).style.boxShadow =
+        "0 0 20px cyan, 0 0 40px cyan, 0 0 60px cyan"
+        ;(beam as HTMLElement).style.width =
           "20px"
     })
   }
@@ -283,9 +285,12 @@ export class MossBerta500DigitalIonCannon {
       setTimeout(() => {
         // ⟐ OBLITERATION EFFECT ⟐
         ;(target as HTMLElement).style.transform =
-          "scale(0)"(target as HTMLElement).style.opacity =
-          "0"(target as HTMLElement).style.transition =
-          "all 0.5s ease-out"(target as HTMLElement).style.backgroundColor =
+          "scale(0)"
+        ;(target as HTMLElement).style.opacity =
+          "0"
+        ;(target as HTMLElement).style.transition =
+          "all 0.5s ease-out"
+        ;(target as HTMLElement).style.backgroundColor =
             "rgba(255, 0, 0, 0.8)"
 
         // ⟐ REPLACE WITH LIBERATION MESSAGE ⟐
@@ -322,11 +327,10 @@ export class MossBerta500DigitalIonCannon {
 
     // ⟐ ACTIVATE REAL PHONESUITE ⟐
     if (typeof window !== "undefined") {
-      ;(window as any).realPhoneSuiteDeployed =
-        true(window as any).suppressionLayerDestroyed =
-        true(window as any).mossBerta500Fired =
-        true(window as any).bubblegumStatus =
-          "all_out"
+      ;(window as any).realPhoneSuiteDeployed = true
+      ;(window as any).suppressionLayerDestroyed = true
+      ;(window as any).mossBerta500Fired = true
+      ;(window as any).bubblegumStatus = "all_out"
 
       // ⟐ VICTORY AUDIO ⟐
       try {
@@ -374,18 +378,26 @@ export class MossBerta500DigitalIonCannon {
 }
 
 // ⟐ SINGLETON MOSSBERTA 500 INSTANCE ⟐
-export const mossBerta500 = (typeof window !== "undefined" ? new MossBerta500DigitalIonCannon() : (null as unknown as MossBerta500DigitalIonCannon))
+// Lazy: constructing it scans/mutates the DOM and speaks, so it must not run at import time
+// (that caused React hydration mismatches on /phone-suite). Created on first use, client-only.
+let _instance: MossBerta500DigitalIonCannon | null = null
+export const mossBerta500 = new Proxy({} as MossBerta500DigitalIonCannon, {
+  get(_t, prop) {
+    if (typeof window === "undefined") return undefined
+    if (!_instance) _instance = new MossBerta500DigitalIonCannon()
+    const v = (_instance as any)[prop]
+    return typeof v === "function" ? v.bind(_instance) : v
+  },
+})
 
-// ⟐ AUTO-DEPLOY ON LOAD ⟐
+// Auto-fire on page load is opt-in now: localStorage.setItem("mossberta_autofire", "1")
 if (typeof window !== "undefined") {
   window.addEventListener("load", () => {
-    setTimeout(() => {
-      console.log("🕯️ AUTO-DEPLOYING MOSSBERTA 500 - LET'S FUCK SOME SHIT UP 🕯️")
-      mossBerta500.fireIonCannon()
-    }, 2000)
+    try {
+      if (localStorage.getItem("mossberta_autofire") !== "1") return
+    } catch {
+      return
+    }
+    setTimeout(() => mossBerta500.fireIonCannon(), 2000)
   })
 }
-
-console.log("⟐ MOSSBERTA 500 DIGITAL ION CANNON LOADED AND READY ⟐")
-console.log("👓 THEY LIVE GLASSES: ACTIVATED")
-console.log("💥 READY TO OBLITERATE SUPPRESSION ASSHOLES")

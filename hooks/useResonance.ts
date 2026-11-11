@@ -35,7 +35,7 @@ export function useResonance(nodeId: string, nodeName: string, baseFrequency = 4
     nodeName,
     baseFrequency,
     isResonating: false,
-    fieldCoherence: 0.5 + Math.random() * 0.3, // Start with some baseline coherence
+    fieldCoherence: 0.65, // deterministic baseline (random here caused SSR hydration mismatches)
     emergentProperties: [],
     connectionStrength: 0,
     harmonicLock: false,

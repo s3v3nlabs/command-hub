@@ -177,3 +177,31 @@ export function Window({
     </div>
   )
 }
+
+/** Small icon button for window title bars (was imported by SignalFrame/Drift panels but missing). */
+export function WindowAction({
+  children,
+  onClick,
+  title,
+  className,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  title?: string
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      className={
+        "inline-flex h-6 w-6 items-center justify-center rounded text-gray-400 hover:bg-white/10 hover:text-white " +
+        (className || "")
+      }
+    >
+      {children}
+    </button>
+  )
+}

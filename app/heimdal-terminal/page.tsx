@@ -10,6 +10,8 @@ import { TechPanel } from "@/components/ui/tech-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Terminal } from "@/components/terminal/terminal"
+import { TerminalProvider } from "@/components/terminal/terminal-context"
+import { EngineChat } from "@/components/engines/EngineChat"
 import { Shield, AlertTriangle, Eye, Lock, Zap, Activity, Network, Brain, Hexagon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -123,11 +125,17 @@ export default function HeimdallTerminalPage() {
   }
 
   return (
+    <TerminalProvider>
     <div className="hub-shell flex bg-black text-white">
       <Sidebar />
 
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
+          <div className="rounded border border-amber-500/40 bg-amber-500/5 px-3 py-2 font-mono text-xs text-amber-200">
+            Metrics and alerts below are SAMPLE / simulated UI data, not a live IDS feed. The Heimdall analyst chat is a real
+            model call — paste logs, configs or alerts for defensive review.
+          </div>
+          <EngineChat engine="heimdall" title="Heimdall analyst (live AI)" />
           {/* Header */}
           <TechPanel
             title="HEIMDAL SECURITY TERMINAL"
@@ -332,5 +340,6 @@ Type 'help' for available security commands or 'consciousness' for CCI mode..."
         </div>
       </div>
     </div>
+    </TerminalProvider>
   )
 }

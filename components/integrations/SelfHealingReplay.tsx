@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Select, SelectItem } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
 type ReplayEntry = {
@@ -39,11 +39,16 @@ export function SelfHealingReplay() {
       <div className="space-y-2">
         <Label>Select Fix to Preview</Label>
         <Select onValueChange={(id) => setSelected(MOCK_APPROVED_FIXES.find((f) => f.id === id) || null)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose a fix (sample data)" />
+          </SelectTrigger>
+          <SelectContent>
           {MOCK_APPROVED_FIXES.map((entry) => (
             <SelectItem key={entry.id} value={entry.id}>
               [{entry.module}] — {entry.suggestion.slice(0, 40)}...
             </SelectItem>
           ))}
+          </SelectContent>
         </Select>
       </div>
 
