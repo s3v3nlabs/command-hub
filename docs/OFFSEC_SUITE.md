@@ -21,6 +21,8 @@ hardware-gated or interception/spoofing-class capabilities are honest WIP shells
 | Data toolkit / Hash-ID | `/offsec/toolkit` | CyberChef-style transforms + hash identifier, 100% client-side/offline. |
 | Privacy stack | `/offsec/privacy` | Proton VPN CLI / Bridge / Mail / reverse-alias, proxychains, reverse proxy, encrypted messaging — documented setup + env/status checks. No credentials stored in repo. |
 | Bug bounty | `/bounty` | Program / disclosure tracker (pre-existing, kept). |
+| Hardware & RF | `/offsec/hardware` | Local launcher/config/reference panels for Bluetooth (BlueZ/bettercap/Ubertooth), CAN bus (can-utils/cantools), USB/HID (DuckyScript generator + BadUSB heuristic detector + lsusb), LAN capture (tcpdump/tshark/netsniff-ng), Shodan + Censys FULL server-side search, VoIP (sngrep/Asterisk ref), SDR (rtl-sdr/HackRF/GNU Radio), Flipper Zero (real) + Flipper One (PREDICTED/UNRELEASED). Drives operator-owned hardware; auto-runs nothing. |
+| Phone Suite | `/offsec/phone` | scrcpy + ADB mirror/control/forensics for YOUR authorized Android device. Hub `/api/adb/*` gated by HUB_API_TOKEN (SECURE_MODE) and ADB shell behind ADB_SHELL_ENABLED=1 + arg allowlist. No call interception / audio injection. |
 
 Command builders only render text to copy into the operator's own authorized terminal; the UI executes
 nothing. The tool-detection API takes no client input and runs only `which` against a fixed list.
@@ -35,5 +37,7 @@ prefers REAL launcher/config/reference panels that drive the operator's own loca
 hook is not feasible in this environment.
 
 ## Secrets
-No secrets in git. `.env.example` holds empty var NAMES only. `data/`, vaults, and engagement data are
+Shodan (`SHODAN_API_KEY`) and Censys (`CENSYS_API_ID`/`CENSYS_API_SECRET`) keys are read server-side only and
+never shipped to the browser; `/api/shodan/*` and `/api/censys/*` require hub auth in SECURE_MODE and block
+loopback/RFC1918/link-local/metadata IPs. No secrets in git. `.env.example` holds empty var NAMES only. `data/`, vaults, and engagement data are
 gitignored. Public repo stays gitleaks-clean.

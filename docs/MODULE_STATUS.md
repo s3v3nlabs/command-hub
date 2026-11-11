@@ -160,3 +160,13 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 - Heimdall IDS: file-backed ring at `local-data/heimdall-ids/` + `/api/security/ids/ingest`.
 - hub-config placeholders emptied; biofeedback `eval` removed; fake base64 encrypt → 501.
 - See `SECURITY.md` for operator env and `docs/DEPENDENCY_NOTES.md` for package upgrades.
+
+## Hardware / RF suite (Workstream B, 2026-11-11)
+- `/offsec/hardware` — Bluetooth, CAN bus, USB/HID (DuckyScript generator + BadUSB heuristic detector),
+  LAN capture, Shodan+Censys (server-side), VoIP, SDR, Flipper Zero (real) + Flipper One (PREDICTED/UNRELEASED).
+  REAL local launcher/config/reference panels + command builders. Auto-runs nothing.
+- `/offsec/phone` — scrcpy + ADB workflows for the operator's OWN authorized device. ADB API routes gated.
+- Server-side intel: `/api/shodan/{search,host,dns,count,internetdb,status}` and
+  `/api/censys/{search,host,status}`. Keys server-only; hub-auth gated in SECURE_MODE; SSRF-blocked IPs.
+- Honest WIP shells remain: call interception / audio injection, IMSI-catcher / Stingray-class — never shipped functional.
+- New libs: `lib/offsec/hardware.ts`, `lib/offsec/duckyscript.ts`, `lib/censys/server.ts`.

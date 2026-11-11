@@ -339,6 +339,8 @@ const navigationItems: NavItem[] = [
       { title: "Privacy Stack", href: "/offsec/privacy", icon: ShieldCheck },
       { title: "Engagements", href: "/offsec/engagements", icon: FileText, status: "new" },
       { title: "Bug Bounty", href: "/bounty", icon: Bug },
+      { title: "Hardware & RF", href: "/offsec/hardware", icon: Radio, status: "new" },
+      { title: "Phone Suite", href: "/offsec/phone", icon: Smartphone, status: "new" },
       { title: "WIP Lab", href: "/offsec/lab", icon: Wrench, status: "beta" },
     ],
   },

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server"
 import { execFile } from "child_process"
 import { promisify } from "util"
 import { allBins } from "@/lib/offsec/arsenal"
+import { hardwareBins } from "@/lib/offsec/hardware"
 
 const run = promisify(execFile)
 
@@ -25,10 +26,8 @@ async function detect(bin: string): Promise<string | null> {
 }
 
 export async function GET() {
-  const bins = allBins()
-  const results = await Promise.all(
-    bins.map(async (b) => [b, await detect(b)] as const),
-  )
+  const bins = [...new Set([...allBins(), ...hardwareBins()])].sort()
+  const results = await Promise.all(bins.map(async (b) => [b, await detect(b)] as const))
   const present: Record<string, string> = {}
   for (const [b, p] of results) if (p) present[b] = p
   return NextResponse.json({
