@@ -10,14 +10,42 @@ import { Download, Settings, Eye, EyeOff, Layers, Search, Zap, Target, Satellite
 
 import dynamic from "next/dynamic"
 
-const KeplerGlReal = dynamic(() => import("@/components/maps/kepler-gl-real"), {
+const GeoMap = dynamic(() => import("@/components/maps/GeoMap"), {
   ssr: false,
   loading: () => (
     <div className="absolute inset-0 flex items-center justify-center bg-black text-cyan-400 font-mono text-xs">
-      LOADING KEPLER.GL…
+      LOADING MAP…
     </div>
   ),
 })
+
+/** Kepler-style dataset ({ info, data: { fields, rows } }) -> GeoJSON points for GeoMap. */
+function datasetToCollection(ds: any) {
+  const fields: string[] = (ds?.data?.fields || []).map((f: any) => f.name)
+  const idx = (...names: string[]) => names.map((n) => fields.indexOf(n)).find((i) => i >= 0) ?? -1
+  const iLat = idx("latitude", "lat"), iLng = idx("longitude", "lng", "lon"), iName = idx("name"), iType = idx("type")
+  const iConf = idx("confidence"), iThreat = idx("threat_level", "threatLevel", "severity")
+  const features = (ds?.data?.rows || [])
+    .map((row: any[]) => {
+      if (row[iLat] == null || row[iLng] == null || row[iLat] === "" || row[iLng] === "") return null
+      const lat = Number(row[iLat]), lng = Number(row[iLng])
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+      const conf = Number(row[iConf])
+      return {
+        type: "Feature" as const,
+        properties: {
+          name: String(row[iName] ?? "entity"),
+          type: row[iType],
+          category: "upload",
+          severity: String(row[iThreat] ?? "medium"),
+          weight: Number.isFinite(conf) ? conf : 0.5,
+        },
+        geometry: { type: "Point", coordinates: [lng, lat] },
+      }
+    })
+    .filter(Boolean)
+  return { type: "FeatureCollection" as const, features }
+}
 
 
 interface KeplerModuleProps {
@@ -48,7 +76,7 @@ export default function KeplerModule({
   const [activeTab, setActiveTab] = useState("map")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
-  const [mapBackend, setMapBackend] = useState<"tactical" | "osm" | "kepler">("tactical")
+  const [mapBackend, setMapBackend] = useState<"geo" | "tactical" | "osm">("geo")
   const mapboxToken =
     typeof process !== "undefined" ? process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim() || "" : ""
   const hasMapbox = Boolean(mapboxToken && mapboxToken.startsWith("pk."))
@@ -69,11 +97,7 @@ export default function KeplerModule({
       setActiveDatasets(formattedDatasets)
     }
 
-    // Prefer real Kepler when Mapbox token is present; otherwise keep stub backends.
-    const timer = setTimeout(() => {
-      setIsLoaded(true)
-      if (hasMapbox) setMapBackend("kepler")
-    }, hasMapbox ? 200 : 800)
+    const timer = setTimeout(() => setIsLoaded(true), 150)
 
     return () => clearTimeout(timer)
   }, [datasets, hasMapbox])
@@ -160,9 +184,16 @@ export default function KeplerModule({
                 }`}
               >
                 <AlertTriangle className="w-3 h-3 mr-1" />
-                {hasMapbox ? "MAPBOX · KEPLER.GL LIVE" : "NO MAPBOX · kepler.gl STUB"}
+                {hasMapbox ? "MAPBOX + DECK.GL" : "MAPLIBRE (CARTO/OSM) + DECK.GL"}
               </Badge>
               <div className="flex rounded border border-white/10 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setMapBackend("geo")}
+                  className={`px-2 py-1 text-[10px] font-mono ${mapBackend === "geo" ? "bg-violet-500/20 text-violet-300" : "text-gray-400"}`}
+                >
+                  GEO
+                </button>
                 <button
                   type="button"
                   onClick={() => setMapBackend("tactical")}
@@ -177,15 +208,6 @@ export default function KeplerModule({
                 >
                   OSM
                 </button>
-                {hasMapbox && (
-                  <button
-                    type="button"
-                    onClick={() => setMapBackend("kepler")}
-                    className={`px-2 py-1 text-[10px] font-mono ${mapBackend === "kepler" ? "bg-violet-500/20 text-violet-300" : "text-gray-400"}`}
-                  >
-                    KEPLER
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -229,13 +251,15 @@ export default function KeplerModule({
                     </div>
                   </div>
                 </div>
-              ) : mapBackend === "kepler" && hasMapbox ? (
+              ) : mapBackend === "geo" ? (
                 <div className="absolute inset-0 bg-black rounded-lg overflow-hidden">
-                  <KeplerGlReal
-                    datasets={activeDatasets.filter((d) => d.visible).map((d) => d.data)}
-                    mapboxToken={mapboxToken}
-                    onNodeSelect={onNodeSelect}
-                    className="h-full w-full"
+                  <GeoMap
+                    height="100%"
+                    defaultPacks={["usgs-earthquakes", "feodo-c2-by-country"]}
+                    collections={activeDatasets
+                      .filter((d) => d.visible)
+                      .map((d) => ({ id: d.id, label: d.name, data: datasetToCollection(d.data) as any }))}
+                    onSelect={(f) => onNodeSelect?.(f.properties)}
                   />
                 </div>
               ) : mapBackend === "osm" ? (
@@ -254,7 +278,7 @@ export default function KeplerModule({
                       Focus: {mapFocus.lat.toFixed(4)}, {mapFocus.lng.toFixed(4)}
                     </div>
                     <div className="text-amber-400/80 mt-1">
-                      Full kepler.gl requires NEXT_PUBLIC_MAPBOX_TOKEN + kepler.gl deps
+                      Use GEO for the full map with data packs
                     </div>
                   </div>
                   {selectedEntity && (

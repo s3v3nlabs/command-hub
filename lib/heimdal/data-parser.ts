@@ -222,8 +222,8 @@ class HeimdallDataParser {
         rows: parsedData.entities.map((entity) => [
           entity.name,
           entity.type,
-          entity.latitude || null,
-          entity.longitude || null,
+          entity.latitude ?? null,
+          entity.longitude ?? null,
           entity.confidence,
           JSON.stringify(entity.metadata),
           entity.source,

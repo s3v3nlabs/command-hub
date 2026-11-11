@@ -6,37 +6,7 @@ import { OrbitControls, Text } from "@react-three/drei"
 import * as THREE from "three"
 import { useTheme } from "next-themes"
 
-// Safe array creation helper
-const createSafeArray = (length: number) => {
-  const safeLength = Math.max(0, Math.floor(length) || 0)
-  return new Array(safeLength)
-}
 
-// Earth component with simplified approach - NO TEXTURE LOADING
-const Earth = () => {
-  const earthRef = useRef<THREE.Mesh>(null)
-
-  // Rotation animation
-  useFrame(({ clock }) => {
-    if (earthRef.current) {
-      earthRef.current.rotation.y = clock.getElapsedTime() * 0.1
-    }
-  })
-
-  // Create a simple earth with colors instead of textures
-  return (
-    <mesh ref={earthRef}>
-      <sphereGeometry args={[2, 32, 32]} />
-      <meshStandardMaterial
-        color="#1e3a8a"
-        emissive="#3b82f6"
-        emissiveIntensity={0.2}
-        roughness={0.7}
-        metalness={0.3}
-      />
-    </mesh>
-  )
-}
 
 // Threat point component
 const ThreatPoint = ({
@@ -78,163 +48,72 @@ const ThreatPoint = ({
   )
 }
 
-// Attack line component
-const AttackLine = ({
-  start,
-  end,
-  color = "#ef4444",
-  animate = true,
-}: {
-  start: [number, number, number]
-  end: [number, number, number]
-  color?: string
-  animate?: boolean
-}) => {
-  const lineRef = useRef<THREE.Line>(null)
-  const [progress, setProgress] = useState(0)
 
-  // Validate positions
-  const safeStart: [number, number, number] = [
-    isNaN(start[0]) ? 0 : start[0],
-    isNaN(start[1]) ? 0 : start[1],
-    isNaN(start[2]) ? 0 : start[2],
-  ]
+const toXYZ = (lng: number, lat: number, r: number): [number, number, number] => {
+  const la = (lat * Math.PI) / 180
+  const lo = (lng * Math.PI) / 180
+  return [r * Math.cos(la) * Math.cos(lo), r * Math.sin(la), -r * Math.cos(la) * Math.sin(lo)]
+}
 
-  const safeEnd: [number, number, number] = [
-    isNaN(end[0]) ? 0 : end[0],
-    isNaN(end[1]) ? 0 : end[1],
-    isNaN(end[2]) ? 0 : end[2],
-  ]
-
-  // Animation
-  useFrame(({ clock }) => {
-    if (animate) {
-      const time = clock.getElapsedTime()
-      setProgress((Math.sin(time) + 1) / 2) // 0 to 1
+// Real country outlines from the bundled Natural Earth data pack.
+const CountryOutlines = ({ geo }: { geo: any }) => {
+  const object = (() => {
+    const pos: number[] = []
+    const ring = (coords: number[][]) => {
+      for (let i = 0; i < coords.length - 1; i++) {
+        pos.push(...toXYZ(coords[i][0], coords[i][1], 2.005), ...toXYZ(coords[i + 1][0], coords[i + 1][1], 2.005))
+      }
     }
+    for (const f of geo?.features || []) {
+      const g = f.geometry
+      if (!g) continue
+      if (g.type === "Polygon") g.coordinates.forEach(ring)
+      else if (g.type === "MultiPolygon") g.coordinates.forEach((poly: number[][][]) => poly.forEach(ring))
+    }
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3))
+    return new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: "#7dd3fc", transparent: true, opacity: 0.55 }))
+  })()
+  return <primitive object={object} />
+}
+
+type GlobePoint = { id: string; position: [number, number, number]; severity: "low" | "medium" | "high" | "critical"; label: string }
+
+// Threat map scene: botnet C2s by country (abuse.ch Feodo Tracker) + strongest recent earthquakes (USGS),
+// both from the cached data packs in public/data-packs.
+const ThreatMapScene = () => {
+  const [threats, setThreats] = useState<GlobePoint[]>([])
+  const [countries, setCountries] = useState<any>(null)
+  const spin = useRef<THREE.Group>(null)
+
+  useFrame(({ clock }) => {
+    if (spin.current) spin.current.rotation.y = clock.getElapsedTime() * 0.1
   })
 
-  // Create points for the line
-  const startVec = new THREE.Vector3(...safeStart)
-  const endVec = new THREE.Vector3(...safeEnd)
-  const points = []
-
-  if (animate) {
-    // For animated lines, interpolate between start and end
-    const currentEnd = new THREE.Vector3().lerpVectors(startVec, endVec, progress)
-    points.push(startVec)
-    points.push(currentEnd)
-  } else {
-    // For static lines, just use start and end
-    points.push(startVec)
-    points.push(endVec)
-  }
-
-  // Create geometry safely
-  const geometry = new THREE.BufferGeometry().setFromPoints(points)
-
-  return (
-    <primitive ref={lineRef} object={new THREE.Line(geometry, new THREE.LineBasicMaterial({ color, linewidth: 1 }))} />
-  )
-}
-
-// Add continents to make the earth look more realistic without textures
-const Continents = () => {
-  // Simplified continent shapes
-  const continentData = [
-    // North America
-    { position: [0, 0.5, -1.8], scale: [0.8, 0.6, 0.1], rotation: [0, 0.5, 0] },
-    // South America
-    { position: [0.5, -0.5, -1.8], scale: [0.4, 0.7, 0.1], rotation: [0, 0.2, 0] },
-    // Europe
-    { position: [1.5, 0.8, -1.2], scale: [0.4, 0.3, 0.1], rotation: [0, -0.5, 0] },
-    // Africa
-    { position: [1.2, -0.2, -1.5], scale: [0.6, 0.8, 0.1], rotation: [0, -0.3, 0] },
-    // Asia
-    { position: [1.5, 0.5, -1.2], scale: [1, 0.8, 0.1], rotation: [0, -0.8, 0] },
-    // Australia
-    { position: [1.2, -1.2, -1.2], scale: [0.4, 0.3, 0.1], rotation: [0, -1, 0] },
-  ]
-
-  return (
-    <group>
-      {continentData.map((continent, index) => (
-        <mesh
-          key={index}
-          position={continent.position as [number, number, number]}
-          rotation={continent.rotation as [number, number, number]}
-        >
-          <boxGeometry args={[continent.scale[0], continent.scale[1], 0.01]} />
-          <meshStandardMaterial color="#2f855a" transparent opacity={0.8} />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
-// Threat map scene
-const ThreatMapScene = () => {
-  const [threats, setThreats] = useState<
-    Array<{
-      id: string
-      position: [number, number, number]
-      severity: "low" | "medium" | "high" | "critical"
-      target?: [number, number, number]
-    }>
-  >([])
-
-  // Generate threat data
   useEffect(() => {
-    try {
-      // Generate random threats (safely limited to 15)
-      const count = Math.min(15, Math.floor(Math.random() * 10) + 5)
-
-      const generatedThreats = createSafeArray(count)
-        .fill(null)
-        .map((_, i) => {
-          // Generate a random position on the sphere
-          const phi = Math.acos(2 * Math.random() - 1) - Math.PI / 2
-          const theta = 2 * Math.random() * Math.PI
-          const radius = 2.1 // Slightly larger than Earth radius
-
-          const x = radius * Math.cos(phi) * Math.cos(theta)
-          const y = radius * Math.sin(phi)
-          const z = radius * Math.cos(phi) * Math.sin(theta)
-
-          // Determine severity
-          const severities = ["low", "medium", "high", "critical"] as const
-          const severity = severities[Math.floor(Math.random() * severities.length)]
-
-          // Some threats have targets (attacks in progress)
-          const hasTarget = Math.random() > 0.5
-
-          let target: [number, number, number] | undefined = undefined
-
-          if (hasTarget) {
-            // Generate a random target position on the sphere
-            const targetPhi = Math.acos(2 * Math.random() - 1) - Math.PI / 2
-            const targetTheta = 2 * Math.random() * Math.PI
-
-            const tx = radius * Math.cos(targetPhi) * Math.cos(targetTheta)
-            const ty = radius * Math.sin(targetPhi)
-            const tz = radius * Math.cos(targetPhi) * Math.sin(targetTheta)
-
-            target = [tx, ty, tz]
-          }
-
-          return {
-            id: `threat-${i}`,
-            position: [x, y, z] as [number, number, number],
-            severity,
-            target,
-          }
-        })
-
-      setThreats(generatedThreats)
-    } catch (error) {
-      console.error("Error generating threats:", error)
-      // Fallback to empty array
-      setThreats([])
+    let alive = true
+    const get = (u: string) => fetch(u).then((r) => (r.ok ? r.json() : { features: [] })).catch(() => ({ features: [] }))
+    Promise.all([
+      get("/data-packs/natural-earth-countries.geojson"),
+      get("/data-packs/feodo-c2-by-country.geojson"),
+      get("/data-packs/usgs-earthquakes.geojson"),
+    ]).then(([geo, c2, quakes]) => {
+      if (!alive) return
+      setCountries(geo)
+      const pts: GlobePoint[] = []
+      for (const f of c2.features || []) {
+        const [lng, lat] = f.geometry.coordinates
+        pts.push({ id: `c2-${f.properties.country}`, position: toXYZ(lng, lat, 2.06), severity: f.properties.severity, label: f.properties.name })
+      }
+      const top = [...(quakes.features || [])].sort((a: any, b: any) => b.properties.mag - a.properties.mag).slice(0, 25)
+      for (const f of top) {
+        const [lng, lat] = f.geometry.coordinates
+        pts.push({ id: `eq-${f.properties.time}`, position: toXYZ(lng, lat, 2.06), severity: f.properties.severity, label: f.properties.name })
+      }
+      setThreats(pts)
+    })
+    return () => {
+      alive = false
     }
   }, [])
 
@@ -248,43 +127,27 @@ const ThreatMapScene = () => {
 
   return (
     <group>
-      <Earth />
-      <Continents />
-
-      {/* Render threats */}
-      {threats.map((threat) => (
-        <group key={threat.id}>
+      <group ref={spin}>
+        <mesh>
+          <sphereGeometry args={[2, 48, 48]} />
+          <meshStandardMaterial color="#0b1f4a" emissive="#1d4ed8" emissiveIntensity={0.15} roughness={0.8} metalness={0.2} />
+        </mesh>
+        {countries && <CountryOutlines geo={countries} />}
+        {threats.map((threat) => (
           <ThreatPoint
+            key={threat.id}
             position={threat.position}
-            size={
-              threat.severity === "critical"
-                ? 0.15
-                : threat.severity === "high"
-                  ? 0.12
-                  : threat.severity === "medium"
-                    ? 0.1
-                    : 0.08
-            }
-            color={severityColors[threat.severity]}
+            size={threat.severity === "critical" ? 0.09 : threat.severity === "high" ? 0.075 : threat.severity === "medium" ? 0.06 : 0.045}
+            color={severityColors[threat.severity] || "#22d3ee"}
             pulse={threat.severity === "critical" || threat.severity === "high"}
           />
-
-          {/* If there's a target, draw an attack line */}
-          {threat.target && (
-            <AttackLine
-              start={threat.position}
-              end={threat.target}
-              color={severityColors[threat.severity]}
-              animate={threat.severity === "critical" || threat.severity === "high"}
-            />
-          )}
-        </group>
-      ))}
+        ))}
+      </group>
 
       {/* Legend */}
       <group position={[3.5, 2, 0]}>
         <Text position={[0, 0.6, 0]} fontSize={0.2} color="white" anchorX="left" anchorY="middle">
-          Threat Severity
+          Severity (C2s + quakes)
         </Text>
 
         {Object.entries(severityColors).map(([severity, color], index) => (
@@ -309,7 +172,10 @@ export function ThreatMap() {
   const isDark = theme === "dark"
 
   return (
-    <div className="h-64 w-full rounded-md overflow-hidden">
+    <div className="relative h-64 w-full rounded-md overflow-hidden">
+      <div className="pointer-events-none absolute bottom-1 left-2 z-10 font-mono text-[9px] text-cyan-300/80">
+        Data: abuse.ch Feodo Tracker (country-level) · USGS M2.5+ week · cached packs
+      </div>
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
         gl={{ antialias: true }}

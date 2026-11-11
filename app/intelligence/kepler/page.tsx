@@ -32,6 +32,7 @@ import KeplerModule from "@/components/maps/kepler-module"
 import KeplerNodeConsole from "@/components/consoles/kepler-node-console"
 import { heimdallParser } from "@/lib/heimdal/data-parser"
 import { keplerStore } from "@/lib/storage/kepler-store"
+import { parseUpload } from "@/lib/data-packs/parse-upload"
 
 interface Dataset {
   id: string
@@ -227,7 +228,29 @@ export default function KeplerIntelligencePage() {
       for (const file of Array.from(files)) {
         setProcessingStatus(`Processing ${file.name}...`)
 
-        const parsedData = await heimdallParser.parseFile(file)
+        // Structured geo data first (GeoJSON / JSON array / CSV with lat+lng); free text falls back to entity extraction.
+        let parsedData: Awaited<ReturnType<typeof heimdallParser.parseFile>>
+        try {
+          const fc = parseUpload(file.name, await file.text())
+          const pts = fc.features.filter((f) => f.geometry?.type === "Point")
+          if (!pts.length) throw new Error("no point features")
+          parsedData = {
+            entities: pts.map((f, i) => ({
+              id: `geo_${Date.now()}_${i}`,
+              name: String(f.properties.name ?? `point ${i + 1}`),
+              type: "location" as const,
+              latitude: (f.geometry!.coordinates as number[])[1],
+              longitude: (f.geometry!.coordinates as number[])[0],
+              confidence: Number(f.properties.weight ?? 0.5),
+              metadata: { ...f.properties, threat_level: f.properties.severity },
+              source: file.name,
+            })),
+            relationships: [],
+            metadata: { filename: file.name, parseDate: new Date().toISOString(), entityCount: pts.length },
+          } as any
+        } catch {
+          parsedData = await heimdallParser.parseFile(file)
+        }
         setProcessingStatus("Converting to Kepler intelligence format...")
 
         const datasetId = `dataset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`

@@ -23,7 +23,7 @@ export default function KeplerMapPage() {
         </div>
 
         <TechPanel className="p-4 h-[calc(100vh-200px)]" cornerAccent borderAccent>
-          <KeplerMap />
+          <KeplerMap height="100%" defaultPacks={["feodo-c2-by-country", "natural-earth-countries"]} />
         </TechPanel>
       </div>
     </div>
