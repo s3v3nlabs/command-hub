@@ -47,7 +47,7 @@ export class BiometricGlyphAuthentication {
     this.biometricProcessors.set("voice", (audioData: any) => {
       // Simulate voice frequency analysis
       const frequencies = audioData.frequencies || [440, 880, 1760] // A4, A5, A6
-      const voicePrint = frequencies.reduce((hash, freq) => hash + freq, 0).toString(36)
+      const voicePrint = frequencies.reduce((hash: number, freq: number) => hash + freq, 0).toString(36)
       return `VOICE-${voicePrint.toUpperCase()}`
     })
 

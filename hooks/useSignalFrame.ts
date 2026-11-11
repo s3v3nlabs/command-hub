@@ -148,7 +148,6 @@ export function useSignalFrame() {
 
     const newFrame: Frame = {
       id: `frame-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      title: frameData.title || title || "WhisperMesh",
       messages: frameData.messages || [],
       position: {
         x: 48,
@@ -168,6 +167,7 @@ export function useSignalFrame() {
         toolbar: "#374151",
         metadata: "#6b7280",
       },
+      ...frameData,
       metadata: {
         sourcePingCount: 0,
         syncState: "synced",
@@ -178,9 +178,6 @@ export function useSignalFrame() {
         connectionQuality: "excellent",
         ...frameData.metadata,
       },
-      preferSeat: frameData.preferSeat || "twin-rag",
-      templateId: frameData.templateId,
-      ...frameData,
       title: frameData.title || title || "WhisperMesh",
       preferSeat: frameData.preferSeat || "twin-rag",
     }

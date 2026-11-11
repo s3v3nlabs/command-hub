@@ -2,7 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+  // Typecheck is enforced. Legacy modules that no route imports are listed in tsconfig "exclude" (see docs/MODULE_STATUS.md).
+  typescript: { ignoreBuildErrors: false },
   images: { unoptimized: true },
   transpilePackages: [
     "kepler.gl",

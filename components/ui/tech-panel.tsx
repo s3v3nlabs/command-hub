@@ -2,9 +2,13 @@ import { cn } from "@/lib/utils"
 import type React from "react"
 
 interface TechPanelProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
-  variant?: "default" | "outline" | "warning" | "danger" | "success" | "info"
+  variant?: "default" | "outline" | "warning" | "danger" | "success" | "info" | "glass" | "terminal" | "cyber"
+  /** Optional icon shown before the title */
+  icon?: React.ReactNode
+  /** Accepted for API compatibility with Window; layout is driven by className */
+  size?: "small" | "medium" | "large" | "full" | "fullscreen" | string
   cornerAccent?: boolean
   borderAccent?: boolean
   glowEffect?: boolean
@@ -23,8 +27,10 @@ export function TechPanel({
   title,
   subtitle,
   actions,
+  icon,
+  size: _size,
   ...props
-}: TechPanelProps & React.HTMLAttributes<HTMLDivElement>) {
+}: TechPanelProps & Omit<React.HTMLAttributes<HTMLDivElement>, "title">) {
   return (
     <div
       className={cn(
@@ -70,7 +76,8 @@ export function TechPanel({
         <div className="cyber-panel-header flex items-center justify-between border-b border-dark-300/30 p-3">
           <div>
             {title && (
-              <div className="font-mono text-sm font-bold uppercase tracking-wider text-dark-800 dark:text-dark-800">
+              <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase tracking-wider text-dark-800 dark:text-dark-800">
+                {icon}
                 {title}
               </div>
             )}

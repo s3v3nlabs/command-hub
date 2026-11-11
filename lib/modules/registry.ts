@@ -145,7 +145,7 @@ function readRegistered(): ModuleManifest[] {
     if (!fs.existsSync(REGISTERED_FILE)) return []
     const raw = JSON.parse(fs.readFileSync(REGISTERED_FILE, "utf8"))
     const list = Array.isArray(raw) ? raw : Array.isArray(raw?.modules) ? raw.modules : []
-    return list.filter(isModuleManifest).map((m) => ({ ...m, source: "registered" as const, lattice_sync: false as const }))
+    return list.filter(isModuleManifest).map((m: ModuleManifest) => ({ ...m, source: "registered" as const, lattice_sync: false as const }))
   } catch {
     return []
   }

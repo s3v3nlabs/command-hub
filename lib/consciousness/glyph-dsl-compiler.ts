@@ -292,13 +292,6 @@ export class GlyphDSLCompiler {
 
       case "forecast":
         const forecast = await this.forecastEngine.generateForecast()
-        if (command.parameters.forecast_type === "temporal") {
-          return await this.forecastEngine.projectTemporalSequence(
-            command.glyph,
-            "S3v3n",
-            command.parameters.forecast_type,
-          )
-        }
         return forecast
 
       case "repair":

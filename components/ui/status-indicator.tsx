@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils"
 
-type StatusType = "operational" | "warning" | "error" | "offline" | "maintenance" | "demo"
+type StatusType = "operational" | "online" | "warning" | "error" | "offline" | "maintenance" | "demo"
 
 interface StatusIndicatorProps {
   status: StatusType
   size?: "sm" | "md" | "lg"
   className?: string
+  pulse?: boolean
 }
 
 export function StatusIndicator({ status, size = "md", className }: StatusIndicatorProps) {
@@ -17,6 +18,7 @@ export function StatusIndicator({ status, size = "md", className }: StatusIndica
 
   const statusClasses = {
     operational: "bg-green-500",
+    online: "bg-green-500",
     warning: "bg-yellow-500",
     error: "bg-red-500",
     offline: "bg-gray-500",

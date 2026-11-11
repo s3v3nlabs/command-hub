@@ -195,16 +195,16 @@ export default function KeplerIntelligencePage() {
     // Convert to entities
     const sampleEntities: Entity[] = sampleData.data.data.rows.map((row, index) => ({
       id: `entity_${index}`,
-      name: row[0],
-      type: row[1] as Entity["type"],
-      latitude: row[2],
-      longitude: row[3],
-      confidence: row[4],
+      name: String(row[0]),
+      type: String(row[1]) as Entity["type"],
+      latitude: Number(row[2]),
+      longitude: Number(row[3]),
+      confidence: Number(row[4]),
       metadata: {
         threat_level: row[5],
-        ...JSON.parse(row[6]),
+        ...JSON.parse(String(row[6])),
       },
-      source: row[7],
+      source: String(row[7]),
     }))
 
     setEntities(sampleEntities)

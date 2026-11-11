@@ -99,7 +99,7 @@ export default function ModuleBayPage() {
       return
     }
     if (typeof window !== "undefined" && window.CommandHubDev) {
-      const res = cmd === "status" ? await window.CommandHubDev.status() : await window.CommandHubDev.modules()
+      const res = cmd === "status" ? await window.CommandHubDev.status() : await window.CommandHubDev.modules?.()
       setConsoleOut(JSON.stringify(res, null, 2))
     }
   }

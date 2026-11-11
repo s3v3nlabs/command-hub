@@ -863,7 +863,7 @@ function handleTheme(args: string[]): CommandResult {
 }
 
 function handleNetMap(args: string[]): CommandResult {
-  return { type: "output", content: <NetworkMap type={args[0] || "topology"} /> }
+  return { type: "output", content: <NetworkMap type={(["topology", "threats", "traffic"].includes(args[0]) ? args[0] : "topology") as "topology" | "threats" | "traffic"} /> }
 }
 
 function handleSplit(args: string[]): CommandResult {

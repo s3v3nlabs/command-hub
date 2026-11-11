@@ -72,7 +72,7 @@ class FieldCoherence {
         output: `Coherence updated to ${this.state.level.toFixed(2)}%`,
         resonance: signalStrength,
         tags: ["coherence", "field-update"],
-        fieldCoherence: this.getCoherenceSnapshot(),
+        fieldCoherence: this.state.level,
       })
     }
 

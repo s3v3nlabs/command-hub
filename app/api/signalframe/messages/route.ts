@@ -24,8 +24,8 @@ export async function GET(req: Request) {
       : "all"
   const messages = listTeamMessages({ channel, limit })
   return NextResponse.json({
-    ok: true,
     ...teamBusStatus(),
+    ok: true,
     messages,
   })
 }

@@ -48,9 +48,11 @@ declare global {
   interface Window {
     CommandHubDev?: {
       help: () => string
-      status: () => Promise<DevHubResult> | DevHubResult
-      whisper: (body: string) => Promise<DevHubResult>
-      bridge: () => DevHubResult
+      status: () => any
+      whisper: (body: string) => Promise<any>
+      bridge?: () => any
+      modules?: () => Promise<any>
+      loadModulePreview?: (json: string) => { ok: boolean; srcdoc?: string; error?: string }
     }
   }
 }

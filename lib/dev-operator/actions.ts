@@ -19,7 +19,7 @@ export function createModuleStub(manifest: ModuleManifest): { ok: true; path: st
   const dir = path.join(MODULES_ROOT, manifest.id)
   fs.mkdirSync(dir, { recursive: true, mode: 0o755 })
   const dest = path.join(dir, "module.json")
-  const body = { ...manifest, lattice_sync: false, enabled: manifest.enabled !== false }
+  const body: ModuleManifest = { ...manifest, lattice_sync: false, enabled: manifest.enabled !== false }
   fs.writeFileSync(dest, JSON.stringify(body, null, 2) + "\n", { mode: 0o644 })
   // also register in bay
   registerModule(body)

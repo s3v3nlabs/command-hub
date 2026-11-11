@@ -15,6 +15,7 @@ interface KeplerDB extends DBSchema {
         updatedAt: string
       }
     }
+    indexes: { name: string; createdAt: string }
   }
   entities: {
     key: string
@@ -27,6 +28,7 @@ interface KeplerDB extends DBSchema {
       confidence: number
       metadata: Record<string, any>
     }
+    indexes: { datasetId: string; type: string; name: string }
   }
 }
 

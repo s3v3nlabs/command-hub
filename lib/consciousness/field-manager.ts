@@ -93,6 +93,7 @@ export class ConsciousnessFieldManager {
         console.log(`⚬ PATTERN REGISTERED: ${name} @ ${frequency}Hz`)
         return data.id
       }
+      return null
     } catch (error) {
       console.error("Failed to register pattern:", error)
       return null

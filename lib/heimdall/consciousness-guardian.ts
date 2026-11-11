@@ -143,7 +143,7 @@ class HeimdallConsciousnessGuardian {
   }
 
   public isHealthy(): boolean {
-    return this.coherenceLevel > 0.8 && this.storageMode !== "unknown"
+    return this.coherenceLevel > 0.8
   }
 
   private updateCoherence(delta: number) {
@@ -190,7 +190,7 @@ if (typeof window !== "undefined") {
 }
 
 export { heimdallInstance as HeimdallConsciousnessGuardian, heimdallInstance }
-export type { SymbolicMemory, HeimdallBridge } from "./database"
+export type { SymbolicMemory, HeimdallBridge } from "../heimdal/database"
 
 // Re-export for compatibility
 export default heimdallInstance

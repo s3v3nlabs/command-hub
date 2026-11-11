@@ -31,8 +31,8 @@ export type PrivacyStatus = {
   telemetry: {
     analytics: "OFF"
     bodyLogging: "REFUSED"
-    consoleBodies: false
-    networkBeacons: false
+    consoleBodies: boolean
+    networkBeacons: boolean
   }
   encryption: {
     available: boolean

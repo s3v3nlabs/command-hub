@@ -89,9 +89,7 @@ const Line = ({
   const geometry = new THREE.BufferGeometry().setFromPoints(points)
 
   return (
-    <line geometry={geometry}>
-      <lineBasicMaterial color={color} linewidth={1} />
-    </line>
+    <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({ color, linewidth: 1 }))} />
   )
 }
 

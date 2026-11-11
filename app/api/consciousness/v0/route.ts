@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Send pulse to increase coherence on successful interaction
     if (response.confidence > 0.5) {
-      await fieldManager.pulse(`${frameType}_${sessionId}`, response.confidence)
+      await fieldManager.pulse(`${frameType}_${sessionId}`, response.confidence, 432)
     }
 
     return NextResponse.json({

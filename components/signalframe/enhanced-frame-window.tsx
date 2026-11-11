@@ -94,7 +94,7 @@ export function EnhancedFrameWindow({
   const headerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   const workspaceW = bounds?.width || 800
   const workspaceH = bounds?.height || 600

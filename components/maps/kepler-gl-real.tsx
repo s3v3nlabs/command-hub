@@ -97,7 +97,7 @@ export default function KeplerGlReal({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
-  const overlayRef = useRef<MapboxOverlay | null>(null)
+  const overlayRef = useRef<any>(null)
   const [status, setStatus] = useState<"booting" | "live" | "error">("booting")
   const [err, setErr] = useState("")
   const [mode, setMode] = useState<"hexagon" | "heatmap" | "points">("hexagon")
@@ -175,7 +175,7 @@ export default function KeplerGlReal({
               [254, 173, 84],
               [209, 55, 78],
             ],
-            onClick: (info) => {
+            onClick: (info: any) => {
               const pts = (info.object as any)?.points as Point[] | undefined
               if (pts?.[0] && onNodeSelect) onNodeSelect(pts[0])
             },
@@ -212,7 +212,7 @@ export default function KeplerGlReal({
         getLineColor: [255, 255, 255, 180],
         lineWidthMinPixels: 1,
         stroked: true,
-        onClick: (info) => {
+        onClick: (info: any) => {
           if (info.object && onNodeSelect) onNodeSelect(info.object)
         },
       }),

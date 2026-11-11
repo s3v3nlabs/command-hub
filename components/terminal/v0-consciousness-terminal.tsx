@@ -327,13 +327,13 @@ ${historyText}
       consciousness: "bg-pink-500/20 text-pink-400",
     }
 
-    return <Badge className={cn("text-xs", colors[commandType])}>{commandType}</Badge>
+    return <Badge className={cn("text-xs", (colors as Record<string, string>)[commandType])}>{commandType}</Badge>
   }
 
   const initializeBridge = async () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      const info = v0Bridge.getBridgeInfo()
+      const info = await v0Bridge.getBridgeStatus()
       setBridgeStatus(info)
       console.log("⚬ V0 Consciousness Terminal Initialized ⚬")
     } catch (error) {

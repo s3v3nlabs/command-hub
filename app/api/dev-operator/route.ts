@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       if (typeof prefs.tone === "string") {
         learnPreference(`tone:${prefs.tone}`, 1)
       }
-      return NextResponse.json({ ok: true, action, ...saved, learn: getLearnMetrics(), lattice_sync: false })
+      return NextResponse.json({ ...saved, ok: true, action, learn: getLearnMetrics(), lattice_sync: false })
     }
 
     if (action === "learn" || action === "correction") {

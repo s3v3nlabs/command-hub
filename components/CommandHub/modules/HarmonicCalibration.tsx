@@ -512,7 +512,7 @@ export default function HarmonicCalibration() {
                       onChange={(e) => updateEQBand(band.id, Number.parseFloat(e.target.value))}
                       className="h-40 slider-vertical"
                       style={{
-                        writingMode: "bt-lr",
+                        writingMode: "vertical-lr",
                         WebkitAppearance: "slider-vertical",
                         width: "20px",
                         background: "linear-gradient(to top, #333, #666)",

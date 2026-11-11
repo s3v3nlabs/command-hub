@@ -116,11 +116,8 @@ export default function GrapheneBridge() {
     if (!selectedDevice) return
 
     try {
-      const streamUrl = await adbTools.startCameraStream(selectedDevice.id)
-      setIsStreaming(true)
-
-      // In a real implementation, this would connect to the actual stream
-      console.log("Camera stream started:", streamUrl)
+      // Not implemented: ADB has no camera-stream API here. Use scrcpy (`scrcpy --video-source=camera`) on the host.
+      throw new Error("Camera streaming is not implemented in the hub — use scrcpy --video-source=camera")
     } catch (error) {
       console.error("Failed to start camera stream:", error)
     }
@@ -130,7 +127,6 @@ export default function GrapheneBridge() {
     if (!selectedDevice) return
 
     try {
-      await adbTools.stopCameraStream(selectedDevice.id)
       setIsStreaming(false)
     } catch (error) {
       console.error("Failed to stop camera stream:", error)

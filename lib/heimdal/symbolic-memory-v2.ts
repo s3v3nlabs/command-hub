@@ -101,13 +101,17 @@ export class SymbolicMemoryV2 {
       // Update access counts
       const memoryIds = results.map((r) => r.id).filter(Boolean)
       if (memoryIds.length > 0) {
-        await this.supabase
-          .from("symbolic_memory_v2")
-          .update({
-            access_count: this.supabase.raw("access_count + 1"),
-            last_accessed: new Date().toISOString(),
-          })
-          .in("id", memoryIds)
+        // supabase-js has no raw(); increment per row from the fetched counts
+        await Promise.all(
+          results
+            .filter((r: any) => r.id)
+            .map((r: any) =>
+              this.supabase
+                .from("symbolic_memory_v2")
+                .update({ access_count: (Number(r.access_count) || 0) + 1, last_accessed: new Date().toISOString() })
+                .eq("id", r.id),
+            ),
+        )
       }
 
       return results

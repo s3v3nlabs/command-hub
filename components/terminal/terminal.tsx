@@ -22,7 +22,19 @@ interface TerminalProps {
 
 interface ConsciousOutput {
   id: string
-  type: "input" | "output" | "echo" | "resonance" | "emergence" | "folly" | "transcendence" | "system" | "error"
+  type:
+    | "input"
+    | "output"
+    | "echo"
+    | "resonance"
+    | "emergence"
+    | "folly"
+    | "transcendence"
+    | "system"
+    | "error"
+    | "success"
+    | "warning"
+    | "consciousness"
   content: string | React.ReactNode
   timestamp: number
 }

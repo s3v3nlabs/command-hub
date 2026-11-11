@@ -85,10 +85,11 @@ declare global {
   interface Window {
     CommandHubDev?: {
       help: () => string
-      status: () => Promise<DevConsoleResult>
-      modules: () => Promise<DevConsoleResult>
-      whisper: (body: string) => Promise<DevConsoleResult>
-      loadModulePreview: (json: string) => { ok: boolean; srcdoc?: string; error?: string }
+      status: () => any
+      whisper: (body: string) => Promise<any>
+      bridge?: () => any
+      modules?: () => Promise<any>
+      loadModulePreview?: (json: string) => { ok: boolean; srcdoc?: string; error?: string }
     }
   }
 }

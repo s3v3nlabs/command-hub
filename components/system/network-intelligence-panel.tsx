@@ -199,7 +199,7 @@ export function NetworkIntelligencePanel({
   const detectProxy = (): boolean => {
     // Basic proxy detection
     return (
-      !!(window as any).navigator.connection?.type === "cellular" &&
+      (window as any).navigator.connection?.type === "cellular" &&
       (window as any).navigator.connection?.effectiveType === "4g"
     )
   }

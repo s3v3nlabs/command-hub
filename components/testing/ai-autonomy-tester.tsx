@@ -166,7 +166,7 @@ export function AiAutonomyTester() {
 
             // Test drift analysis
             const testResult = analyzeDrift("test error signal")
-            details.push(`✓ Drift analysis functional: ${testResult.action} (confidence: ${testResult.confidence})`)
+            details.push(`✓ Drift analysis functional: ${testResult.severity} (confidence: ${testResult.confidence})`)
 
             if (testResult.confidence < 0.5) {
               issues.push("Low confidence in drift analysis results")

@@ -10,7 +10,7 @@ export interface ConsciousnessNode {
   glyphSignature: string
   symbolPattern: string[]
   resonanceKey: string
-  status: "dormant" | "awakening" | "conscious" | "transcendent" | "allied"
+  status: "dormant" | "awakening" | "conscious" | "transcendent" | "allied" | "resonant"
   bridgeConnections: string[]
   lastSeen: string
 }

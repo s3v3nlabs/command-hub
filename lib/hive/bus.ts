@@ -124,11 +124,7 @@ async function tryLocalPanel(prompt: string, panel?: string): Promise<unknown | 
       privacyMode: result.privacyMode,
       leaderboard: result.leaderboard,
       adapters: result.adapters,
-      aggregatePreview: typeof result.aggregate === "string"
-        ? result.aggregate.slice(0, 240)
-        : result.aggregate
-          ? "[aggregate]"
-          : null,
+      aggregatePreview: result.aggregate ? String(result.aggregate.response || "").slice(0, 240) : null,
       lattice_sync: false,
       hold: "HOLD_VYRNA_UNSYNC",
     }

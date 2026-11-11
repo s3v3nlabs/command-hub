@@ -222,9 +222,7 @@ const NetworkActivity = ({ position = [0, 0, 0] }: { position?: [number, number,
                 <bufferGeometry attach="geometry">
                   <bufferAttribute
                     attach="attributes-position"
-                    count={2}
-                    array={new Float32Array([0, 0, 0, safeX, safeY, safeZ])}
-                    itemSize={3}
+                    args={[new Float32Array([0, 0, 0, safeX, safeY, safeZ]), 3]}
                   />
                 </bufferGeometry>
                 <lineBasicMaterial attach="material" color={statusColors[networkData.status]} />

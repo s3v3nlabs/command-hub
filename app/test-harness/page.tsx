@@ -285,7 +285,7 @@ export default function TestHarnessPage() {
                         <ul className="mt-1">
                           {Object.entries(consensus.counts).map(([action, count]) => (
                             <li key={action}>
-                              {action}: {count} vote{(count as number) !== 1 ? "s" : ""}
+                              {action}: {String(count)} vote{(count as number) !== 1 ? "s" : ""}
                             </li>
                           ))}
                         </ul>

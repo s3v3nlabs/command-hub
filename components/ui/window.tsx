@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils"
 
 interface WindowProps {
   title: string
+  subtitle?: string
+  icon?: ReactNode
   children: ReactNode
   variant?: "default" | "terminal" | "cyber" | "glass"
   size?: "small" | "medium" | "large" | "fullscreen" | "full"
@@ -22,6 +24,8 @@ interface WindowProps {
 
 export function Window({
   title,
+  subtitle,
+  icon,
   children,
   variant = "default",
   size = "medium",
@@ -141,7 +145,9 @@ export function Window({
       >
         <div className="flex items-center space-x-2">
           <Move className="w-4 h-4 opacity-50" />
+          {icon && <span className="mr-1 inline-flex items-center">{icon}</span>}
           <span className="font-mono text-sm font-medium">{title}</span>
+          {subtitle && <span className="ml-2 font-mono text-xs text-dark-600">{subtitle}</span>}
         </div>
 
         <div className="flex items-center space-x-1">

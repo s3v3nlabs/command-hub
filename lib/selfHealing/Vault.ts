@@ -32,7 +32,7 @@ export async function storeProposal(proposal: any) {
     }
 
     // Read existing data or create new file
-    let existingData = { proposals: [] }
+    let existingData: { proposals: any[] } = { proposals: [] }
     if (fs.existsSync(filePath)) {
       const fileContent = fs.readFileSync(filePath, "utf-8")
       existingData = JSON.parse(fileContent)

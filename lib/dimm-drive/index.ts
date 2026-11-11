@@ -132,7 +132,7 @@ export function meshStatus(): MeshStatus {
   const rawPeers = Array.isArray(cfg?.mesh?.peers) ? cfg.mesh.peers : []
   const peers = rawPeers
     .filter((peer: unknown): peer is Record<string, unknown> => Boolean(peer && typeof peer === "object"))
-    .map((peer) => ({
+    .map((peer: Record<string, unknown>) => ({
       id: typeof peer.id === "string" ? peer.id : "",
       provider: typeof peer.provider === "string" ? peer.provider : "",
       role: typeof peer.role === "string" ? peer.role : "",

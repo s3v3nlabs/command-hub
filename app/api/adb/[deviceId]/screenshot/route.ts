@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { adbTools } from "@/lib/graphene/adbTools"
 
-export async function POST(request: NextRequest, { params }: { params: { deviceId: string } }) {
+export async function POST(request: NextRequest, { params: paramsPromise }: { params: Promise<{ deviceId: string }> }) {
+  const params = await paramsPromise
   try {
     const { format = "png" } = await request.json()
     const screenshot = await adbTools.captureScreen(params.deviceId, format)

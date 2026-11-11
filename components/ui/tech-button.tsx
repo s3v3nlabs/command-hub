@@ -6,12 +6,12 @@ import type React from "react"
 interface TechButtonProps {
   children: React.ReactNode
   className?: string
-  variant?: "default" | "outline" | "ghost" | "warning" | "danger" | "success"
+  variant?: "default" | "outline" | "ghost" | "warning" | "danger" | "success" | "primary"
   size?: "sm" | "md" | "lg"
   cornerAccent?: boolean
   isActive?: boolean
   disabled?: boolean
-  onClick?: () => void
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
   icon?: React.ReactNode
   rightIcon?: React.ReactNode
   glow?: boolean
@@ -38,7 +38,7 @@ export function TechButton({
         size === "sm" && "h-8 rounded-sm px-3 text-xs",
         size === "md" && "h-9 rounded-sm px-4",
         size === "lg" && "h-10 rounded-sm px-6",
-        variant === "default" &&
+        (variant === "default" || variant === "primary") &&
           "border border-dark-300 bg-dark-100 text-dark-800 hover:bg-dark-200 hover:text-dark-900 dark:border-dark-300 dark:bg-dark-100 dark:text-dark-800 dark:hover:bg-dark-200 dark:hover:text-dark-900",
         variant === "outline" &&
           "border border-dark-300 text-dark-800 hover:bg-dark-100 hover:text-dark-900 dark:border-dark-300 dark:text-dark-800 dark:hover:bg-dark-100 dark:hover:text-dark-900",

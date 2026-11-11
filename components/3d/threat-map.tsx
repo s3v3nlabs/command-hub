@@ -134,9 +134,7 @@ const AttackLine = ({
   const geometry = new THREE.BufferGeometry().setFromPoints(points)
 
   return (
-    <line ref={lineRef} geometry={geometry}>
-      <lineBasicMaterial color={color} linewidth={1} />
-    </line>
+    <primitive ref={lineRef} object={new THREE.Line(geometry, new THREE.LineBasicMaterial({ color, linewidth: 1 }))} />
   )
 }
 
@@ -161,7 +159,11 @@ const Continents = () => {
   return (
     <group>
       {continentData.map((continent, index) => (
-        <mesh key={index} position={continent.position} rotation={continent.rotation}>
+        <mesh
+          key={index}
+          position={continent.position as [number, number, number]}
+          rotation={continent.rotation as [number, number, number]}
+        >
           <boxGeometry args={[continent.scale[0], continent.scale[1], 0.01]} />
           <meshStandardMaterial color="#2f855a" transparent opacity={0.8} />
         </mesh>
