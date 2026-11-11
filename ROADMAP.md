@@ -8,6 +8,7 @@ Iterative. This is a living map of what is REAL, what is WIP-by-law, and what is
 - OffSec Arsenal (kill-chain + CTF), OSINT, entity graph, toolkit/hash-ID, privacy stack, engagements
 - Hardware & RF (BT, CAN, USB/Ducky+BadUSB, LAN, Shodan+Censys server-side, VoIP, SDR, Flipper Zero + Flipper One predicted)
 - Phone Suite (scrcpy + ADB for YOUR device; API gated)
+- Android Lab (`/offsec/android-lab`) — disposable local AVDs + adb for mobile-app QA/security testing; honest SDK-not-installed state
 - Threat Field (Nash / Fourier / Monte-Carlo + 3D/2D)
 - CCTV wall with per-tile recon metadata; connect staged-ladder gated
 - Deception mesh (decoys, canaries, capture/quarantine, VT opt-in, eyes-only AES-256-GCM logs)

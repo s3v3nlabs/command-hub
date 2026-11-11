@@ -18,6 +18,7 @@ Known modules (create stubs/patches against these routes when relevant):
 - /offsec/engagements — Engagement scope / RoE / findings (file-backed data/offsec/)
 - /offsec/hardware — Hardware & RF arsenal (BT, CAN, USB/Ducky+BadUSB, LAN, Shodan+Censys, VoIP, SDR, Flipper)
 - /offsec/phone — Phone suite (scrcpy + ADB for operator-owned devices; interception stays WIP)
+- /offsec/android-lab — Mobile app security testing lab (local AVDs + adb; SDK-not-installed is honest, never faked)
 - /offsec/threat-field — Threat prediction engine (Nash / Fourier / Monte-Carlo) + 3D/2D field
 - /offsec/lab — Honest WIP shells only (no working spoofing/interception)
 - /intelligence/cctv — CCTV video wall with per-tile recon metadata (lib/cctv/*); connect staged-unlock gated

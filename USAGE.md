@@ -16,6 +16,7 @@ Authorized, lawful use only — see [LEGAL.md](./LEGAL.md). Written authorizatio
 | Engagements | `/offsec/engagements` | Scope / RoE / findings (file-backed) |
 | Hardware & RF | `/offsec/hardware` | BT, CAN, USB/Ducky+BadUSB, LAN, Shodan+Censys, VoIP, SDR, Flipper |
 | Phone Suite | `/offsec/phone` | scrcpy + ADB for **your** device; interception = WIP shell |
+| Android Lab | `/offsec/android-lab` | Disposable local AVDs + adb for mobile-app QA/security testing |
 | Threat Field | `/offsec/threat-field` | Nash + Fourier + Monte-Carlo model field (3D/2D) |
 | CCTV wall | `/intelligence/cctv` | Multi-feed wall + per-tile recon metadata |
 | Dev Operator | `/dev-operator` | Defensive coding assistant (HOLD_VYRNA_UNSYNC) |
@@ -42,6 +43,36 @@ Every capability that can touch a third-party target or carries legal risk uses 
 Field operators edit the Stage-1 flags in `.env.local` and manage scopes per-engagement — no code changes needed.
 
 **Cannot be made lawful by attestation (honest WIP shells only, never faked working):** live interception/recording of or third-party audio injection into calls the operator is not a party to (wiretapping); generating/distributing live self-propagating malware. The operator's OWN device (ADB / mirroring / call-log / recording) stays fully real.
+
+
+## Android Lab (mobile app security testing)
+
+Route: `/offsec/android-lab` · API: `/api/offsec/android-lab`.
+
+A real Android Virtual Device manager in the hub: create / start / stop / delete AVDs, drive them over `adb` (shell, install/uninstall APK, push/pull, logcat, screencap, port-forward), and run an app assessment (inventory, static `dumpsys`/`aapt` info, traffic-capture hooks) against the currently selected emulator. The in-browser live view is an `adb screencap` stream; optional `scrcpy` opens a host-desktop window.
+
+**These tools must only be used on devices and apps you own or are authorized to test.** See [LEGAL.md](./LEGAL.md). This module is built for disposable *local* emulators. Pointing it at a real external device requires the staged authorization model above.
+
+### Host setup
+
+If the Android SDK is not installed, the UI shows an honest **SDK not installed** state and exact install guidance — it will not fabricate a device or fake `adb` output.
+
+1. Set in `.env.local` (optional; well-known paths are also probed):
+   ```
+   ANDROID_SDK_ROOT=$HOME/Android/Sdk
+   ANDROID_AVD_HOME=$HOME/.android/avd
+   ANDROID_LAB_WORKSPACE=   # optional override; default data/offsec/android-lab
+   ```
+2. Install official command-line tools, then:
+   ```
+   sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+   sdkmanager --sdk_root="$ANDROID_SDK_ROOT" platform-tools emulator "cmdline-tools;latest" "system-images;android-34;google_apis;x86_64"
+   ```
+   Debian/Ubuntu supplements: `sudo apt-get install -y adb qemu-kvm unzip` and `sudo usermod -aG kvm "$USER"` so `/dev/kvm` is writable.
+3. In `SECURE_MODE=1`, pass `HUB_API_TOKEN` in the lab panel. Interactive shell additionally requires `ADB_SHELL_ENABLED=1` (same gate as `/api/adb/*/shell`).
+4. Drop APKs you own into `data/offsec/android-lab/apks/` (gitignored) to install them onto a selected AVD.
+
+Implementation notes: every server-side command uses an argument array (no shell interpolation). AVD names, serials, package names, ports, and paths are allowlisted in `lib/offsec/android-lab/validate.ts`. SDK/tool detection (`lib/offsec/android-lab/sdk.ts`) is server-side and takes no client input.
 
 ## Shodan + Censys
 

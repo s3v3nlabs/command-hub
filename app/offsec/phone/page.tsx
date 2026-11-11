@@ -43,6 +43,7 @@ export default function PhoneSuitePage() {
         <>
           <SuiteNavLink href="/offsec" label="Arsenal" />
           <SuiteNavLink href="/offsec/hardware" label="Hardware & RF" />
+          <SuiteNavLink href="/offsec/android-lab" label="Android Lab" />
           <SuiteNavLink href="/offsec/lab" label="WIP Lab" />
         </>
       }
@@ -56,7 +57,7 @@ export default function PhoneSuitePage() {
             Real mirror / control / forensics workflows for a device YOU own via scrcpy + ADB. Enable USB debugging and
             authorize the on-device RSA prompt. Hub ADB API routes stay behind auth (HUB_API_TOKEN in SECURE_MODE), and
             the ADB shell endpoint additionally requires ADB_SHELL_ENABLED=1 plus an argument allowlist. No call
-            interception or audio injection is implemented.
+            interception or audio injection is implemented. For disposable emulators, open the Android Lab.
           </p>
         </div>
 

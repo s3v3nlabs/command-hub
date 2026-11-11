@@ -7,6 +7,7 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 ## 2026-11-11
 
 ### Added
+- **Android Lab:** `/offsec/android-lab` + `/api/offsec/android-lab` — local AVD lifecycle, adb control, screencap live view, app assessment hooks; honest SDK-not-installed state.
 - **Security hardening (Workstream A):** root `middleware.ts` + `next.config` headers; `requireHubAuth` / `SECURE_MODE`; ADB shell allowlist; SSRF blocks; markdown XSS escape-first; empty hub-config secrets; Heimdall IDS file-backed; next → 15.5.29; `SECURITY.md`.
 - **Hardware & RF + Phone Suite (Workstream B):** `/offsec/hardware`, `/offsec/phone`; DuckyScript generator + BadUSB detector; full server-side Shodan + Censys; Flipper Zero real / Flipper One PREDICTED.
 - **Threat Field (Workstream C):** `/offsec/threat-field` — Nash, Fourier/FFT, Monte-Carlo; 3D (r3f) + 2D fallback.

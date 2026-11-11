@@ -206,6 +206,7 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 | `/offsec/engagements` | REAL | File-backed scope/findings |
 | `/offsec/hardware` | REAL | BT/CAN/USB/LAN/SDR/Flipper + Shodan/Censys |
 | `/offsec/phone` | REAL | scrcpy+ADB; interception = WIP shell |
+| `/offsec/android-lab` | REAL | Local AVD + adb lab; needs Android SDK on host (honest empty/guidance state otherwise) |
 | `/offsec/threat-field` | REAL | Nash/Fourier/MC + 3D/2D |
 | `/offsec/deception` | REAL | Decoys/canaries/capture; VT ladder-gated |
 | `/offsec/lab` | WIP-honest | Spoofing/interception shells only |
@@ -216,5 +217,16 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 | `/phone-suite` | REAL | Graphene/ADB control (legacy path; kept) |
 | `/conscious-terminal` | REAL | Renamed Hub Bus Terminal (compat route) |
 | Wiretap / self-propagating malware | WIP-by-law | Never faked working |
+
+
+## Android Lab (2026-11-11)
+
+- `/offsec/android-lab` + `/api/offsec/android-lab` — REAL local Android Virtual Device lab for mobile-app QA/security testing on the operator's own host.
+- AVD lifecycle (`avdmanager` / `emulator`): list / create / start / stop / delete. adb: devices, allowlisted shell (`ADB_SHELL_ENABLED`), install/uninstall APK, push/pull (workspace-confined), logcat, screencap live view, port-forward + reverse proxy hooks.
+- App assessment on the selected emulator: package inventory, `dumpsys package` / `aapt` static info, traffic-capture hook status (mitmproxy / tcpdump / frida / scrcpy detection — no fabricated tools).
+- If the Android SDK is not installed, the UI shows an honest **SDK not installed** state plus exact `sdkmanager` / apt / KVM guidance. Devices are never invented.
+- Auth: `requireHubAuth` (`HUB_API_TOKEN` / `SECURE_MODE`). All subprocesses use argument arrays; inputs allowlisted in `lib/offsec/android-lab/validate.ts`. SDK probe takes no client input.
+- Env: `ANDROID_SDK_ROOT`, `ANDROID_HOME`, `ANDROID_AVD_HOME`, `ANDROID_LAB_WORKSPACE`.
+- Authorized use only (LEGAL.md); staged-ladder applies if targeting a real external device.
 
 Nav hash-only links (`/command-hub#ids`, `/dev-operator#sigma-lane`) resolve to existing pages.

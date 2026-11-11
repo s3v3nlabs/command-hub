@@ -9,6 +9,7 @@ const LINKS: Array<{ href: string; title: string; blurb: string; external?: bool
   { href: "/offsec", title: "OffSec Arsenal", blurb: "Kill-chain + CTF catalog and command builders." },
   { href: "/offsec/hardware", title: "Hardware & RF", blurb: "BT, CAN, USB/Ducky, LAN, Shodan+Censys, VoIP, SDR, Flipper." },
   { href: "/offsec/phone", title: "Phone Suite", blurb: "scrcpy + ADB for your authorized device." },
+  { href: "/offsec/android-lab", title: "Android Lab", blurb: "Disposable Android emulators + adb for app QA/security testing on this host." },
   { href: "/offsec/threat-field", title: "Threat Field", blurb: "Nash / Fourier / Monte-Carlo model field." },
   { href: "/intelligence/cctv", title: "CCTV Wall", blurb: "Multi-feed wall with per-tile recon metadata." },
   { href: "/dev-operator", title: "Dev Operator", blurb: "Defensive coding assistant (HOLD_VYRNA_UNSYNC)." },

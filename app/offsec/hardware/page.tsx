@@ -67,6 +67,7 @@ export default function HardwarePage() {
         <>
           <SuiteNavLink href="/offsec" label="Arsenal" />
           <SuiteNavLink href="/offsec/phone" label="Phone Suite" />
+          <SuiteNavLink href="/offsec/android-lab" label="Android Lab" />
           <SuiteNavLink href="/offsec/lab" label="WIP Lab" />
         </>
       }
