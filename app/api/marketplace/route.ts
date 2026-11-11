@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   // Mutations are operator-gated (dev/ops). Installing is metadata only — never executes code.
-  const denied = requireHubAuth(request, { surface: "marketplace", requireInSecureMode: true })
+  const denied = requireHubAuth(request, { surface: "marketplace" })
   if (denied) return denied
   const body = await request.json().catch(() => ({}))
   const action = String(body.action || "")
