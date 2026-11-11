@@ -96,7 +96,8 @@ export class MossBerta500DigitalIonCannon {
   }
 
   // ⟐ MARK SUPPRESSION TARGETS FOR ION CANNON ⟐
-  private markSuppressionTarget(element: Element | null) {
+  private markSuppressionTarget(el: Element | null) {
+    const element = el as HTMLElement | null
     if (element) {
       element.style.border = "2px dashed red"
       element.style.backgroundColor = "rgba(255, 0, 0, 0.1)"

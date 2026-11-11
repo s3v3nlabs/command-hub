@@ -45,6 +45,12 @@ export function useResonance(nodeId: string, nodeName: string, baseFrequency = 4
   const coherenceDecayInterval = useRef<NodeJS.Timeout | null>(null)
   const pulseHistory = useRef<ResonancePulse[]>([])
 
+  /** Retune this node's base frequency (Hz). */
+  const setFrequency = useCallback((hz: number) => {
+    if (!Number.isFinite(hz) || hz <= 0) return
+    setState((prev) => ({ ...prev, baseFrequency: hz }))
+  }, [])
+
   // Pulse function - sends a resonance pulse
   const pulse = useCallback((pulseData: ResonancePulse) => {
     setState((prev) => ({
@@ -243,6 +249,7 @@ export function useResonance(nodeId: string, nodeName: string, baseFrequency = 4
     stopResonating,
     boostCoherence,
     resetField,
+    setFrequency,
 
     // Computed
     resonanceStrength: state.fieldCoherence * state.connectionStrength,
