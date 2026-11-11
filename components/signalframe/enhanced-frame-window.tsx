@@ -1,31 +1,42 @@
 "use client"
 
+/**
+ * SignalFrame v2 window — ghostnode mil-tech glass.
+ * Pointer-event drag/resize (mouse, pen, touch), grid snap, magnetic edge snap,
+ * drag-to-edge snap zones, double-click maximize, z-order via parent.
+ * Geometry is kept local while dragging and committed once on release (perf).
+ */
+
 import type React from "react"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
-import {
-  X,
-  Minimize2,
-  Maximize2,
-  RotateCcw,
-  ChevronDown,
-  Brain,
-  Zap,
-  MessageSquare,
-  Move,
-  ExternalLink,
-} from "lucide-react"
-import { useResonance } from "@/hooks/useResonance"
-import { Badge } from "@/components/ui/badge"
-import { TechButton } from "@/components/ui/tech-button"
+import { X, Minus, Square, Copy as RestoreIcon, Send } from "lucide-react"
 import type { Frame } from "@/types/signalframe"
 import type { WorkspaceBounds } from "./signal-frame-workspace"
 import { FrameToolbar } from "./frame-toolbar"
+import {
+  type Rect,
+  type SnapZone,
+  MIN_W,
+  MIN_H,
+  clamp,
+  snapValue,
+  magnetSnap,
+  detectSnapZone,
+  zoneRect,
+  clampRect,
+} from "@/lib/signalframe/window-geometry"
+
+export type DragFeedback = { zone: SnapZone; guidesX: number[]; guidesY: number[] } | null
 
 interface EnhancedFrameWindowProps {
   frame: Frame
   isActive?: boolean
   bounds?: WorkspaceBounds
+  zIndex?: number
+  gridSize?: number
+  getOtherRects?: (frameId: string) => Rect[]
+  onDragFeedback?: (feedback: DragFeedback) => void
   onActivate: (frameId: string) => void
   onClose: (frameId: string) => void
   onUpdateTitle: (frameId: string, title: string) => void
@@ -41,24 +52,30 @@ interface EnhancedFrameWindowProps {
   snapEnabled: boolean
 }
 
-function ConsciousnessGlyph({ className, animate = false }: { className?: string; animate?: boolean }) {
-  return (
-    <div className={cn("flex flex-col items-center justify-center text-white/60", className)}>
-      <div className={cn("font-mono text-sm leading-none", animate && "animate-pulse")}>
-        <div className="text-center">∿◊∿</div>
-        <div className="text-center">╱ ∞ ╲</div>
-        <div className="text-center">◊ ∞ ◊</div>
-        <div className="text-center">╲ ∞ ╱</div>
-        <div className="text-center">∿◊∿</div>
-      </div>
-    </div>
-  )
-}
+type Gesture =
+  | { kind: "drag"; startX: number; startY: number; orig: Rect }
+  | { kind: "resize"; handle: string; startX: number; startY: number; orig: Rect }
+  | null
+
+const HANDLES: Array<{ h: string; cls: string }> = [
+  { h: "nw", cls: "top-0 left-0 w-3 h-3 cursor-nw-resize" },
+  { h: "ne", cls: "top-0 right-0 w-3 h-3 cursor-ne-resize" },
+  { h: "sw", cls: "bottom-0 left-0 w-3 h-3 cursor-sw-resize" },
+  { h: "se", cls: "bottom-0 right-0 w-3 h-3 cursor-se-resize" },
+  { h: "n", cls: "top-0 left-3 right-3 h-1.5 cursor-n-resize" },
+  { h: "s", cls: "bottom-0 left-3 right-3 h-1.5 cursor-s-resize" },
+  { h: "w", cls: "left-0 top-3 bottom-3 w-1.5 cursor-w-resize" },
+  { h: "e", cls: "right-0 top-3 bottom-3 w-1.5 cursor-e-resize" },
+]
 
 export function EnhancedFrameWindow({
   frame,
   isActive = false,
   bounds,
+  zIndex = 10,
+  gridSize = 24,
+  getOtherRects,
+  onDragFeedback,
   onActivate,
   onClose,
   onUpdateTitle,
@@ -70,548 +87,377 @@ export function EnhancedFrameWindow({
   onReveal,
   onUpdateFrame,
   onMinimize,
-  onDetach,
   snapEnabled,
 }: EnhancedFrameWindowProps) {
-  const [position, setPosition] = useState(frame.position)
-  const [size, setSize] = useState(frame.size)
-  const [isDragging, setIsDragging] = useState(false)
-  const [isResizing, setIsResizing] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const ws = { width: bounds?.width || 800, height: bounds?.height || 600 }
+  const [rect, setRect] = useState<Rect>({ ...frame.position, ...frame.size })
+  const [gesture, setGesture] = useState<Gesture>(null)
   const [isMaximized, setIsMaximized] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(frame.isMinimized || false)
-  const [isFloating, setIsFloating] = useState(false)
-  const [previousState, setPreviousState] = useState({ position: frame.position, size: frame.size })
-  const [showScrollButton, setShowScrollButton] = useState(false)
-  const [pulseRipple, setPulseRipple] = useState(false)
-  const [breathOpacity, setBreathOpacity] = useState(1)
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleDraft, setTitleDraft] = useState(frame.title)
   const [inputValue, setInputValue] = useState("")
-  const [isSending, setIsSending] = useState(false)
-  const [adaptationSuggestion, setAdaptationSuggestion] = useState<string | null>(null)
-  const [resizeHandle, setResizeHandle] = useState<string | null>(null)
-
-  const windowRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const prevRect = useRef<Rect | null>(null)
+  const pendingZone = useRef<SnapZone>(null)
+  const rafRef = useRef<number | undefined>(undefined)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const animationFrameRef = useRef<number | undefined>(undefined)
 
-  const workspaceW = bounds?.width || 800
-  const workspaceH = bounds?.height || 600
-  const originX = bounds?.left || 0
-  const originY = bounds?.top || 0
-
-  const { pulse, isResonating, fieldCoherence, emergentProperties } = useResonance(
-    `frame-${frame.id}`,
-    `Frame ${frame.title}`,
-    42 + (frame.id.charCodeAt(0) % 20),
-  )
-
-  // Sync from parent when frame geometry changes externally
+  // Sync from parent when geometry changes externally (tiling, layout restore, clamp)
   useEffect(() => {
-    if (!isDragging && !isResizing && !isMaximized) {
-      setPosition(frame.position)
-      setSize(frame.size)
-    }
-  }, [frame.position.x, frame.position.y, frame.size.width, frame.size.height, isDragging, isResizing, isMaximized])
-
-  // Subtle breath — stay readable
-  useEffect(() => {
-    const breathInterval = setInterval(() => {
-      setBreathOpacity((prev) => (prev === 1 ? 0.94 : 1))
-    }, 3200)
-    return () => clearInterval(breathInterval)
-  }, [])
+    if (!gesture) setRect({ ...frame.position, ...frame.size })
+  }, [frame.position.x, frame.position.y, frame.size.width, frame.size.height, gesture])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [frame.messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+  }, [frame.messages.length])
 
-  useEffect(() => {
-    if (fieldCoherence > 0.8 && frame.messages.length > 5 && Math.random() < 0.2) {
-      const suggestions = [
-        "Suggest creating a memory thread from this conversation?",
-        "Would you like to fork this frame for deeper analysis?",
-        "Recommend saving this pattern to symbolic memory?",
-      ]
-      setAdaptationSuggestion(suggestions[Math.floor(Math.random() * suggestions.length)])
-    }
-  }, [fieldCoherence, frame.messages.length])
-
-  const clampPos = useCallback(
-    (x: number, y: number, w: number, h: number) => {
-      const maxX = Math.max(0, workspaceW - w)
-      const maxY = Math.max(0, workspaceH - h)
-      let nx = Math.max(0, Math.min(maxX, x))
-      let ny = Math.max(0, Math.min(maxY, y))
-      if (snapEnabled) {
-        const g = 24
-        nx = Math.round(nx / g) * g
-        ny = Math.round(ny / g) * g
-        nx = Math.max(0, Math.min(maxX, nx))
-        ny = Math.max(0, Math.min(maxY, ny))
-      }
-      return { x: nx, y: ny }
+  const commit = useCallback(
+    (r: Rect) => {
+      onUpdateFrame(frame.id, { position: { x: r.x, y: r.y }, size: { width: r.width, height: r.height } })
     },
-    [workspaceW, workspaceH, snapEnabled],
+    [frame.id, onUpdateFrame],
   )
 
-  const handleSendMessage = () => {
-    const text = inputValue.trim()
-    if (!text || isSending) return
-    setIsSending(true)
-    onSendMessage(frame.id, text)
-    setInputValue("")
-    pulse({ amplitude: 0.7, hz: 44 })
-    // Brief local busy state; hook updates messages async
-    setTimeout(() => setIsSending(false), 350)
-  }
-
-  const handleAdaptationSuggestion = (accept: boolean) => {
-    if (accept && adaptationSuggestion) {
-      if (adaptationSuggestion.includes("fork")) onFork(frame.id)
-      else if (adaptationSuggestion.includes("mirror")) onMirror(frame.id)
-      else pulse({ amplitude: 1.2, hz: 48 })
-    }
-    setAdaptationSuggestion(null)
-  }
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (isMaximized || isMinimized) return
-      const rect = windowRef.current?.getBoundingClientRect()
-      if (!rect) return
-      setIsDragging(true)
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      })
-      pulse({ amplitude: 0.6, hz: 42 })
-    },
-    [isMaximized, isMinimized, pulse],
-  )
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (isDragging && !isMaximized && !isMinimized) {
-        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        animationFrameRef.current = requestAnimationFrame(() => {
-          // Convert viewport mouse → workspace-local coordinates
-          const rawX = e.clientX - dragOffset.x - originX
-          const rawY = e.clientY - dragOffset.y - originY
-          const next = clampPos(rawX, rawY, size.width, size.height)
-          setPosition(next)
-          onUpdateFrame(frame.id, { position: next })
-        })
-      }
-
-      if (isResizing && resizeHandle) {
-        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        animationFrameRef.current = requestAnimationFrame(() => {
-          const localX = e.clientX - originX
-          const localY = e.clientY - originY
-
-          let newWidth = size.width
-          let newHeight = size.height
-          let newX = position.x
-          let newY = position.y
-
-          const minW = 280
-          const minH = 200
-
-          switch (resizeHandle) {
-            case "se":
-              newWidth = Math.max(minW, Math.min(workspaceW - position.x, localX - position.x))
-              newHeight = Math.max(minH, Math.min(workspaceH - position.y, localY - position.y))
-              break
-            case "sw":
-              newWidth = Math.max(minW, position.x + size.width - localX)
-              newHeight = Math.max(minH, Math.min(workspaceH - position.y, localY - position.y))
-              newX = Math.min(position.x + size.width - minW, Math.max(0, localX))
-              break
-            case "ne":
-              newWidth = Math.max(minW, Math.min(workspaceW - position.x, localX - position.x))
-              newHeight = Math.max(minH, position.y + size.height - localY)
-              newY = Math.min(position.y + size.height - minH, Math.max(0, localY))
-              break
-            case "nw":
-              newWidth = Math.max(minW, position.x + size.width - localX)
-              newHeight = Math.max(minH, position.y + size.height - localY)
-              newX = Math.min(position.x + size.width - minW, Math.max(0, localX))
-              newY = Math.min(position.y + size.height - minH, Math.max(0, localY))
-              break
-            case "n":
-              newHeight = Math.max(minH, position.y + size.height - localY)
-              newY = Math.min(position.y + size.height - minH, Math.max(0, localY))
-              break
-            case "s":
-              newHeight = Math.max(minH, Math.min(workspaceH - position.y, localY - position.y))
-              break
-            case "e":
-              newWidth = Math.max(minW, Math.min(workspaceW - position.x, localX - position.x))
-              break
-            case "w":
-              newWidth = Math.max(minW, position.x + size.width - localX)
-              newX = Math.min(position.x + size.width - minW, Math.max(0, localX))
-              break
-          }
-
-          setSize({ width: newWidth, height: newHeight })
-          setPosition({ x: newX, y: newY })
-          onUpdateFrame(frame.id, {
-            size: { width: newWidth, height: newHeight },
-            position: { x: newX, y: newY },
-          })
-        })
-      }
-    },
-    [
-      isDragging,
-      isResizing,
-      resizeHandle,
-      dragOffset,
-      size,
-      position,
-      frame.id,
-      onUpdateFrame,
-      isMaximized,
-      isMinimized,
-      originX,
-      originY,
-      workspaceW,
-      workspaceH,
-      clampPos,
-    ],
-  )
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-    setIsResizing(false)
-    setResizeHandle(null)
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-  }, [])
-
-  useEffect(() => {
-    if (isDragging || isResizing) {
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
-    }
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("mouseup", handleMouseUp)
-    }
-  }, [isDragging, isResizing, handleMouseMove, handleMouseUp])
-
-  const handleMaximize = () => {
-    if (isMaximized) {
-      setPosition(previousState.position)
-      setSize(previousState.size)
-      onUpdateFrame(frame.id, { position: previousState.position, size: previousState.size })
+  const beginDrag = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest("button,input")) return
+    if (e.button !== 0) return
+    onActivate(frame.id)
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    let orig = rect
+    if (isMaximized && prevRect.current) {
+      // Un-maximize on drag: keep pointer at same relative x on the restored window
+      const restored = prevRect.current
+      const relX = (e.clientX - (bounds?.left || 0) - rect.x) / rect.width
+      orig = { ...restored, x: e.clientX - (bounds?.left || 0) - restored.width * relX, y: 0 }
       setIsMaximized(false)
-    } else {
-      setPreviousState({ position, size })
-      const nextPos = { x: 8, y: 8 }
-      const nextSize = {
-        width: Math.max(280, workspaceW - 16),
-        height: Math.max(200, workspaceH - 16),
-      }
-      setPosition(nextPos)
-      setSize(nextSize)
-      onUpdateFrame(frame.id, { position: nextPos, size: nextSize })
-      setIsMaximized(true)
+      setRect(orig)
     }
-    pulse({ amplitude: 1.0, hz: 48 })
+    setGesture({ kind: "drag", startX: e.clientX, startY: e.clientY, orig })
   }
 
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized)
-    onMinimize(frame.id)
-    pulse({ amplitude: 0.8, hz: 40 })
-  }
-
-  const handleDetach = () => {
-    setIsFloating(!isFloating)
-    if (onDetach) onDetach(frame.id)
-    pulse({ amplitude: 1.2, hz: 50 })
-  }
-
-  const handleResizeStart = (handle: string) => (e: React.MouseEvent) => {
-    if (isMaximized || isMinimized) return
+  const beginResize = (handle: string) => (e: React.PointerEvent) => {
+    if (isMaximized) return
     e.preventDefault()
     e.stopPropagation()
-    setIsResizing(true)
-    setResizeHandle(handle)
-    pulse({ amplitude: 0.6, hz: 44 })
+    onActivate(frame.id)
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    setGesture({ kind: "resize", handle, startX: e.clientX, startY: e.clientY, orig: rect })
   }
 
-  const scrollToBottom = () => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({ top: contentRef.current.scrollHeight, behavior: "smooth" })
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!gesture) return
+    const cx = e.clientX
+    const cy = e.clientY
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const dx = cx - gesture.startX
+      const dy = cy - gesture.startY
+      const o = gesture.orig
+      if (gesture.kind === "drag") {
+        let x = o.x + dx
+        let y = o.y + dy
+        if (snapEnabled) {
+          x = snapValue(x, gridSize)
+          y = snapValue(y, gridSize)
+        }
+        const others = getOtherRects ? getOtherRects(frame.id) : []
+        const m = snapEnabled ? magnetSnap({ x, y, width: o.width, height: o.height }, others, ws) : null
+        if (m) {
+          x = m.x
+          y = m.y
+        }
+        x = clamp(x, 0, Math.max(0, ws.width - o.width))
+        y = clamp(y, 0, Math.max(0, ws.height - o.height))
+        const localX = cx - (bounds?.left || 0)
+        const localY = cy - (bounds?.top || 0)
+        const zone = snapEnabled ? detectSnapZone(localX, localY, ws) : null
+        pendingZone.current = zone
+        onDragFeedback?.({ zone, guidesX: m?.guidesX || [], guidesY: m?.guidesY || [] })
+        setRect({ x, y, width: o.width, height: o.height })
+      } else {
+        const h = gesture.handle
+        let { x, y, width, height } = o
+        if (h.includes("e")) width = o.width + dx
+        if (h.includes("s")) height = o.height + dy
+        if (h.includes("w")) {
+          width = o.width - dx
+          x = o.x + dx
+        }
+        if (h.includes("n")) {
+          height = o.height - dy
+          y = o.y + dy
+        }
+        if (snapEnabled) {
+          if (h.includes("e")) width = snapValue(x + width, gridSize) - x
+          if (h.includes("s")) height = snapValue(y + height, gridSize) - y
+          if (h.includes("w")) {
+            const nx = snapValue(x, gridSize)
+            width += x - nx
+            x = nx
+          }
+          if (h.includes("n")) {
+            const ny = snapValue(y, gridSize)
+            height += y - ny
+            y = ny
+          }
+        }
+        if (width < MIN_W) {
+          if (h.includes("w")) x -= MIN_W - width
+          width = MIN_W
+        }
+        if (height < MIN_H) {
+          if (h.includes("n")) y -= MIN_H - height
+          height = MIN_H
+        }
+        x = Math.max(0, x)
+        y = Math.max(0, y)
+        width = Math.min(width, ws.width - x)
+        height = Math.min(height, ws.height - y)
+        setRect({ x, y, width, height })
+      }
+    })
+  }
+
+  const endGesture = (e: React.PointerEvent) => {
+    if (!gesture) return
+    try {
+      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
     }
-    setPulseRipple(true)
-    setTimeout(() => setPulseRipple(false), 300)
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    let final = rect
+    const zone = pendingZone.current
+    if (gesture.kind === "drag" && zone) {
+      prevRect.current = gesture.orig
+      final = zoneRect(zone, ws)
+      setIsMaximized(zone === "maximize")
+    }
+    pendingZone.current = null
+    onDragFeedback?.(null)
+    setGesture(null)
+    setRect(final)
+    commit(final)
   }
 
-  // Minimized chip is handled by FrameTabs — hide window body
-  if (isMinimized) {
-    return null
+  const toggleMaximize = () => {
+    if (isMaximized && prevRect.current) {
+      const r = clampRect(prevRect.current, ws)
+      setIsMaximized(false)
+      setRect(r)
+      commit(r)
+    } else {
+      prevRect.current = rect
+      const r = zoneRect("maximize", ws)
+      setIsMaximized(true)
+      setRect(r)
+      commit(r)
+    }
   }
+
+  const handleSend = () => {
+    const text = inputValue.trim()
+    if (!text || frame.isMuted) return
+    onSendMessage(frame.id, text)
+    setInputValue("")
+  }
+
+  const commitTitle = () => {
+    const t = titleDraft.trim()
+    if (t && t !== frame.title) onUpdateTitle(frame.id, t.slice(0, 80))
+    setEditingTitle(false)
+  }
+
+  if (frame.isMinimized) return null
+
+  const w = Math.min(rect.width, ws.width)
+  const h = Math.min(rect.height, ws.height)
 
   return (
     <div
-      ref={windowRef}
+      role="dialog"
+      aria-label={frame.title}
       className={cn(
-        "absolute signalframe-glass rounded-sm overflow-hidden transition-all duration-200",
-        "bg-black/45 backdrop-blur-md",
-        isActive
-          ? "border-[color:var(--hub-accent-border)] shadow-glow-md ring-1 ring-[color:var(--hub-accent-soft)]"
-          : "border-white/15 hover:border-white/30",
-        isDragging && "cursor-grabbing",
-        isResizing && "cursor-nw-resize",
-        isFloating && "z-50 ring-2 ring-purple-500/30",
+        "ghost-glass ghost-brackets absolute flex flex-col overflow-hidden rounded-[2px]",
+        isActive && "is-active",
+        gesture?.kind === "drag" && "cursor-grabbing select-none",
       )}
       style={{
-        left: position.x,
-        top: position.y,
-        width: Math.min(size.width, workspaceW),
-        height: Math.min(size.height, workspaceH),
-        zIndex: isActive ? 50 : isFloating ? 45 : 10,
-        opacity: breathOpacity,
-        transition: isDragging || isResizing ? "none" : "opacity 3s ease-in-out",
+        left: rect.x,
+        top: rect.y,
+        width: w,
+        height: h,
+        zIndex,
+        transition: gesture ? "none" : "left 120ms ease-out, top 120ms ease-out, width 120ms ease-out, height 120ms ease-out",
+        willChange: gesture ? "left, top, width, height" : undefined,
       }}
-      onClick={() => onActivate(frame.id)}
+      onPointerDown={() => !isActive && onActivate(frame.id)}
     >
-      {/* Resize handles */}
-      {!isMaximized && (
-        <>
-          <div className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize z-10" onMouseDown={handleResizeStart("nw")} />
-          <div className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize z-10" onMouseDown={handleResizeStart("ne")} />
-          <div className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize z-10" onMouseDown={handleResizeStart("sw")} />
-          <div className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-10" onMouseDown={handleResizeStart("se")} />
-          <div className="absolute top-0 left-3 right-3 h-1 cursor-n-resize z-10" onMouseDown={handleResizeStart("n")} />
-          <div className="absolute bottom-0 left-3 right-3 h-1 cursor-s-resize z-10" onMouseDown={handleResizeStart("s")} />
-          <div className="absolute left-0 top-3 bottom-3 w-1 cursor-w-resize z-10" onMouseDown={handleResizeStart("w")} />
-          <div className="absolute right-0 top-3 bottom-3 w-1 cursor-e-resize z-10" onMouseDown={handleResizeStart("e")} />
-        </>
-      )}
-
-      {/* Soft glass sheen */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/[0.02] pointer-events-none",
-          fieldCoherence > 0.8 && "from-purple-500/10 via-transparent to-blue-500/5",
-        )}
-      />
-
-      {/* Header */}
-      <div
-        ref={headerRef}
-        className={cn(
-          "relative z-[3] flex items-center justify-between px-4 py-2 border-b border-white/15 bg-black/35 backdrop-blur-md",
-          !isMaximized && "cursor-grab active:cursor-grabbing",
-        )}
-        onMouseDown={handleMouseDown}
-      >
-        <div className="flex items-center space-x-3 min-w-0">
+      {!isMaximized &&
+        HANDLES.map(({ h: hd, cls }) => (
           <div
-            className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all duration-200 shrink-0",
-              isResonating ? "bg-blue-400 animate-pulse shadow-glow-sm" : "bg-white/40",
-            )}
+            key={hd}
+            className={cn("absolute z-10 touch-none", cls)}
+            onPointerDown={beginResize(hd)}
+            onPointerMove={onPointerMove}
+            onPointerUp={endGesture}
+            onPointerCancel={endGesture}
           />
-          <ConsciousnessGlyph className="w-6 h-6 shrink-0" animate={isResonating} />
-          <span className="text-white/85 font-mono text-sm tracking-wide select-none truncate max-w-48">
-            {frame.title}
+        ))}
+
+      {/* Title bar */}
+      <div
+        className={cn(
+          "ghost-titlebar relative z-[3] flex h-8 shrink-0 touch-none items-center justify-between gap-2 px-2",
+          !isMaximized ? "cursor-grab" : "cursor-default",
+        )}
+        onPointerDown={beginDrag}
+        onPointerMove={onPointerMove}
+        onPointerUp={endGesture}
+        onPointerCancel={endGesture}
+        onDoubleClick={(e) => {
+          if ((e.target as HTMLElement).closest("button,input")) return
+          toggleMaximize()
+        }}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className={cn("h-1.5 w-1.5 shrink-0 rounded-full", isActive ? "bg-[color:var(--ghost-accent)]" : "bg-white/25")}
+          />
+          <span className="font-mono text-[10px] text-[color:var(--ghost-faint)]">
+            SF-{frame.id.slice(-4).toUpperCase()}
           </span>
-          {fieldCoherence > 0.8 && (
-            <Badge variant="outline" className="text-xs text-purple-400 border-purple-400/30">
-              COHERENT
-            </Badge>
+          {editingTitle ? (
+            <input
+              autoFocus
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={commitTitle}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitTitle()
+                if (e.key === "Escape") setEditingTitle(false)
+              }}
+              className="ghost-input h-5 max-w-44 py-0 font-mono text-[11px]"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setTitleDraft(frame.title)
+                setEditingTitle(true)
+              }}
+              className="truncate font-mono text-[11px] uppercase tracking-[0.12em] text-[color:var(--ghost-ink)] hover:text-white"
+              title="Rename"
+            >
+              {frame.title}
+            </button>
+          )}
+          {frame.isMuted && <span className="ghost-chip warn">muted</span>}
+          {frame.metadata?.mirrorStatus && frame.metadata.mirrorStatus !== "none" && (
+            <span className="ghost-chip">{frame.metadata.mirrorStatus}</span>
           )}
         </div>
-
-        <div className="flex items-center space-x-2 shrink-0">
-          {frame.isMuted && (
-            <Badge variant="outline" className="text-xs text-amber-400 border-amber-400/40">
-              MUTED
-            </Badge>
-          )}
-          {frame.metadata?.mirrorStatus && frame.metadata.mirrorStatus !== "none" && (
-            <Badge variant="outline" className="text-xs text-cyan-400 border-cyan-400/40">
-              {frame.metadata.mirrorStatus.toUpperCase()}
-            </Badge>
-          )}
-          <FrameToolbar
-            frameId={frame.id}
-            onMirror={onMirror}
-            onFork={onFork}
-            onMute={onMute}
-            onReveal={onReveal}
-          />
-          <TechButton
-            onClick={handleDetach}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0"
-            title={isFloating ? "Dock window" : "Float window"}
+        <div className="flex shrink-0 items-center gap-0.5">
+          <FrameToolbar frameId={frame.id} onMirror={onMirror} onFork={onFork} onMute={onMute} onReveal={onReveal} />
+          <span className="mx-1 h-3 w-px bg-white/10" />
+          <button type="button" className="ghost-icon-btn" title="Minimize" onClick={() => onMinimize(frame.id)}>
+            <Minus size={12} />
+          </button>
+          <button
+            type="button"
+            className="ghost-icon-btn"
+            title={isMaximized ? "Restore (double-click title)" : "Maximize (double-click title)"}
+            onClick={toggleMaximize}
           >
-            {isFloating ? (
-              <Move size={12} className="text-purple-400" />
-            ) : (
-              <ExternalLink size={12} className="text-white/60 hover:text-white/80" />
-            )}
-          </TechButton>
-          <TechButton onClick={handleMinimize} size="sm" variant="ghost" className="h-6 w-6 p-0">
-            <Minimize2 size={12} className="text-white/60 hover:text-white/80" />
-          </TechButton>
-          <TechButton onClick={handleMaximize} size="sm" variant="ghost" className="h-6 w-6 p-0">
-            {isMaximized ? (
-              <RotateCcw size={12} className="text-white/60 hover:text-white/80" />
-            ) : (
-              <Maximize2 size={12} className="text-white/60 hover:text-white/80" />
-            )}
-          </TechButton>
-          <TechButton
-            onClick={() => onClose(frame.id)}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-red-500/20"
-          >
-            <X size={12} className="text-white/60 hover:text-red-400" />
-          </TechButton>
+            {isMaximized ? <RestoreIcon size={11} /> : <Square size={10} />}
+          </button>
+          <button type="button" className="ghost-icon-btn danger" title="Close" onClick={() => onClose(frame.id)}>
+            <X size={12} />
+          </button>
         </div>
       </div>
 
-      {/* Content */}
-      <div
-        ref={contentRef}
-        className="relative z-[3] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent p-4 space-y-3"
-        style={{ height: Math.max(80, Math.min(size.height, workspaceH) - 120) }}
-      >
-        {frame.messages.map((message) => (
-          <div key={message.id} className={cn("flex", message.sender === "user" ? "justify-end" : "justify-start")}>
+      {/* Messages */}
+      <div className="ghost-scroll relative z-[3] min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">
+        {frame.messages.map((m) => (
+          <div key={m.id} className={cn("flex", m.sender === "user" ? "justify-end" : "justify-start")}>
             <div
               className={cn(
-                "max-w-[80%] rounded-sm p-3 backdrop-blur-md",
-                message.sender === "user"
-                  ? "bg-blue-500/25 border border-blue-500/35 text-blue-100"
-                  : message.type === "system"
-                    ? "bg-amber-500/10 border border-amber-500/25 text-amber-100/90"
-                    : "bg-white/10 border border-white/15 text-white/90",
+                "max-w-[86%] rounded-[2px] border px-2.5 py-2",
+                m.sender === "user"
+                  ? "border-[color:var(--ghost-line-strong)] bg-white/[0.06] text-[color:var(--ghost-ink)]"
+                  : m.type === "system"
+                    ? "border-dashed border-[color:var(--ghost-line)] bg-transparent text-[color:var(--ghost-dim)]"
+                    : "border-[color:var(--ghost-line)] bg-black/30 text-[color:var(--ghost-ink)]",
               )}
             >
-              {message.sender === "ai" && (
-                <div className="flex items-center space-x-2 mb-2">
-                  <Brain size={14} className="text-purple-400" />
-                  <span className="text-xs text-white/60 font-mono">
-                    {message.type === "system" ? "WHISPER BUS" : "RELAY"}
-                  </span>
-                </div>
-              )}
-              <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-              {message.metadata?.tokens != null && (
-                <div className="text-xs text-white/40 mt-2 font-mono">
-                  {Math.round(message.metadata.tokens)} tokens
-                  {message.metadata.processingTime != null ? ` · ${message.metadata.processingTime}ms` : ""}
+              <div className="mb-1 flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.14em] text-[color:var(--ghost-faint)]">
+                <span>{m.sender === "user" ? "operator" : m.type === "system" ? "bus" : "relay"}</span>
+                <span>
+                  {(() => {
+                    const d = new Date(m.timestamp)
+                    return isNaN(d.getTime()) ? "" : d.toTimeString().slice(0, 8)
+                  })()}
+                </span>
+              </div>
+              <div className="whitespace-pre-wrap break-words text-[12px] leading-relaxed">{m.content}</div>
+              {m.metadata?.tokens != null && (
+                <div className="mt-1 font-mono text-[9px] text-[color:var(--ghost-faint)]">
+                  {Math.round(m.metadata.tokens)} tok
+                  {m.metadata.processingTime != null ? ` · ${m.metadata.processingTime}ms` : ""}
+                  {m.metadata.model ? ` · ${m.metadata.model}` : ""}
                 </div>
               )}
             </div>
           </div>
         ))}
-
-        {isSending && (
-          <div className="flex justify-start">
-            <div className="bg-white/10 border border-white/15 rounded-sm p-3 backdrop-blur-md">
-              <div className="flex items-center space-x-2">
-                <Brain size={14} className="text-purple-400 animate-pulse" />
-                <span className="text-sm text-white/80">Relaying whisper…</span>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div ref={messagesEndRef} />
       </div>
 
-      {adaptationSuggestion && (
-        <div className="absolute top-12 right-4 z-[4] bg-purple-500/20 border border-purple-500/30 rounded-sm p-3 backdrop-blur-md max-w-64">
-          <div className="flex items-start space-x-2">
-            <Zap size={14} className="text-purple-400 mt-0.5" />
-            <div>
-              <div className="text-xs text-purple-300 font-mono mb-1">SUGGESTION</div>
-              <div className="text-sm text-white/90 mb-2">{adaptationSuggestion}</div>
-              <div className="flex space-x-2">
-                <TechButton onClick={() => handleAdaptationSuggestion(true)} size="sm" className="text-xs">
-                  ACCEPT
-                </TechButton>
-                <TechButton
-                  onClick={() => handleAdaptationSuggestion(false)}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs"
-                >
-                  DISMISS
-                </TechButton>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Input */}
-      <div className="relative z-[3] border-t border-white/15 bg-black/35 backdrop-blur-md p-3">
-        <div className="flex items-center space-x-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSendMessage()
-                }
-              }}
-              placeholder={frame.isMuted ? "Frame muted — Reveal to send…" : "Whisper to mesh (persists via team bus)…"}
-              className="w-full bg-black/40 border border-white/20 rounded-sm px-3 py-2 text-white/90 placeholder-white/40 text-sm focus:outline-none focus:border-[color:var(--hub-accent-border)] focus:bg-black/50"
-              disabled={isSending || Boolean(frame.isMuted)}
-            />
-            <MessageSquare size={16} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40" />
-          </div>
-          <TechButton onClick={handleSendMessage} disabled={!inputValue.trim() || isSending} size="sm" className="px-4">
-            SEND
-          </TechButton>
+      <div className="relative z-[3] shrink-0 border-t border-[color:var(--ghost-line)] bg-black/25 px-2 py-2">
+        <div className="flex items-center gap-1.5">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
+            placeholder={frame.isMuted ? "Muted — Reveal to send" : "Transmit to mesh…"}
+            className="ghost-input font-mono"
+            disabled={Boolean(frame.isMuted)}
+            aria-label="Message"
+          />
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={handleSend}
+            disabled={!inputValue.trim() || Boolean(frame.isMuted)}
+          >
+            <Send size={11} /> TX
+          </button>
         </div>
-
-        <div className="flex items-center justify-between mt-2 text-xs text-white/45">
-          <div className="flex items-center space-x-3">
-            <span>Field: {(fieldCoherence * 100).toFixed(1)}%</span>
-            <span>Mode: {frame.inputMode?.toUpperCase() || "FILTERED"}</span>
-            <span className="text-amber-400/80">lattice_sync:false</span>
+        <div className="mt-1.5 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-[color:var(--ghost-faint)]">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="hover:text-[color:var(--ghost-ink)]"
+              onClick={() => onToggleInputMode(frame.id, frame.inputMode === "raw" ? "filtered" : "raw")}
+              title="Toggle input mode"
+            >
+              mode:{frame.inputMode || "filtered"}
+            </button>
+            {frame.preferSeat && <span>seat:{frame.preferSeat}</span>}
+            <span>msgs:{frame.messages.length}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <div className={cn("w-2 h-2 rounded-full", isResonating ? "bg-green-400 animate-pulse" : "bg-gray-500")} />
-            <span>∿◊∿</span>
-          </div>
+          <span>
+            {Math.round(rect.x)},{Math.round(rect.y)} · {Math.round(w)}×{Math.round(h)}
+          </span>
         </div>
       </div>
-
-      {showScrollButton && (
-        <button
-          onClick={scrollToBottom}
-          className={cn(
-            "absolute bottom-20 right-4 z-[4] w-8 h-8 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 rounded-full",
-            "flex items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-glow-sm",
-            pulseRipple && "animate-ping",
-          )}
-        >
-          <ChevronDown size={14} className="text-blue-400" />
-        </button>
-      )}
-
-      {pulseRipple && (
-        <div className="absolute inset-0 border border-blue-400/60 rounded-sm animate-ping pointer-events-none z-[5]" />
-      )}
     </div>
   )
 }

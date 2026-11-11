@@ -37,11 +37,11 @@ const iconMap = {
 }
 
 const categoryColors = {
-  security: "bg-red-500/20 text-red-400 border-red-500/30",
-  intelligence: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  communication: "bg-green-500/20 text-green-400 border-green-500/30",
-  development: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  operations: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  security: "bg-white/5 text-white/70 border-white/15",
+  intelligence: "bg-white/5 text-white/70 border-white/15",
+  communication: "bg-white/5 text-white/70 border-white/15",
+  development: "bg-white/5 text-white/70 border-white/15",
+  operations: "bg-white/5 text-white/70 border-white/15",
 }
 
 export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps) {
@@ -83,7 +83,7 @@ export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps)
   }
 
   return (
-    <div className="absolute inset-0 bg-dark-base/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-[1100] flex items-center justify-center p-4">
       <div className="cyber-panel bg-dark-100/95 backdrop-blur-sm border border-dark-300/50 rounded-sm w-full max-w-6xl h-full max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-dark-300/30">
@@ -114,7 +114,7 @@ export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps)
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-dark-200/30 border border-dark-300/30 rounded-sm text-sm text-dark-800 placeholder-dark-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full pl-10 pr-4 py-2 bg-dark-200/30 border border-dark-300/30 rounded-sm text-sm text-dark-800 placeholder-dark-500 focus:outline-none focus:border-white/40"
               />
             </div>
 
@@ -127,7 +127,7 @@ export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps)
                   onClick={() => setSelectedCategory(category.id)}
                   className={`w-full text-left px-3 py-2 rounded-sm text-sm transition-colors ${
                     selectedCategory === category.id
-                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      ? "bg-white/10 text-white border border-white/30"
                       : "text-dark-600 hover:bg-dark-200/30 hover:text-dark-700"
                   }`}
                 >
@@ -168,7 +168,7 @@ export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps)
                             </div>
                             <div className="text-xs text-dark-600 mb-3 line-clamp-2">{template.description}</div>
                             <div className="flex flex-wrap gap-1">
-                              <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-300 rounded font-mono">
+                              <span className="text-xs px-2 py-1 bg-white/5 text-white/70 rounded font-mono">
                                 seat:{template.defaultSeat}
                               </span>
                               {template.defaultSettings.features.slice(0, 2).map((feature) => (
@@ -213,7 +213,7 @@ export function FrameTemplateMenu({ onSelect, onClose }: FrameTemplateMenuProps)
                             </div>
                             <div className="text-xs text-dark-600 mb-2">{template.description}</div>
                             <div className="flex items-center space-x-4 text-xs text-dark-500">
-                              <span className="font-mono text-purple-300">seat:{template.defaultSeat}</span>
+                              <span className="font-mono text-white/60">seat:{template.defaultSeat}</span>
                               <span>{template.commands.length} commands</span>
                               <span>{template.defaultSettings.features.length} features</span>
                               <span>{template.initialMessages.length} initial messages</span>

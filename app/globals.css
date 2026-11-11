@@ -1217,3 +1217,232 @@ html[data-theme="light"] .wire-frame {
 .signalframe-workspace-bg {
   background-color: rgba(0, 0, 0, 0.55);
 }
+
+/* ============================================================
+   GHOSTNODE MIL-TECH THEME (SignalFrame v2 + Offsec suite)
+   Monochrome + one subtle steel accent. No purple / neon.
+   ============================================================ */
+:root {
+  --ghost-bg: #05070a;
+  --ghost-ink: rgba(226, 232, 238, 0.92);
+  --ghost-dim: rgba(196, 206, 216, 0.55);
+  --ghost-faint: rgba(196, 206, 216, 0.28);
+  --ghost-line: rgba(196, 206, 216, 0.14);
+  --ghost-line-strong: rgba(196, 206, 216, 0.32);
+  --ghost-accent: #b9c6cf;
+  --ghost-accent-soft: rgba(185, 198, 207, 0.12);
+  --ghost-danger: #d26a5c;
+}
+
+/* NASA-style faded "+" reticle field with sparse stars and a vignette */
+.ghost-grid-bg {
+  position: relative;
+  background-color: var(--ghost-bg);
+  background-image:
+    radial-gradient(ellipse at 50% 40%, rgba(120, 140, 160, 0.06), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M60 52v16M52 60h16' stroke='rgba(205,215,225,0.22)' stroke-width='1'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M12 10v4M10 12h4' stroke='rgba(205,215,225,0.10)' stroke-width='1'/%3E%3C/svg%3E"),
+    radial-gradient(1px 1px at 13% 22%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(1px 1px at 71% 63%, rgba(255, 255, 255, 0.28), transparent 60%),
+    radial-gradient(1px 1px at 38% 81%, rgba(255, 255, 255, 0.22), transparent 60%),
+    radial-gradient(1px 1px at 86% 14%, rgba(255, 255, 255, 0.3), transparent 60%),
+    radial-gradient(1px 1px at 55% 37%, rgba(255, 255, 255, 0.18), transparent 60%);
+  background-position: center, -60px -60px, -12px -12px, 0 0, 0 0, 0 0, 0 0, 0 0;
+}
+.ghost-grid-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
+  z-index: 0;
+}
+.ghost-grid-bg[data-snap="on"] {
+  background-image:
+    radial-gradient(ellipse at 50% 40%, rgba(120, 140, 160, 0.06), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M60 52v16M52 60h16' stroke='rgba(205,215,225,0.30)' stroke-width='1'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M12 10v4M10 12h4' stroke='rgba(205,215,225,0.16)' stroke-width='1'/%3E%3C/svg%3E"),
+    radial-gradient(1px 1px at 13% 22%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(1px 1px at 71% 63%, rgba(255, 255, 255, 0.28), transparent 60%),
+    radial-gradient(1px 1px at 38% 81%, rgba(255, 255, 255, 0.22), transparent 60%),
+    radial-gradient(1px 1px at 86% 14%, rgba(255, 255, 255, 0.3), transparent 60%),
+    radial-gradient(1px 1px at 55% 37%, rgba(255, 255, 255, 0.18), transparent 60%);
+}
+
+/* Transparent glass window with corner brackets */
+.ghost-glass {
+  position: relative;
+  background: rgba(8, 11, 15, 0.42);
+  backdrop-filter: blur(10px) saturate(0.6);
+  -webkit-backdrop-filter: blur(10px) saturate(0.6);
+  border: 1px solid var(--ghost-line);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  color: var(--ghost-ink);
+}
+.ghost-glass.is-active {
+  border-color: var(--ghost-line-strong);
+  box-shadow: 0 14px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--ghost-accent-soft);
+}
+.ghost-brackets::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  z-index: 6;
+  --c: var(--ghost-faint);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 1px 12px no-repeat;
+}
+.ghost-glass.is-active.ghost-brackets::before {
+  --c: var(--ghost-accent);
+}
+.ghost-titlebar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+  border-bottom: 1px solid var(--ghost-line);
+}
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--ghost-line);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ghost-dim);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.55rem;
+  border-radius: 2px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ghost-btn:hover:not(:disabled) {
+  color: var(--ghost-ink);
+  border-color: var(--ghost-line-strong);
+  background: var(--ghost-accent-soft);
+}
+.ghost-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ghost-btn[data-on="true"] {
+  color: var(--ghost-ink);
+  border-color: var(--ghost-accent);
+  background: var(--ghost-accent-soft);
+}
+.ghost-btn.danger:hover:not(:disabled) {
+  color: var(--ghost-danger);
+  border-color: rgba(210, 106, 92, 0.5);
+  background: rgba(210, 106, 92, 0.08);
+}
+.ghost-icon-btn {
+  display: inline-flex;
+  height: 22px;
+  width: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  color: var(--ghost-dim);
+}
+.ghost-icon-btn:hover {
+  color: var(--ghost-ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+.ghost-icon-btn.danger:hover {
+  color: var(--ghost-danger);
+  background: rgba(210, 106, 92, 0.1);
+}
+.ghost-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--ghost-line);
+  color: var(--ghost-dim);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.ghost-chip.accent {
+  color: var(--ghost-ink);
+  border-color: var(--ghost-accent);
+}
+.ghost-chip.warn {
+  color: #d9c58f;
+  border-color: rgba(217, 197, 143, 0.45);
+}
+.ghost-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--ghost-line);
+  border-radius: 2px;
+  color: var(--ghost-ink);
+  font-size: 12px;
+  padding: 0.45rem 0.6rem;
+  outline: none;
+}
+.ghost-input::placeholder {
+  color: var(--ghost-faint);
+}
+.ghost-input:focus {
+  border-color: var(--ghost-accent);
+  background: rgba(0, 0, 0, 0.6);
+}
+.ghost-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ghost-faint);
+}
+.ghost-snap-preview {
+  position: absolute;
+  pointer-events: none;
+  border: 1px dashed var(--ghost-accent);
+  background: rgba(185, 198, 207, 0.06);
+  z-index: 900;
+  transition: all 0.12s ease-out;
+}
+.ghost-guide-x,
+.ghost-guide-y {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(185, 198, 207, 0.45);
+  z-index: 901;
+}
+.ghost-guide-x {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.ghost-guide-y {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.ghost-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.ghost-scroll::-webkit-scrollbar-thumb {
+  background: rgba(196, 206, 216, 0.18);
+  border-radius: 3px;
+}
+.ghost-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ghost-snap-preview {
+    transition: none;
+  }
+}

@@ -28,7 +28,7 @@ export function SignalFrame() {
 
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" />
               <span>Bridge Active</span>
             </div>
             <div className="text-xs font-mono">v1.0.0-whisper</div>

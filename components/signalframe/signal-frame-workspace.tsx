@@ -1,14 +1,33 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+/**
+ * SignalFrame v2 workspace — ghostnode mil-tech window manager.
+ * "+" reticle field, transparent glass windows, grid + magnetic snap,
+ * drag-to-edge snap zones with preview, tiling presets, z-order,
+ * free-slot auto placement, saved layouts, keyboard control.
+ */
+
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useSignalFrame } from "@/hooks/useSignalFrame"
-import { EnhancedFrameWindow } from "./enhanced-frame-window"
+import { EnhancedFrameWindow, type DragFeedback } from "./enhanced-frame-window"
 import { FrameTemplateMenu } from "./frame-template-menu"
 import { ControlPanel } from "./control-panel"
 import { FrameTabs } from "./frame-tabs"
-import { TechButton } from "@/components/ui/tech-button"
-import { Plus, Grid3x3, Grid } from "lucide-react"
 import { TeamCollabPanel } from "./team-collab-panel"
+import {
+  type Rect,
+  type SavedLayout,
+  type TilePreset,
+  tile,
+  zoneRect,
+  findFreeSlot,
+  clampRect,
+  toFractional,
+  fromFractional,
+  loadLayouts,
+  saveLayout,
+  deleteLayout,
+} from "@/lib/signalframe/window-geometry"
 
 export type WorkspaceBounds = {
   width: number
@@ -19,12 +38,21 @@ export type WorkspaceBounds = {
   pixelRatio: number
 }
 
+const TOP_BAR = 40
+const TASKBAR = 36
+const GRID_STEPS = [12, 24, 48]
+const PREFS_KEY = "signalframe_prefs_v2"
+
 export function SignalFrameWorkspace() {
   const [showTemplateMenu, setShowTemplateMenu] = useState(false)
   const [minimizedFrames, setMinimizedFrames] = useState<string[]>([])
   const [snapEnabled, setSnapEnabled] = useState(true)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const workspaceRef = useRef<HTMLDivElement>(null)
+  const [gridSize, setGridSize] = useState(24)
+  const [zOrder, setZOrder] = useState<string[]>([])
+  const [feedback, setFeedback] = useState<DragFeedback>(null)
+  const [layouts, setLayouts] = useState<SavedLayout[]>([])
+  const areaRef = useRef<HTMLDivElement>(null)
+  const seenIds = useRef<Set<string> | null>(null)
   const [bounds, setBounds] = useState<WorkspaceBounds>({
     width: 0,
     height: 0,
@@ -50,258 +78,320 @@ export function SignalFrameWorkspace() {
     revealFrame,
   } = useSignalFrame()
 
-  const measureWorkspace = useCallback(() => {
-    const el = workspaceRef.current
+  // prefs
+  useEffect(() => {
+    try {
+      const p = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")
+      if (typeof p.snap === "boolean") setSnapEnabled(p.snap)
+      if (GRID_STEPS.includes(p.grid)) setGridSize(p.grid)
+    } catch {
+      /* ignore */
+    }
+    setLayouts(loadLayouts())
+  }, [])
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ snap: snapEnabled, grid: gridSize }))
+    } catch {
+      /* ignore */
+    }
+  }, [snapEnabled, gridSize])
+
+  const ws = useMemo(() => ({ width: bounds.width, height: bounds.height }), [bounds.width, bounds.height])
+
+  const measure = useCallback(() => {
+    const el = areaRef.current
     if (!el) return
-    const rect = el.getBoundingClientRect()
-    const width = Math.max(0, Math.floor(rect.width))
-    const height = Math.max(0, Math.floor(rect.height))
-    const pixelRatio = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1
-
-    let deviceType: "mobile" | "tablet" | "desktop" = "desktop"
-    if (width < 768) deviceType = "mobile"
-    else if (width < 1024) deviceType = "tablet"
-
+    const r = el.getBoundingClientRect()
+    const width = Math.max(0, Math.floor(r.width))
+    const height = Math.max(0, Math.floor(r.height))
     setBounds({
       width,
       height,
-      left: rect.left,
-      top: rect.top,
-      deviceType,
-      pixelRatio,
+      left: r.left,
+      top: r.top,
+      deviceType: width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop",
+      pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
     })
+  }, [])
 
-    // Clamp existing frames into workspace (not viewport)
-    frames.forEach((frame) => {
-      const maxW = Math.max(280, width - 16)
-      const maxH = Math.max(180, height - 16)
-      const nextW = Math.min(frame.size.width, maxW)
-      const nextH = Math.min(frame.size.height, maxH)
-      const nextX = Math.min(Math.max(0, frame.position.x), Math.max(0, width - nextW))
-      const nextY = Math.min(Math.max(0, frame.position.y), Math.max(0, height - nextH))
+  useEffect(() => {
+    measure()
+    const el = areaRef.current
+    const ro = el && typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
+    if (el && ro) ro.observe(el)
+    window.addEventListener("resize", measure)
+    window.addEventListener("scroll", measure, true)
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener("resize", measure)
+      window.removeEventListener("scroll", measure, true)
+    }
+  }, [measure])
 
-      if (
-        nextX !== frame.position.x ||
-        nextY !== frame.position.y ||
-        nextW !== frame.size.width ||
-        nextH !== frame.size.height
-      ) {
-        updateFrame(frame.id, {
-          position: { x: nextX, y: nextY },
-          size: { width: nextW, height: nextH },
-        })
+  // Clamp windows when workspace shrinks (remembered layout is otherwise preserved)
+  useEffect(() => {
+    if (!ws.width || !ws.height) return
+    frames.forEach((f) => {
+      const r = clampRect({ ...f.position, ...f.size }, ws)
+      if (r.x !== f.position.x || r.y !== f.position.y || r.width !== f.size.width || r.height !== f.size.height) {
+        updateFrame(f.id, { position: { x: r.x, y: r.y }, size: { width: r.width, height: r.height } })
       }
     })
-  }, [frames, updateFrame])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ws.width, ws.height, frames.length])
 
+  // z-order bookkeeping + smart placement of newly spawned frames
   useEffect(() => {
-    measureWorkspace()
-    const el = workspaceRef.current
-    let ro: ResizeObserver | null = null
-    if (el && typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(() => measureWorkspace())
-      ro.observe(el)
+    const ids = frames.map((f) => f.id)
+    setZOrder((prev) => {
+      const kept = prev.filter((id) => ids.includes(id))
+      const added = ids.filter((id) => !kept.includes(id))
+      return [...kept, ...added]
+    })
+    if (!ws.width) return
+    if (seenIds.current === null) {
+      seenIds.current = new Set(ids)
+      return
     }
-    window.addEventListener("resize", measureWorkspace)
-    return () => {
-      window.removeEventListener("resize", measureWorkspace)
-      ro?.disconnect()
+    for (const f of frames) {
+      if (seenIds.current.has(f.id)) continue
+      seenIds.current.add(f.id)
+      const others = frames.filter((o) => o.id !== f.id && !minimizedFrames.includes(o.id)).map((o) => ({ ...o.position, ...o.size }))
+      const size = {
+        width: Math.min(f.size.width || 520, Math.max(280, ws.width - 16)),
+        height: Math.min(f.size.height || 400, Math.max(200, ws.height - 16)),
+      }
+      const pos = findFreeSlot(size, others, ws, gridSize)
+      updateFrame(f.id, { position: pos, size })
+      setActiveFrameId(f.id)
     }
-  }, [measureWorkspace])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frames.map((f) => f.id).join("|"), ws.width])
 
-  // Initial frame positioning within workspace bounds
-  useEffect(() => {
-    if (isInitialLoad && frames.length > 0 && bounds.width > 0) {
-      const frameWidth = Math.min(520, Math.floor(bounds.width * 0.55))
-      const frameHeight = Math.min(400, Math.floor(bounds.height * 0.62))
-      const padding = 40
-      const cols = Math.max(1, Math.floor((bounds.width - padding) / (frameWidth + padding)))
+  const activate = useCallback(
+    (id: string) => {
+      setActiveFrameId(id)
+      setZOrder((prev) => [...prev.filter((x) => x !== id), id])
+    },
+    [setActiveFrameId],
+  )
 
-      frames.forEach((frame, index) => {
-        const column = index % cols
-        const row = Math.floor(index / cols)
-        const xPos = Math.min(padding + column * (frameWidth + padding), Math.max(0, bounds.width - frameWidth))
-        const yPos = Math.min(padding + row * (frameHeight + padding), Math.max(0, bounds.height - frameHeight))
+  const visibleFrames = frames.filter((f) => !minimizedFrames.includes(f.id))
 
-        updateFrame(frame.id, {
-          position: { x: xPos, y: yPos },
-          size: { width: frameWidth, height: frameHeight },
-        })
+  const getOtherRects = useCallback(
+    (id: string): Rect[] =>
+      frames.filter((f) => f.id !== id && !minimizedFrames.includes(f.id)).map((f) => ({ ...f.position, ...f.size })),
+    [frames, minimizedFrames],
+  )
+
+  const setRect = useCallback(
+    (id: string, r: Rect) => updateFrame(id, { position: { x: r.x, y: r.y }, size: { width: r.width, height: r.height } }),
+    [updateFrame],
+  )
+
+  const handleTile = useCallback(
+    (preset: TilePreset) => {
+      // focus preset puts the active window in the main slot
+      const ordered = [...visibleFrames].sort((a, b) => {
+        if (preset === "focus") {
+          if (a.id === activeFrameId) return -1
+          if (b.id === activeFrameId) return 1
+        }
+        return zOrder.indexOf(a.id) - zOrder.indexOf(b.id)
       })
+      const rects = tile(preset, ordered.length, ws)
+      ordered.forEach((f, i) => setRect(f.id, rects[i]))
+    },
+    [visibleFrames, activeFrameId, zOrder, ws, setRect],
+  )
 
-      setIsInitialLoad(false)
+  const handleSaveLayout = (name: string) => {
+    const rects: Record<string, Rect> = {}
+    frames.forEach((f) => (rects[f.id] = { ...f.position, ...f.size }))
+    setLayouts(saveLayout({ name, savedAt: new Date().toISOString(), workspace: ws, rects: toFractional(rects, ws) }))
+  }
+
+  const handleRestoreLayout = (name: string) => {
+    const l = layouts.find((x) => x.name === name)
+    if (!l) return
+    frames.forEach((f) => {
+      const fr = l.rects[f.id]
+      if (fr) setRect(f.id, fromFractional(fr, ws))
+    })
+    setMinimizedFrames((prev) => prev.filter((id) => !l.rects[id]))
+  }
+
+  const minimize = useCallback(
+    (id: string) => setMinimizedFrames((prev) => (prev.includes(id) ? prev : [...prev, id])),
+    [],
+  )
+  const restore = (id: string) => {
+    setMinimizedFrames((prev) => prev.filter((x) => x !== id))
+    activate(id)
+  }
+  const close = useCallback(
+    (id: string) => {
+      setMinimizedFrames((prev) => prev.filter((x) => x !== id))
+      deleteFrame(id)
+    },
+    [deleteFrame],
+  )
+
+  // Keyboard control
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.ctrlKey || !e.altKey) return
+      const id = activeFrameId
+      const k = e.key
+      if (k === "n" || k === "N") {
+        e.preventDefault()
+        createFrame()
+        return
+      }
+      if (k === "t" || k === "T") {
+        e.preventDefault()
+        handleTile("grid")
+        return
+      }
+      if (k === "]" || k === "[") {
+        e.preventDefault()
+        const vis = visibleFrames.map((f) => f.id)
+        if (!vis.length) return
+        const i = id ? vis.indexOf(id) : -1
+        const next = vis[(i + (k === "]" ? 1 : -1) + vis.length) % vis.length]
+        activate(next)
+        return
+      }
+      if (!id || !ws.width) return
+      if (k === "ArrowLeft") setRect(id, zoneRect("left", ws))
+      else if (k === "ArrowRight") setRect(id, zoneRect("right", ws))
+      else if (k === "ArrowUp") setRect(id, zoneRect("maximize", ws))
+      else if (k === "ArrowDown") {
+        const w = Math.min(560, ws.width - 32)
+        const h = Math.min(420, ws.height - 32)
+        setRect(id, { x: Math.round((ws.width - w) / 2), y: Math.round((ws.height - h) / 2), width: w, height: h })
+      } else if (k === "m" || k === "M") minimize(id)
+      else if (k === "w" || k === "W") close(id)
+      else return
+      e.preventDefault()
     }
-  }, [frames, isInitialLoad, bounds.width, bounds.height, updateFrame])
-
-  const handleUpdateTitle = (frameId: string, title: string) => {
-    updateFrame(frameId, { title })
-  }
-
-  const handleToggleInputMode = (frameId: string, mode: "filtered" | "raw") => {
-    updateFrame(frameId, { inputMode: mode })
-  }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [activeFrameId, visibleFrames, ws, createFrame, handleTile, activate, setRect, minimize, close])
 
   const handleCreateFromTemplate = (templateId: string) => {
-    if (templateId === "custom") {
-      createFrame("Custom Frame")
-    } else {
-      createFrame(undefined, templateId)
-    }
+    if (templateId === "custom") createFrame("Custom Frame")
+    else createFrame(undefined, templateId)
     setShowTemplateMenu(false)
   }
 
-  const handleMinimizeFrame = (frameId: string) => {
-    setMinimizedFrames((prev) => (prev.includes(frameId) ? prev : [...prev, frameId]))
-  }
-
-  const handleRestoreFrame = (frameId: string) => {
-    setMinimizedFrames((prev) => prev.filter((id) => id !== frameId))
-    setActiveFrameId(frameId)
-  }
-
-  const handleCloseFrame = (frameId: string) => {
-    setMinimizedFrames((prev) => prev.filter((id) => id !== frameId))
-    deleteFrame(frameId)
-  }
-
-  const handleToggleSnap = () => {
-    setSnapEnabled(!snapEnabled)
-  }
-
-  const visibleFrames = frames.filter((frame) => !minimizedFrames.includes(frame.id))
-  const viewportInfo = {
-    width: bounds.width,
-    height: bounds.height,
-    deviceType: bounds.deviceType,
-    pixelRatio: bounds.pixelRatio,
-  }
+  const previewRect = feedback?.zone ? zoneRect(feedback.zone, ws) : null
 
   return (
-    <div
-      ref={workspaceRef}
-      className="relative h-full min-h-0 w-full overflow-hidden signalframe-workspace-bg dot-bg"
-    >
-      {/* Frame Tabs (minimized strip) — absolute inside workspace */}
-      <FrameTabs
-        frames={frames}
-        minimizedFrames={minimizedFrames}
-        activeFrameId={activeFrameId}
-        onActivateFrame={setActiveFrameId}
-        onRestoreFrame={handleRestoreFrame}
-        onCloseFrame={handleCloseFrame}
-      />
-
-      {/* Control Panel — absolute, clamped to workspace */}
+    <div className="ghost-grid-bg relative h-full min-h-0 w-full overflow-hidden" data-snap={snapEnabled ? "on" : "off"}>
       <ControlPanel
         frames={frames}
-        viewportInfo={viewportInfo}
+        viewportInfo={{ width: bounds.width, height: bounds.height, deviceType: bounds.deviceType, pixelRatio: bounds.pixelRatio }}
         bounds={bounds}
         snapEnabled={snapEnabled}
+        gridSize={gridSize}
+        layouts={layouts}
         onCreateFrame={() => createFrame()}
         onShowTemplateMenu={() => setShowTemplateMenu(true)}
         onExportFrames={exportFrames}
         onClearAllFrames={clearAllFrames}
-        onToggleSnap={handleToggleSnap}
+        onToggleSnap={() => setSnapEnabled((v) => !v)}
+        onCycleGrid={() => setGridSize((g) => GRID_STEPS[(GRID_STEPS.indexOf(g) + 1) % GRID_STEPS.length])}
+        onTile={handleTile}
+        onSaveLayout={handleSaveLayout}
+        onRestoreLayout={handleRestoreLayout}
+        onDeleteLayout={(n) => setLayouts(deleteLayout(n))}
       />
 
-      {/* Template Menu */}
       {showTemplateMenu && (
         <FrameTemplateMenu onSelect={handleCreateFromTemplate} onClose={() => setShowTemplateMenu(false)} />
       )}
 
-      {/* Responsive Grid Background with snap indicators */}
-      <div className="absolute inset-0 opacity-25 pointer-events-none">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(${snapEnabled ? "rgba(59, 130, 246, 0.12)" : "rgba(100, 116, 139, 0.08)"} 1px, transparent 1px),
-              linear-gradient(90deg, ${snapEnabled ? "rgba(59, 130, 246, 0.12)" : "rgba(100, 116, 139, 0.08)"} 1px, transparent 1px)
-            `,
-            backgroundSize: bounds.deviceType === "mobile" ? "16px 16px" : "24px 24px",
-          }}
-        />
-      </div>
+      {/* Window area (between ops bar and taskbar) */}
+      <div ref={areaRef} className="absolute left-0 right-0 z-[1]" style={{ top: TOP_BAR, bottom: TASKBAR }}>
+        {/* corner telemetry */}
+        <div className="pointer-events-none absolute bottom-2 right-3 z-0 text-right font-mono text-[9px] uppercase leading-4 tracking-[0.18em] text-[color:var(--ghost-faint)]">
+          <div>ghostnode // signalframe v2</div>
+          <div>
+            grid {gridSize}px · snap {snapEnabled ? "armed" : "off"} · {visibleFrames.length}/{frames.length} vis
+          </div>
+        </div>
 
-      {/* ADD-ONLY team collab overlay */}
-      <TeamCollabPanel />
+        {previewRect && (
+          <div
+            className="ghost-snap-preview"
+            style={{ left: previewRect.x, top: previewRect.y, width: previewRect.width, height: previewRect.height }}
+          />
+        )}
+        {feedback?.guidesX.map((x) => <div key={`gx${x}`} className="ghost-guide-x" style={{ left: x }} />)}
+        {feedback?.guidesY.map((y) => <div key={`gy${y}`} className="ghost-guide-y" style={{ top: y }} />)}
 
-      {/* Snap Toggle Button */}
-      <div className="absolute bottom-4 right-4 z-30">
-        <TechButton
-          onClick={handleToggleSnap}
-          variant="outline"
-          size="sm"
-          className="signalframe-glass border-[color:var(--hub-accent-border)]"
-          title={snapEnabled ? "Disable grid snap" : "Enable grid snap"}
-        >
-          {snapEnabled ? <Grid className="w-4 h-4" /> : <Grid3x3 className="w-4 h-4" />}
-        </TechButton>
-      </div>
-
-      {/* Frame Windows — absolute children of workspace */}
-      <div
-        className="relative h-full min-h-0 w-full"
-        style={{ paddingTop: minimizedFrames.length > 0 ? "52px" : "0" }}
-      >
         {visibleFrames.map((frame) => (
           <EnhancedFrameWindow
             key={frame.id}
-            frame={frame}
+            frame={{ ...frame, isMinimized: false }}
             isActive={activeFrameId === frame.id}
             bounds={bounds}
-            onActivate={setActiveFrameId}
-            onClose={handleCloseFrame}
-            onUpdateTitle={handleUpdateTitle}
+            zIndex={10 + Math.max(0, zOrder.indexOf(frame.id))}
+            gridSize={gridSize}
+            getOtherRects={getOtherRects}
+            onDragFeedback={setFeedback}
+            onActivate={activate}
+            onClose={close}
+            onUpdateTitle={(id, title) => updateFrame(id, { title })}
             onSendMessage={sendMessage}
-            onToggleInputMode={handleToggleInputMode}
+            onToggleInputMode={(id, mode) => updateFrame(id, { inputMode: mode })}
             onMirror={mirrorFrame}
             onFork={forkFrame}
             onMute={muteFrame}
             onReveal={revealFrame}
             onUpdateFrame={updateFrame}
-            onMinimize={handleMinimizeFrame}
+            onMinimize={minimize}
             snapEnabled={snapEnabled}
           />
         ))}
 
-        {/* Welcome / empty state (rare — bootstrap usually creates a frame) */}
         {frames.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="cyber-panel signalframe-glass relative rounded-sm border border-[color:var(--hub-accent-border)] p-8 max-w-md">
-                <div className="text-4xl mb-4 text-white/60">⚡</div>
-                <div className="font-mono text-lg font-bold uppercase tracking-wider text-white/90 mb-2">
-                  SIGNALFRAME READY
-                </div>
-                <div className="text-sm text-white/70 mb-4">
-                  Multi-threaded conversational interface initialized.
-                  <br />
-                  Optimized for {bounds.deviceType} workspace.
-                </div>
-                <div className="text-xs text-white/50 mb-6">
-                  Workspace: {bounds.width}×{bounds.height} · Pixel Ratio: {bounds.pixelRatio}x
-                  <br />
-                  Snap to Grid: {snapEnabled ? "ENABLED" : "DISABLED"}
-                </div>
-                <button
-                  onClick={() => setShowTemplateMenu(true)}
-                  className="w-full px-4 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-sm transition-colors font-mono text-sm uppercase tracking-wider mb-2 backdrop-blur-md"
-                >
-                  <Plus className="w-4 h-4 mr-2 inline" />
-                  SELECT FRAME TEMPLATE
+            <div className="ghost-glass ghost-brackets is-active max-w-md p-8 text-center">
+              <div className="ghost-label mb-2">signalframe // standby</div>
+              <div className="mb-1 font-mono text-sm uppercase tracking-[0.2em] text-[color:var(--ghost-ink)]">
+                No frames open
+              </div>
+              <div className="mb-5 text-xs text-[color:var(--ghost-dim)]">
+                Spawn a frame to open an encrypted team channel. Windows snap to the grid, to each other and to screen
+                edges.
+              </div>
+              <div className="flex justify-center gap-2">
+                <button type="button" className="ghost-btn" onClick={() => setShowTemplateMenu(true)}>
+                  Template
                 </button>
-                <button
-                  onClick={() => createFrame("WhisperMesh")}
-                  className="w-full px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-sm transition-colors font-mono text-sm uppercase tracking-wider border border-white/20"
-                >
-                  CREATE WHISPERMESH FRAME
+                <button type="button" className="ghost-btn" data-on="true" onClick={() => createFrame("WhisperMesh")}>
+                  New WhisperMesh frame
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      <TeamCollabPanel />
+
+      <FrameTabs
+        frames={frames}
+        minimizedFrames={minimizedFrames}
+        activeFrameId={activeFrameId}
+        onActivateFrame={activate}
+        onRestoreFrame={restore}
+        onCloseFrame={close}
+        onMinimizeFrame={minimize}
+      />
     </div>
   )
 }
