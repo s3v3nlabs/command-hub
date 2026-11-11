@@ -1,0 +1,13 @@
+{
+  "id": "osint-enrich",
+  "name": "OSINT Auto-Enrichment",
+  "version": "1.0.0",
+  "description": "Paste a target (domain/IP/email/username/phone); classify it, fan out across the OSINT launchers + dork recipes, and auto-build an investigative entity graph. Exports into the existing Entity Graph.",
+  "route": "/offsec/osint-enrich",
+  "nav": { "label": "OSINT Enrich", "group": "intel", "order": 13, "badge": "new" },
+  "permissions": ["ui", "read"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
