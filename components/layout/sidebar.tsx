@@ -328,6 +328,21 @@ const navigationItems: NavItem[] = [
     status: "beta",
   },
   {
+    title: "Off-Sec Suite",
+    icon: Crosshair,
+    status: "new",
+    children: [
+      { title: "Arsenal (kill-chain / CTF)", href: "/offsec", icon: Crosshair, status: "new" },
+      { title: "OSINT Suite", href: "/offsec/osint", icon: Search, status: "new" },
+      { title: "Entity Graph", href: "/offsec/graph", icon: Network },
+      { title: "Data Toolkit / Hash-ID", href: "/offsec/toolkit", icon: Cpu },
+      { title: "Privacy Stack", href: "/offsec/privacy", icon: ShieldCheck },
+      { title: "Engagements", href: "/offsec/engagements", icon: FileText, status: "new" },
+      { title: "Bug Bounty", href: "/bounty", icon: Bug },
+      { title: "WIP Lab", href: "/offsec/lab", icon: Wrench, status: "beta" },
+    ],
+  },
+  {
     title: "Evidence Explorer",
     href: "/evidence-explorer",
     icon: Archive,
