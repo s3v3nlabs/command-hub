@@ -13,6 +13,7 @@ const LINKS: Array<{ href: string; title: string; blurb: string; external?: bool
   { href: "/offsec/threat-field", title: "Threat Field", blurb: "Nash / Fourier / Monte-Carlo model field." },
   { href: "/intelligence/cctv", title: "CCTV Wall", blurb: "Multi-feed wall with per-tile recon metadata." },
   { href: "/dev-operator", title: "Dev Operator", blurb: "Defensive coding assistant (HOLD_VYRNA_UNSYNC)." },
+  { href: "/compute", title: "Compute / AI Pool", blurb: "Multi-backend router, job queue, warm-pool, honest performance surface." },
   { href: "/offsec/engagements", title: "Engagements", blurb: "Scope, RoE, findings log." },
   { href: "/signalframe", title: "SignalFrame", blurb: "Ghostnode mil-tech window manager." },
 ]

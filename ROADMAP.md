@@ -13,6 +13,7 @@ Iterative. This is a living map of what is REAL, what is WIP-by-law, and what is
 - CCTV wall with per-tile recon metadata; connect staged-ladder gated
 - Deception mesh (decoys, canaries, capture/quarantine, VT opt-in, eyes-only AES-256-GCM logs)
 - Dev Operator (defensive; backend status strip; model via `LOCAL_LLM_*`)
+- Compute / AI Acceleration (`/compute`) — multi-backend router, job queue, warm-pool, circuit breaker; honest perf docs (`docs/COMPUTE.md`)
 - Staged-ladder authorization (`lib/offsec/scope-ladder.ts`) — the gating standard
 - Docs: INSTALL / USAGE / UPDATING / CONTRIBUTING / SECURITY / LEGAL / NOTICE / Apache-2.0
 

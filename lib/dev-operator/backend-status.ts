@@ -56,7 +56,7 @@ export async function getDevOperatorBackendStatus(): Promise<DevOperatorBackendS
       kind: "model-connected",
       label: "model-connected",
       detail: ollamaReachable
-        ? `Local LLM reachable at ${ollamaBase}${localModel ? ` · model ${localModel}` : ""}`
+        ? `Local LLM reachable at ${ollamaBase}${localModel ? ` · model ${localModel}` : ""} · route via /compute pool`
         : "Venice key present (server-side) — cloud seat available if egress allowed",
       ollamaBase,
       localModel,

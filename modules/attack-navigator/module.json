@@ -1,0 +1,13 @@
+{
+  "id": "attack-navigator",
+  "name": "Live ATT&CK Navigator",
+  "version": "1.0.0",
+  "description": "MITRE ATT&CK enterprise heatmap that lights up as Heimdall (IDS ring + deception mesh) observes matching events.",
+  "route": "/offsec/attack-navigator",
+  "nav": { "label": "ATT&CK Navigator", "group": "intel", "order": 24, "badge": "new" },
+  "permissions": ["ui", "read"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}

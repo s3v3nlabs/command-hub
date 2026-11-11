@@ -1,0 +1,13 @@
+{
+  "id": "compute",
+  "name": "Compute / AI Acceleration",
+  "version": "1.0.0",
+  "description": "Multi-backend model router (Ollama + RunPod + OpenAI-compat), bounded job queue (TS async + worker_threads), warm-pool, speculative race, circuit-breaker failover. Honest performance surface — quantization/GPU offload/KV-cache documented, not faked. No virtual-RAM-to-compute claims.",
+  "route": "/compute",
+  "nav": { "label": "Compute Pool", "group": "ai", "order": 12, "badge": "new" },
+  "permissions": ["ui", "read", "ai", "ops"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}

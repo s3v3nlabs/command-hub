@@ -379,6 +379,7 @@ const navigationItems: NavItem[] = [
     children: [
       { title: "AI Caller (Grok Bot)", href: "/ai-caller", icon: PhoneCall, status: "new" },
       { title: "AI Ops Hub", href: "/ai-hub", icon: Brain, status: "new" },
+      { title: "Compute / AI Pool", href: "/compute", icon: Cpu, status: "new" },
       { title: "Triadic Local AI", href: "/triadic", icon: Cpu, status: "new" },
       { title: "SoundCheck / Business Tech", href: "/soundcheck", icon: AudioLines, status: "new" },
       { title: "Music Hub / Harmonic", href: "/music", icon: Music2, status: "new" },
