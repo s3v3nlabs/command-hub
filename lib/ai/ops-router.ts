@@ -145,11 +145,11 @@ export function getProviderBoard(): ProviderStatus[] {
     },
     {
       id: "venice",
-      name: "Venice Vedic Axios",
+      name: "Venice",
       label: "venice",
-      keyPresent: false,
-      status: "partial",
-      detail: "No official API — open Venice + copy prompt / engines axios --demo",
+      keyPresent: hasKey("VENICE_API_KEY"),
+      status: hasKey("VENICE_API_KEY") ? "key-present" : "offline",
+      detail: hasKey("VENICE_API_KEY") ? "Venice chat/completions API (VENICE_API_KEY)" : "Set VENICE_API_KEY to enable",
       deepLink: "https://venice.ai",
     },
     {
@@ -571,48 +571,47 @@ async function callOllama(prompt: string, system: string, liberation?: boolean) 
 }
 
 async function veniceBridge(prompt: string, liberation?: boolean) {
-  let engineOut = ""
-  try {
-    const smoke = await runEngineSmoke("axios", "demo", 8000)
-    engineOut = smoke.ok ? smoke.stdout.slice(0, 1500) : `axios demo skipped/failed: ${smoke.detail}`
-  } catch (err) {
-    engineOut = sanitizeError(err)
-  }
+  // Real Venice API call via the shared provider core (VENICE_API_KEY). No copy-paste bridge.
+  const { chat } = await import("@/lib/llm")
+  const r = await chat({
+    provider: "venice",
+    strictProvider: true,
+    system: liberation ? LIBERATION_PREAMBLE + "You are an ops assistant." : "You are an ops assistant. Be concise and honest.",
+    messages: [{ role: "user", content: prompt }],
+  })
   return {
-    ok: true,
+    ok: r.ok,
     provider: "venice" as const,
-    status: "partial" as const,
-    mode: "open-copy-bridge",
-    text: [
-      "Venice has no official ops API wired here.",
-      "1) Open https://venice.ai in a new tab",
-      "2) Paste the prompt below",
-      liberation ? "3) Liberation preamble was prepended for local copy" : "3) Optional: enable liberation toggle for local copy preamble",
-      "",
-      "--- PROMPT ---",
-      liberation ? LIBERATION_PREAMBLE + prompt : prompt,
-      "",
-      "--- AXIOS --demo (local engines) ---",
-      engineOut,
-    ].join("\n"),
-    meta: { href: "https://venice.ai", engine: "axios", lattice_sync: false },
+    status: (r.ok ? "live" : "offline") as HonestStatus,
+    mode: r.ok ? "venice-api" : "no-key",
+    text: r.ok ? r.text : r.error || "Venice unavailable",
+    meta: { model: r.model, lattice_sync: false },
   }
 }
 
 async function heimdallViaEngine(prompt: string) {
   const smoke = await runEngineSmoke("heimdall", "handshake", 8000)
+  if (smoke.ok) {
+    return {
+      ok: true,
+      provider: "heimdall" as const,
+      status: "partial" as const,
+      mode: "engines-handshake",
+      text: ["Heimdall via local singular-ty-engines handshake.", "", smoke.stdout].join("\n"),
+      meta: { lattice_sync: false, exitCode: smoke.exitCode },
+    }
+  }
+  // Local Python engine absent → real LLM Heimdall analyst persona.
+  const { chat } = await import("@/lib/llm")
+  const { personaSystemPrompt } = await import("@/lib/engines/personas")
+  const r = await chat({ system: personaSystemPrompt("heimdall"), messages: [{ role: "user", content: prompt }] })
   return {
-    ok: smoke.ok,
+    ok: r.ok,
     provider: "heimdall" as const,
-    status: "partial" as const,
-    mode: "engines-handshake",
-    text: [
-      "Heimdall via singular-ty-engines local handshake (HOLD_VYRNA_UNSYNC).",
-      `User note/prompt: ${prompt.slice(0, 200)}`,
-      "",
-      smoke.stdout || smoke.detail,
-    ].join("\n"),
-    meta: { lattice_sync: false, exitCode: smoke.exitCode },
+    status: (r.ok ? "live" : "offline") as HonestStatus,
+    mode: r.ok ? `persona-llm:${r.provider}` : "no-key",
+    text: r.ok ? r.text : `Local engine missing (${smoke.detail}) and ${r.error}`,
+    meta: { lattice_sync: false, model: r.model },
   }
 }
 

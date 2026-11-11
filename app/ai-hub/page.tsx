@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { Badge } from "@/components/ui/badge"
 import BeastAIOpsHub from "@/components/CommandHub/modules/BeastAIOpsHub"
+import { EngineChat } from "@/components/engines/EngineChat"
 
 export default function AIHubPage() {
   return (
@@ -23,6 +24,9 @@ export default function AIHubPage() {
           </span>
         </div>
         <main className="hub-shell-scroll p-4 md:p-6">
+          <div className="mb-6">
+            <EngineChat title="Engines · AXIOS / Heimdall / Ghostlight / EchoNexus / Nova / Shadowvox / OB-1" />
+          </div>
           <BeastAIOpsHub />
         </main>
       </div>

@@ -18,15 +18,59 @@ function lmntKey(): string | null {
   return v && v.length > 0 ? v : null
 }
 
+/** Fallback seats when LMNT isn't configured: OpenAI TTS, then ElevenLabs (mp3 out). */
+async function fallbackTts(text: string): Promise<NextResponse | null> {
+  const openai = process.env.OPENAI_API_KEY?.trim()
+  if (openai) {
+    const r = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${openai}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: process.env.OPENAI_TTS_MODEL || "gpt-4o-mini-tts",
+        voice: process.env.OPENAI_TTS_VOICE || "alloy",
+        input: text,
+        response_format: "mp3",
+      }),
+    }).catch(() => null)
+    if (r && r.ok)
+      return new NextResponse(await r.arrayBuffer(), {
+        headers: { "Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-Voice-Seat": "openai" },
+      })
+  }
+  const el = process.env.ELEVENLABS_API_KEY?.trim()
+  if (el) {
+    const voice = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"
+    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
+      method: "POST",
+      headers: { "xi-api-key": el, "Content-Type": "application/json" },
+      body: JSON.stringify({ text, model_id: process.env.ELEVENLABS_MODEL || "eleven_turbo_v2_5" }),
+    }).catch(() => null)
+    if (r && r.ok)
+      return new NextResponse(await r.arrayBuffer(), {
+        headers: { "Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-Voice-Seat": "elevenlabs" },
+      })
+  }
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const key = lmntKey()
   if (!key) {
+    const peek = (await req
+      .clone()
+      .json()
+      .catch(() => ({}))) as { text?: string }
+    const t = typeof peek.text === "string" ? peek.text.trim().slice(0, MAX_CHARS) : ""
+    if (t) {
+      const fb = await fallbackTts(t)
+      if (fb) return fb
+    }
     return NextResponse.json(
       {
         ok: false,
         stub: true,
         status: "STUB",
-        error: "LMNT_API_KEY not configured · TTS seat NOT_CFG",
+        error: "No TTS key configured (LMNT_API_KEY, OPENAI_API_KEY or ELEVENLABS_API_KEY)",
         hold: HOLD,
         lattice_sync: false,
         hint: "Set LMNT_API_KEY in .env.local (never commit). Browser TTS is available on /voice.",
@@ -123,7 +167,7 @@ export async function POST(req: NextRequest) {
 
 /** Honest GET so Operators can probe without inventing audio */
 export async function GET() {
-  const configured = Boolean(lmntKey())
+  const configured = Boolean(lmntKey() || process.env.OPENAI_API_KEY?.trim() || process.env.ELEVENLABS_API_KEY?.trim())
   return NextResponse.json({
     ok: true,
     method: "POST",
@@ -133,6 +177,6 @@ export async function GET() {
     lattice_sync: false,
     note: configured
       ? "POST { text, voice? } → audio · key never printed · text not logged"
-      : "LMNT_API_KEY absent · POST returns 503 STUB · use browser TTS on /voice",
+      : "No LMNT/OpenAI/ElevenLabs key · POST returns 503 · use browser TTS on /voice",
   })
 }
