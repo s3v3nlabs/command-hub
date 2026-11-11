@@ -1,0 +1,26 @@
+# Singular/ty Command Hub — one-liner self-host.
+#   docker compose up -d --build
+# Then open http://localhost:3100
+services:
+  hub:
+    build: .
+    image: command-hub:latest
+    container_name: command-hub
+    ports:
+      - "3100:3100"
+    # Optional: operator secrets / tokens. Copy .env.example -> .env.local first.
+    env_file:
+      - path: .env.local
+        required: false
+    environment:
+      - NODE_ENV=production
+      - PORT=3100
+    # Persist local-first stores (engagements, CCTV layouts, IDS history,
+    # marketplace state, Heimdall eyes-only logs) across restarts.
+    volumes:
+      - hub-data:/app/data
+      - hub-local-data:/app/local-data
+    restart: unless-stopped
+volumes:
+  hub-data:
+  hub-local-data:
