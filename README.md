@@ -4,6 +4,12 @@ The Singular/ty Defense Solutions **Command Hub**: a dark-themed Next.js 15 oper
 
 Maintained at **https://github.com/s3v3nlabs/command-hub**.
 
+## Demo
+
+[![Singular/ty Command Hub — demo reel](docs/media/command-hub-demo.gif)](docs/media/command-hub-demo.mp4)
+
+*A no-audio hype reel showing the hub tour, a live attack contained by Heimdall, and the Dev Operator AI.*
+
 ## Quickstart
 
 ```bash
