@@ -345,6 +345,7 @@ const navigationItems: NavItem[] = [
       { title: "Android Lab", href: "/offsec/android-lab", icon: Smartphone, status: "new" },
       { title: "Threat Field", href: "/offsec/threat-field", icon: Activity, status: "new" },
       { title: "Deception Mesh", href: "/offsec/deception", icon: ShieldAlert, status: "new" },
+      { title: "RE Workbench", href: "/offsec/reverse-engineering", icon: Cpu, status: "new" },
       { title: "WIP Lab", href: "/offsec/lab", icon: Wrench, status: "beta" },
     ],
   },

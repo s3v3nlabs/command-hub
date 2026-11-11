@@ -44,6 +44,7 @@ Status legend:
 | Evidence Explorer | `/evidence-explorer` | Working | Files under `EVIDENCE_ROOT`; Postgres optional (`POSTGRES_URL`) |
 | Reclaim packs | `/reclaim` | Working | `RECLAIM_PACKS_ROOT` |
 | Dev Operator | `/dev-operator` | Working | LLM key for AI suggestions |
+| RE Workbench | `/offsec/reverse-engineering` | Working | An engine: radare2 and/or Ghidra (`GHIDRA_INSTALL_DIR` + JDK) and/or REA (`REA_MCP_COMMAND`); AI assist needs a local model (`LOCAL_LLM_BASE_URL`) |
 | JSON manager | `/json-manager` | Working | In-browser tool |
 | Harmonic calibration | `/harmonic-calibration` | Working | Web Audio, in-browser |
 | Music Hub | `/music` | Working | Streaming services are official-OAuth stubs |
