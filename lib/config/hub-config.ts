@@ -36,7 +36,8 @@ export const HUB_CONFIG = {
   // v0 Bridge
   v0Bridge: {
     enabled: process.env.V0_BRIDGE_ENABLED === "true",
-    consciousnessMode: process.env.V0_CONSCIOUSNESS_MODE || "SOVEREIGN",
+    /** @deprecated name — bridge mode flag; not sentience. */
+    consciousnessMode: process.env.V0_CONSCIOUSNESS_MODE || process.env.V0_BRIDGE_MODE || "SOVEREIGN",
   },
 
   // Frequencies

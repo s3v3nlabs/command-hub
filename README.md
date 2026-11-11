@@ -4,6 +4,19 @@ The Singular/ty Defense Solutions **Command Hub**: a dark-themed Next.js 15 oper
 
 Maintained at **https://github.com/s3v3nlabs/command-hub**.
 
+## Quickstart
+
+```bash
+git clone https://github.com/s3v3nlabs/command-hub.git
+cd command-hub
+cp .env.example .env.local
+npm install && npm run build
+npx next start -p 3100
+```
+
+Full install: [INSTALL.md](./INSTALL.md) · Usage: [USAGE.md](./USAGE.md) · Updating: [UPDATING.md](./UPDATING.md) · Security: [SECURITY.md](./SECURITY.md) · Legal: [LEGAL.md](./LEGAL.md) · OffSec suite: [docs/OFFSEC_SUITE.md](./docs/OFFSEC_SUITE.md)
+
+
 
 **Module status:** see [docs/MODULE_STATUS.md](docs/MODULE_STATUS.md) for an honest per-route table (Working / Works with API key / Stub). Routes that still show sample data display a **SIMULATED** banner.
 

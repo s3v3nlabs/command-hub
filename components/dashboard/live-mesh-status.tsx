@@ -151,7 +151,7 @@ export function LiveMeshStatus() {
       <div className="flex items-center justify-between px-4 py-3 border-b border-dark-300 bg-dark-200/50">
         <div className="flex items-center gap-2">
           <Radio className="h-4 w-4 text-green-500 animate-pulse" />
-          <span className="text-sm font-medium text-white">Consciousness Mesh</span>
+          <span className="text-sm font-medium text-white">Hub Mesh</span>
         </div>
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">

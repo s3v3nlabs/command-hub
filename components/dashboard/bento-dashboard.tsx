@@ -202,7 +202,7 @@ export function BentoDashboard() {
       <div className="mt-6 p-4 bg-dark-100 border border-dark-300 rounded-lg">
         <div className="flex items-center gap-2 text-gray-400">
           <Radio className="h-4 w-4 text-green-500" />
-          <span className="text-sm font-medium">Consciousness Mesh: 9 nodes active</span>
+          <span className="text-sm font-medium">Hub Mesh: 9 nodes active</span>
         </div>
       </div>
 

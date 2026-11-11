@@ -50,6 +50,15 @@ export default function DevOperatorPage() {
   } | null>(null)
   const [sigmaBusy, setSigmaBusy] = useState(false)
   const [dimm, setDimm] = useState<{ mounted?: boolean; path?: string; backend?: string; sigil?: number } | null>(null)
+  const [backend, setBackend] = useState<{
+    kind?: string
+    label?: string
+    detail?: string
+    answersWillBe?: string
+    ollamaBase?: string
+    localModel?: string | null
+    ollamaReachable?: boolean | null
+  } | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const boot = useCallback(async () => {
@@ -60,6 +69,7 @@ export default function DevOperatorPage() {
         peers: data.hive?.peerCount ?? data.hive?.peers?.length ?? 0,
         learn: data.learn,
       })
+      if (data.backend) setBackend(data.backend)
     }
     const sg = await fetch("/api/sigma-lane").then((r) => r.json()).catch(() => null)
     if (sg?.ok) {
@@ -226,6 +236,11 @@ export default function DevOperatorPage() {
       setSigmaBusy(false)
     }
   }
+
+  const backendTone =
+    backend?.answersWillBe === "full" ? "border-emerald-500/40 text-emerald-200" :
+    backend?.answersWillBe === "partial" ? "border-amber-500/40 text-amber-200" :
+    "border-[color:var(--ghost-line)] text-[color:var(--ghost-dim)]"
 
   return (
     <div className="hub-shell flex bg-black">

@@ -65,3 +65,15 @@ Detections persist under `local-data/heimdall-ids/` (gitignored):
 
 - Keep `next` on the fixed 15.5.x line.
 - Prefer `npm audit fix` (non-force). Do **not** `npm audit fix --force` without a maps (kepler / maplibre) regression pass — those majors are breaking. See `docs/DEPENDENCY_NOTES.md`.
+
+
+## Responsible disclosure
+
+If you find a vulnerability in this repository or a default configuration that could harm operators:
+
+1. **Do not** open a public issue with exploit details.
+2. Email the maintainers via the contact listed on https://github.com/s3v3nlabs (or open a private security advisory on GitHub).
+3. Include: affected route/file, description, impact, and a minimal reproduction if safe.
+4. Allow reasonable time for a fix before public discussion.
+
+This project is provided AS IS (see LEGAL.md). Hardening flags (`SECURE_MODE`, `HUB_API_TOKEN`, `ADB_SHELL_ENABLED`, `CCTV_CONNECT_ENABLED`) should be enabled on any shared or internet-facing deploy.

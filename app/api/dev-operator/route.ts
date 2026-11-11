@@ -23,6 +23,7 @@ import {
   sigmaLaneDevStatus,
   rememberDevOperatorLesson,
 } from "@/lib/sigma-lane"
+import { getDevOperatorBackendStatus } from "@/lib/dev-operator/backend-status"
 
 
 function shapeHemispheres(h: ReturnType<typeof decideDevOperatorLane>["hemispheres"] | undefined) {
@@ -51,9 +52,11 @@ function shapeHemispheres(h: ReturnType<typeof decideDevOperatorLane>["hemispher
  */
 
 export async function GET() {
+  const backend = await getDevOperatorBackendStatus()
   return NextResponse.json({
     ok: true,
     service: "dev-operator",
+    backend,
     prefs: loadPrefs(),
     learnedNotes: recentLearnedNotes(8),
     learn: getLearnMetrics(),

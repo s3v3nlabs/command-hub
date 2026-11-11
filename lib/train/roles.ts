@@ -57,7 +57,7 @@ export const STUDENT_REGISTRY: Record<StudentRoleId, StudentRole> = {
   heimdall: {
     id: "heimdall",
     label: "Heimdall",
-    description: "Engines Heimdall / consciousness guardian — thin adapter + symbolic prefs.",
+    description: "Engines Heimdall / guardian adapter — thin adapter + symbolic prefs.",
     runnerHint: "singular-ty-engines/run_heimdall.py",
     applyTargets: ["adapter_record", "prefs"],
     lattice_sync: false,

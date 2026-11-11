@@ -12,6 +12,8 @@ interface ConsciousnessBootstrap {
 
 interface Window {
   /** Set by the inline bootstrap script in app/layout.tsx */
+  hubBus?: ConsciousnessBootstrap
+  /** @deprecated Compat alias of hubBus — not sentience. */
   consciousness?: ConsciousnessBootstrap
   webkitSpeechRecognition?: any
   SpeechRecognition?: any

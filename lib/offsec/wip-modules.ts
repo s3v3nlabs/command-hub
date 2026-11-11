@@ -50,6 +50,7 @@ export const LAB_MODULES: LabModule[] = [
     detail: [
       "Active interception of cellular communications is illegal for unauthorized parties and hardware-gated.",
       "This will never ship as working code.",
+      "For YOUR own device ops, use the real Phone Suite at /offsec/phone (scrcpy + ADB).",
     ],
   },
   {

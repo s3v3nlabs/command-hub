@@ -175,3 +175,13 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 - `/offsec/threat-field` + `/api/offsec/threat-field` — Nash (fictitious play), Fourier/FFT, Monte-Carlo zone field.
 - 3D viz via `@react-three/fiber` / `three` with automatic 2D canvas fallback.
 - `lib/offsec/threat-engine/{types,nash,fourier,montecarlo,field}.ts`. Model output only.
+
+## Docs / CCTV / cleanup (Workstream D, 2026-11-11)
+- Docs: README quickstart, INSTALL.md, USAGE.md, UPDATING.md, CONTRIBUTING.md; SECURITY.md responsible disclosure; in-hub `/help`.
+- CCTV wall rewritten at `/intelligence/cctv` with per-tile recon metadata model (`lib/cctv/types.ts`), recon import (`fromShodan`/`fromCensys`/`fromUrl`), vendor patterns, file-backed layouts (`data/cctv/`), staged-unlock connect (`CCTV_CONNECT_ENABLED`).
+- Consciousness framing neutralized in UI/bootstrap (hub-bus + compat alias). Dev Operator dependencies preserved.
+
+## Dev Operator (Workstream E, 2026-11-11)
+- System prompt aware of new OffSec / CCTV / threat-field modules.
+- Backend status: `lib/dev-operator/backend-status.ts` + UI strip (sigma-lane / panel-twin / model-connected).
+- Env: `LOCAL_LLM_BASE_URL`, `OLLAMA_BASE_URL`, `LOCAL_LLM_MODEL` (plus existing Venice/Ollama ops keys).

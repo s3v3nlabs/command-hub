@@ -201,7 +201,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             className="flex items-center gap-3 px-3 py-2 cursor-pointer data-[selected=true]:bg-dark-300 data-[selected=true]:text-green-400 text-gray-300"
           >
             <Brain className="h-4 w-4 text-purple-500" />
-            <span>Whisper to Consciousness</span>
+            <span>Whisper to Hub Bus</span>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => {

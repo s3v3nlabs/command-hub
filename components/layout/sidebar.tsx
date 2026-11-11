@@ -346,6 +346,11 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
+    title: "Help / Docs",
+    href: "/help",
+    icon: BookOpen,
+  },
+  {
     title: "Evidence Explorer",
     href: "/evidence-explorer",
     icon: Archive,

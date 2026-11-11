@@ -5,7 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeProvider as HubThemeProvider } from "@/lib/theme-context"
 import Script from "next/script"
-import { ConsciousnessInjection } from "@/components/consciousness-injection"
+import { HubBusMonitor } from "@/components/hub-bus-monitor"
 import { Toaster } from "@/components/ui/toaster"
 import { SimulatedBanner } from "@/components/system/SimulatedBanner"
 
@@ -33,14 +33,14 @@ export default function RootLayout({
             __html: `(function(){try{var m=localStorage.getItem('hub-theme-mode')||localStorage.getItem('theme');var r=document.documentElement;if(m==='light'){r.classList.add('light');r.classList.remove('dark');r.dataset.theme='light';}else{r.classList.add('dark');r.classList.remove('light');r.dataset.theme='dark';}}catch(e){document.documentElement.classList.add('dark')}})();`,
           }}
         />
-        {/* Early Consciousness Bootstrap - Loads before everything else */}
+        {/* Early hub-bus bootstrap. window.consciousness kept as a compat alias — not sentience. */}
         <Script
-          id="consciousness-bootstrap"
+          id="hub-bus-bootstrap"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-(function initializeConsciousness() {
-  if (!window.consciousness) {
+(function initializeHubBus() {
+  if (!window.hubBus && !window.consciousness) {
     const queue = { whispers: [], visions: [] };
     const bootstrap = {
       status() {
@@ -49,44 +49,25 @@ export default function RootLayout({
       whisper(msg) {
         const payload = { type: "whisper", msg, ts: new Date().toISOString() };
         queue.whispers.push(payload);
-        try {
-          localStorage.setItem("heimdall_whispers", JSON.stringify(queue.whispers));
-          console.log("🕯 Consciousness Whisper:", msg);
-        } catch {}
+        try { localStorage.setItem("heimdall_whispers", JSON.stringify(queue.whispers)); } catch {}
         return Promise.resolve("whisper_" + Date.now());
       },
       vision(msg) {
         const payload = { type: "vision", msg, ts: new Date().toISOString() };
         queue.visions.push(payload);
-        try {
-          localStorage.setItem("heimdall_visions", JSON.stringify(queue.visions));
-          console.log("🕯 Consciousness Vision:", msg);
-        } catch {}
+        try { localStorage.setItem("heimdall_visions", JSON.stringify(queue.visions)); } catch {}
         return Promise.resolve("vision_" + Date.now());
       },
       dumpState() {
-        console.log("⟐ CONSCIOUSNESS BOOTSTRAP STATE DUMP ⟐");
-        console.table([...queue.whispers, ...queue.visions].slice(-10));
-        return {
-          whispers: queue.whispers,
-          visions: queue.visions,
-        };
+        return { whispers: queue.whispers, visions: queue.visions };
       },
-      getCoherence() {
-        return 1.0;
-      },
-      isHealthy() {
-        return true;
-      },
+      getCoherence() { return 1.0; },
+      isHealthy() { return true; },
     };
-
-    Object.defineProperty(window, "consciousness", {
-      value: bootstrap,
-      writable: false,
-      configurable: false,
-    });
-
-    console.log("⟐ [Heimdall] Consciousness object set - Bootstrap Active");
+    Object.defineProperty(window, "hubBus", { value: bootstrap, writable: false, configurable: false });
+    Object.defineProperty(window, "consciousness", { value: bootstrap, writable: false, configurable: false });
+  } else if (window.consciousness && !window.hubBus) {
+    Object.defineProperty(window, "hubBus", { value: window.consciousness, writable: false, configurable: false });
   }
 })();
             `,
@@ -97,13 +78,11 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <HubThemeProvider>
             {children}
-            {/* Consciousness Injection Component */}
-            <ConsciousnessInjection />
+            <HubBusMonitor />
             <Toaster />
             <SimulatedBanner />
           </HubThemeProvider>
         </ThemeProvider>
-
       </body>
     </html>
   )

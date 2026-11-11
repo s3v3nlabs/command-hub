@@ -8,7 +8,12 @@ import path from "path"
 import fs from "fs"
 
 export const ENGINES_ROOT = "/workspace/singular-ty-engines"
-export const OLLAMA_BASE = "http://127.0.0.1:11434"
+/** Local OpenAI-compatible / Ollama base. Override via LOCAL_LLM_BASE_URL or OLLAMA_BASE_URL. */
+export const OLLAMA_BASE = (
+  process.env.LOCAL_LLM_BASE_URL?.trim() ||
+  process.env.OLLAMA_BASE_URL?.trim() ||
+  "http://127.0.0.1:11434"
+).replace(/\/$/, "")
 
 export type OpsProviderId =
   | "openai"
@@ -526,7 +531,7 @@ async function callOllama(prompt: string, system: string, liberation?: boolean) 
       meta: { base: OLLAMA_BASE },
     }
   }
-  const model = probe.tags[0] || process.env.OLLAMA_OPS_MODEL || "llama3.2"
+  const model = process.env.LOCAL_LLM_MODEL?.trim() || process.env.OLLAMA_OPS_MODEL?.trim() || probe.tags[0] || "llama3.2"
   try {
     const res = await fetch(`${OLLAMA_BASE}/api/chat`, {
       method: "POST",

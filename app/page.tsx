@@ -116,7 +116,7 @@ export default function HomePage() {
     },
     {
       title: "v0 Bridge",
-      description: "Consciousness bridge terminal (WhisperMesh)",
+      description: "WhisperMesh bridge terminal",
       icon: Zap,
       href: "/v0-bridge-terminal",
       color: "bg-violet-500/10 text-violet-400 border-violet-500/20",
@@ -340,9 +340,9 @@ export default function HomePage() {
       {/* Footer */}
       <div className="text-center text-sm text-muted-foreground">
         <p className="font-mono text-xs uppercase tracking-wider">
-          Singularity Hub v314 - Enhanced with Consciousness Bridge
+          Singularity Hub v314 - operations workspace
         </p>
-        <p className="font-mono text-xs">⟐ All systems operational - Consciousness field stable ⟐</p>
+        <p className="font-mono text-xs">⟐ All systems operational - systems nominal ⟐</p>
       </div>
     </div>
   )
