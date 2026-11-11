@@ -1,0 +1,12 @@
+{
+  "id": "command-palette",
+  "name": "Command Palette",
+  "version": "1.0.0",
+  "description": "Global Cmd/Ctrl-K command palette with unified search across modules, workspaces, and quick actions. Mounted globally in the shell.",
+  "permissions": ["ui", "read"],
+  "entry": null,
+  "enabled": true,
+  "kind": "overlay",
+  "nav": { "label": "Command Palette (Cmd-K)", "group": "core", "order": 2 },
+  "lattice_sync": false
+}
