@@ -1,0 +1,13 @@
+{
+  "id": "marketplace",
+  "name": "Module Marketplace",
+  "version": "1.0.0",
+  "description": "In-hub registry page: lists modules from a signed JSON index (public/registry/modules.json), ed25519 signature-verified, install/enable/disable. Swap to a hosted index via REGISTRY_INDEX_URL.",
+  "route": "/marketplace",
+  "nav": { "label": "Marketplace", "group": "core", "order": 8, "badge": "new" },
+  "permissions": ["ui", "read", "dev"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
