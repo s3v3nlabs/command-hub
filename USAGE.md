@@ -20,11 +20,20 @@ Authorized, lawful use only — see [LEGAL.md](./LEGAL.md). Written authorizatio
 | Threat Field | `/offsec/threat-field` | Nash + Fourier + Monte-Carlo model field (3D/2D) |
 | CCTV wall | `/intelligence/cctv` | Multi-feed wall + per-tile recon metadata |
 | Dev Operator | `/dev-operator` | Defensive coding assistant (HOLD_VYRNA_UNSYNC) |
+| Compute / AI Pool | `/compute` | Multi-backend router, job queue, warm-pool; honest perf surface |
 | Help | `/help` | In-hub docs index |
 | WIP Lab | `/offsec/lab` | Honest non-functional shells |
 
 Command builders only **render text** for you to copy into your own authorized terminal. The hub does not auto-run exploits.
 
+
+
+
+## Compute / AI Acceleration
+
+The hub does **not** invent fake speedups. `/compute` pools real inference backends (local Ollama, RunPod, OpenAI-compatible URLs) with health checks, least-loaded / cost-aware / speculative routing, a bounded job queue (TypeScript async + `worker_threads` — not Kotlin coroutines), warm-pool, and a circuit breaker that sheds to healthy peers.
+
+Quantization, GPU offload, KV-cache, and continuous batching are **model-server** settings — documented on the page, not pretended as hub toggles. There is no "virtualized RAM into extra compute." Tiered memory = [DIMM Drive](./docs/DIMM_DRIVE.md) + picking a model that fits. Full write-up: [docs/COMPUTE.md](./docs/COMPUTE.md).
 
 ## Staged-ladder authorization (the gating standard)
 
@@ -120,6 +129,55 @@ Route: `/offsec/deception`. Emulated USB/serial/service/route decoys, canary tok
 - **Vault keys:** see [docs/VAULT_KEYS.md](./docs/VAULT_KEYS.md).
 - **Sandbox architecture:** [docs/architecture/SANDBOXED_AGENT.md](./docs/architecture/SANDBOXED_AGENT.md).
 
+## Reverse Engineering Workbench
+
+Route: `/offsec/reverse-engineering` · API: `/api/offsec/reverse-engineering/*` · libs: `lib/offsec/re-workbench/*` · Ghidra script: `scripts/ghidra/HubExportEvidence.java`.
+
+Static analysis of binaries, APKs and firmware **you own or are explicitly authorized to analyze** (your own software, engagement-scoped targets, malware samples you captured for defense). Design follows [REA — Reverse Engineer Anything](https://github.com/morluto/rea) (MIT): **evidence over answers** and **one provider per session**.
+
+### Engines
+
+| Engine | How the hub uses it | Install |
+|---|---|---|
+| **REA** (preferred) | Hub is an **MCP client**. REA's native transport is stdio, so the hub spawns `REA_MCP_COMMAND` (no shell) and keeps one long-lived session; `REA_MCP_URL` is supported for a Streamable-HTTP bridge. Verified against `rea-agents` 6.8.0 (229 tools). | Node 22.23.4+/24.22.1+, then `npm install -g rea-agents` and set `REA_MCP_COMMAND="rea mcp"` (or `npx -y rea-agents@6.8.0 mcp`). REA's native analysis needs a provider (Ghidra via `GHIDRA_INSTALL_DIR` + `JAVA_HOME`, or IDA / Hopper / Kuna). **REA 6.8.0 accepts Ghidra 12.1.x only (verified 12.1.4)** — check with `rea doctor --json`. Pin it per session with the *provider_id* field (or `REA_ANALYSIS_PROVIDER=ghidra`). |
+| **radare2** | Headless, `-N` (no rc files), `cfg.sandbox=true` (no `!` shell escapes / writes / network, confined to the target's own dir), read-only open, never `-d`. Pseudocode is r2 `pdc` (labelled as a naive pseudo-C, not a decompiler). | `sudo apt install radare2` or the `.deb` from github.com/radareorg/radare2/releases; or `RADARE2_BIN=/abs/path`. |
+| **Ghidra** (direct) | `analyzeHeadless` + the bundled read-only export script into a throw-away project (deleted after each run). Real decompiler output. | Download Ghidra, install the JDK it requires (Ghidra 12.2 → **JDK 25**; see `Ghidra/application.properties` `application.java.min`), set `GHIDRA_INSTALL_DIR` **and** `JAVA_HOME` in the hub's environment. |
+
+Missing engines are shown as **"analysis engine not installed"** / **"REA MCP server not configured"** with install steps. The workbench never fabricates disassembly, pseudocode or tool capabilities — failures come back as `kind: "error"` evidence records.
+
+### Configure (`.env.local`, values never committed)
+
+```bash
+REA_MCP_COMMAND="rea mcp"          # or REA_MCP_URL=http://127.0.0.1:<port>/mcp
+GHIDRA_INSTALL_DIR=/opt/ghidra_12.2_PUBLIC
+JAVA_HOME=/opt/jdk-25
+RADARE2_BIN=                        # optional; PATH is probed
+RE_R2_ANALYSIS=aa                   # aa | aaa | aaaa
+RE_MAX_UPLOAD_MB=256
+RE_DYNAMIC_ENABLED=                 # Stage-1 for dynamic REA tools; leave empty on daily drivers
+```
+
+Restart the hub, open the page, press **Probe REA** to handshake.
+
+### Use it
+
+1. **Target** — upload a file (stored by sha256 under `local-data/re-workbench/targets/`, mode `0600`, never executed) or pick a sample already captured by the Deception Mesh quarantine (`local-data/deception-quarantine/`, read in place).
+2. **Bind session** — choose REA / radare2 / Ghidra. The engine is bound to that target; asking for another engine is refused until you explicitly **rebind** (never silently swapped). Binding REA calls `open_binary`.
+3. **Operations** — Overview, Functions, Strings, Symbols, Imports, and for a function name / `0x` address: Assembly, Pseudocode, Xrefs. Clicking a function opens its pseudocode. Ghidra rebases images (e.g. `0x100000`), so use addresses from the same engine's Functions list.
+4. **Evidence panel** — each record shows `provider`, exact `source` command/tool, `limitations`, truncation, and is flagged **untrusted** (content comes from the analyzed file). Results are cached by target sha256 + engine + op.
+5. **AI assist** — tick evidence records and ask a question. Uses only the local model (`LOCAL_LLM_BASE_URL` / `OLLAMA_BASE_URL` / `LOCAL_LLM_MODEL`); cites evidence ids, separates observed vs inferred, lists unknowns. Dev Operator posture: `HOLD_VYRNA_UNSYNC`, explains and annotates only — requests for exploits, payloads or EDR/AV evasion are declined.
+6. **REA tool console** — lists REA's live catalog, each tagged `static` or `dynamic`. A curated read-only allowlist runs directly; **everything else is dynamic** (Frida, gdb, ADB, capture/observe, extraction, annotation) and requires the staged ladder: Stage 1 `RE_DYNAMIC_ENABLED=1`, Stage 2 an active engagement scope whose `authorizedTargets` contains `sha256:<target hash>`, Stage 3 attestation `authorized under scope <id>`. Every attempt is hash-chain audit-logged (`local-data/scope-audit/`). Absolute paths in tool args must stay inside the sandboxed analysis area.
+
+### Malware-analysis safety
+
+- Treat every sample as live. Keep suspicious files in `local-data/re-workbench/targets/` or `local-data/deception-quarantine/`; the hub stores them non-executable and only analyzes them statically.
+- **Never execute live malware on the hub host.** Dynamic analysis belongs in an isolated, disposable VM/sandbox (see [docs/architecture/SANDBOXED_AGENT.md](./docs/architecture/SANDBOXED_AGENT.md)) with networking controlled — that is what the Stage-1 switch is for.
+- Engine output (strings, symbol names, pseudocode) is attacker-controlled text: never paste it into a shell.
+
+### Legal
+
+Only analyze software you own, have written authorization to test, or samples you lawfully hold for defensive research. Respect EULAs / anti-reversing clauses and local law (e.g. DMCA §1201 interoperability/security-research exemptions in the US, EU Software Directive Art. 6). The workbench is for understanding, auditing and defending — not for cracking licenses or building exploits against third parties.
+
 ## Dev Operator
 
 See the **Dev Operator** section below (Workstream E) once wired; route `/dev-operator`. Defensive-mode only (`lattice_sync: false`, no exploit generation).
@@ -172,3 +230,105 @@ LOCAL_LLM_MODEL=llama3.2                    # or OLLAMA_OPS_MODEL
 4. Confirm the Backend strip on `/dev-operator` shows **model-connected**.
 
 Without a model, the operator still creates stubs/patches via actions; chat stays honestly thin.
+
+## Updating & Upgrading
+
+Keep the hub current without losing local data. All commands are copy-paste runnable
+from the repo root.
+
+### 1. Upgrade the hub (git flow)
+
+```bash
+# see what changed before pulling
+git fetch origin
+git log --oneline HEAD..origin/main        # review incoming commits
+
+# pull the latest
+git pull origin main
+
+# pick up dependency/lockfile changes, then rebuild
+npm install
+npm run typecheck                           # must be 0 errors
+npm run build                               # production build
+# restart your process manager, or:
+npm start                                   # next start (prod)
+```
+
+> `data/` and `local-data/` (engagements, CCTV layouts, IDS history, marketplace
+> install state, Heimdall eyes-only logs) are local-only and are **not** touched by
+> `git pull`. Back them up separately if you care about them.
+
+### 2. Migration / build steps between versions
+
+```bash
+# after any pull that changed deps or schemas:
+npm install
+npm run build
+npm test                                    # vitest — confirm libs still green
+```
+
+- Read `docs/DEPENDENCY_NOTES.md` before force-bumping majors (kepler / maplibre / shadcn).
+- File-backed stores self-heal (missing files are recreated); no DB migration is required
+  for the local-first stores.
+
+### 3. Update an individual module via the Marketplace
+
+Modules are distributed through a **signed** index (`public/registry/modules.json`).
+To update one module (version bump + re-verify signature):
+
+```bash
+# 1. bump the module's "version" in its manifest (public/registry/modules.json
+#    or modules/<id>/module.json), update its description/route as needed
+
+# 2. re-sign the index (or an individual manifest) with your operator key
+node scripts/sign-registry.mjs                                   # signs public/registry/modules.json
+#   or: node scripts/sign-registry.mjs modules/<id>/module.json
+
+# 3. VERIFY before trusting/enabling
+node scripts/verify-registry.mjs                                 # -> "VERIFIED" (exit 0) or non-zero
+#   or: node scripts/verify-registry.mjs modules/<id>/module.json
+```
+
+In the UI (`/marketplace`): the banner shows **VERIFIED** / **UNVERIFIED** / **INVALID**.
+Only enable a module when the index verifies. Then use Install → Enable/Disable per module.
+Point the hub at a hosted index later with `REGISTRY_INDEX_URL` (empty = bundled repo index).
+
+First-time key setup (operator does this once):
+
+```bash
+node scripts/sign-registry.mjs --genkey
+# private key -> local-data/registry-signing-key.pem  (gitignored, NEVER commit)
+# public  key -> public/registry/registry.pub         (commit this trust anchor)
+# or set env REGISTRY_PUBLIC_KEY to a PEM SPKI public key to override the bundled anchor
+```
+
+### 4. Env-var changes between versions
+
+```bash
+# compare your live env to the template for NEW variable NAMES (never commit values)
+diff <(grep -oE '^[A-Z_]+=' .env.local | sort) <(grep -oE '^[A-Z_]+=' .env.example | sort)
+```
+
+New/relevant env vars introduced by the platform build:
+
+- `REGISTRY_INDEX_URL` — hosted marketplace index URL (empty → bundled repo manifest).
+- `REGISTRY_PUBLIC_KEY` — PEM ed25519 verify key override (else `public/registry/registry.pub`).
+- `HUB_API_TOKEN` — when set, required (Bearer) for mutating API routes.
+- `HEIMDALL_LOG_KEY` / `HEIMDALL_SUBSYSTEM_TOKEN` — eyes-only log encryption + read access.
+
+Add any new names to `.env.local` with your own values, then restart the hub.
+
+### 5. Rollback
+
+```bash
+git log --oneline -15                        # find the last good commit
+git checkout -b rollback <good-commit-sha>   # inspect on a branch (non-destructive)
+# verify it builds:
+npm install && npm run build
+# to make it live on main (only if you own the remote and have confirmed):
+#   git checkout main && git reset --hard <good-commit-sha>   # DESTRUCTIVE — overwrites main
+#   (force-push requires explicit confirmation; prefer a revert commit instead:)
+git revert <bad-commit-sha>                  # safe, keeps history
+```
+
+Your local `data/` and `local-data/` are unaffected by a code rollback.

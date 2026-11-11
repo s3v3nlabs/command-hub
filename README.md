@@ -195,6 +195,108 @@ A typical 3-minute call costs roughly $0.08 to $0.15 all-in.
 
 We want hard feedback — architecture, UX, legal gating, missing realism, dead ends. Open a [bug](https://github.com/s3v3nlabs/command-hub/issues/new?template=bug.yml), [feature](https://github.com/s3v3nlabs/command-hub/issues/new?template=feature.yml), or [security](https://github.com/s3v3nlabs/command-hub/issues/new?template=security.yml) report, or a PR. See [CONTRIBUTING.md](./CONTRIBUTING.md) and [ROADMAP.md](./ROADMAP.md).
 
+## Updating & Upgrading
+
+Keep the hub current without losing local data. All commands are copy-paste runnable
+from the repo root.
+
+### 1. Upgrade the hub (git flow)
+
+```bash
+# see what changed before pulling
+git fetch origin
+git log --oneline HEAD..origin/main        # review incoming commits
+
+# pull the latest
+git pull origin main
+
+# pick up dependency/lockfile changes, then rebuild
+npm install
+npm run typecheck                           # must be 0 errors
+npm run build                               # production build
+# restart your process manager, or:
+npm start                                   # next start (prod)
+```
+
+> `data/` and `local-data/` (engagements, CCTV layouts, IDS history, marketplace
+> install state, Heimdall eyes-only logs) are local-only and are **not** touched by
+> `git pull`. Back them up separately if you care about them.
+
+### 2. Migration / build steps between versions
+
+```bash
+# after any pull that changed deps or schemas:
+npm install
+npm run build
+npm test                                    # vitest — confirm libs still green
+```
+
+- Read `docs/DEPENDENCY_NOTES.md` before force-bumping majors (kepler / maplibre / shadcn).
+- File-backed stores self-heal (missing files are recreated); no DB migration is required
+  for the local-first stores.
+
+### 3. Update an individual module via the Marketplace
+
+Modules are distributed through a **signed** index (`public/registry/modules.json`).
+To update one module (version bump + re-verify signature):
+
+```bash
+# 1. bump the module's "version" in its manifest (public/registry/modules.json
+#    or modules/<id>/module.json), update its description/route as needed
+
+# 2. re-sign the index (or an individual manifest) with your operator key
+node scripts/sign-registry.mjs                                   # signs public/registry/modules.json
+#   or: node scripts/sign-registry.mjs modules/<id>/module.json
+
+# 3. VERIFY before trusting/enabling
+node scripts/verify-registry.mjs                                 # -> "VERIFIED" (exit 0) or non-zero
+#   or: node scripts/verify-registry.mjs modules/<id>/module.json
+```
+
+In the UI (`/marketplace`): the banner shows **VERIFIED** / **UNVERIFIED** / **INVALID**.
+Only enable a module when the index verifies. Then use Install → Enable/Disable per module.
+Point the hub at a hosted index later with `REGISTRY_INDEX_URL` (empty = bundled repo index).
+
+First-time key setup (operator does this once):
+
+```bash
+node scripts/sign-registry.mjs --genkey
+# private key -> local-data/registry-signing-key.pem  (gitignored, NEVER commit)
+# public  key -> public/registry/registry.pub         (commit this trust anchor)
+# or set env REGISTRY_PUBLIC_KEY to a PEM SPKI public key to override the bundled anchor
+```
+
+### 4. Env-var changes between versions
+
+```bash
+# compare your live env to the template for NEW variable NAMES (never commit values)
+diff <(grep -oE '^[A-Z_]+=' .env.local | sort) <(grep -oE '^[A-Z_]+=' .env.example | sort)
+```
+
+New/relevant env vars introduced by the platform build:
+
+- `REGISTRY_INDEX_URL` — hosted marketplace index URL (empty → bundled repo manifest).
+- `REGISTRY_PUBLIC_KEY` — PEM ed25519 verify key override (else `public/registry/registry.pub`).
+- `HUB_API_TOKEN` — when set, required (Bearer) for mutating API routes.
+- `HEIMDALL_LOG_KEY` / `HEIMDALL_SUBSYSTEM_TOKEN` — eyes-only log encryption + read access.
+
+Add any new names to `.env.local` with your own values, then restart the hub.
+
+### 5. Rollback
+
+```bash
+git log --oneline -15                        # find the last good commit
+git checkout -b rollback <good-commit-sha>   # inspect on a branch (non-destructive)
+# verify it builds:
+npm install && npm run build
+# to make it live on main (only if you own the remote and have confirmed):
+#   git checkout main && git reset --hard <good-commit-sha>   # DESTRUCTIVE — overwrites main
+#   (force-push requires explicit confirmation; prefer a revert commit instead:)
+git revert <bad-commit-sha>                  # safe, keeps history
+```
+
+Your local `data/` and `local-data/` are unaffected by a code rollback.
+
 ## License
 
 Copyright 2026 Singular/ty Defense Solutions, LLC (Christian Wilford).
