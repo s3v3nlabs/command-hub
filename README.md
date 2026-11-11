@@ -190,3 +190,11 @@ A typical 3-minute call costs roughly $0.08 to $0.15 all-in.
 ## Author
 
 **Christian Wilford** (s3v3n), AI Architect and offensive security enthusiast, founder of Singular/ty Defense Solutions, LLC. GitHub: [@s3v3nlabs](https://github.com/s3v3nlabs).
+
+## License
+
+Copyright 2026 Singular/ty Defense Solutions, LLC (Christian Wilford).
+
+Licensed under the **Apache License 2.0** — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE) (third-party credits).
+
+Authorized, lawful use only: [LEGAL.md](./LEGAL.md).

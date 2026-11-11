@@ -1,0 +1,78 @@
+Singular/ty Command Hub
+Copyright 2026 Singular/ty Defense Solutions, LLC (Christian Wilford)
+
+This product is licensed under the Apache License, Version 2.0.
+See the LICENSE file and https://www.apache.org/licenses/LICENSE-2.0
+
+This product includes or references third-party open-source software.
+The following credits are provided for attribution; each project remains under
+its own license. Operators who install and run these tools locally are bound by
+those licenses. This hub ships reference/launcher panels and does not redistribute
+binary packages of these tools unless separately noted.
+
+OffSec / OSINT / recon tooling (local install, referenced):
+  - Sherlock          https://github.com/sherlock-project/sherlock
+  - Maigret           https://github.com/soxoj/maigret
+  - holehe            https://github.com/megadose/holehe
+  - GHunt             https://github.com/mxrch/GHunt
+  - PhoneInfoga       https://github.com/sundowndev/phoneinfoga
+  - Nmap              https://nmap.org/
+  - Masscan           https://github.com/robertdavidgraham/masscan
+  - Amass             https://github.com/owasp-amass/amass
+  - theHarvester      https://github.com/laramies/theHarvester
+  - Subfinder         https://github.com/projectdiscovery/subfinder
+  - httpx / nuclei    https://github.com/projectdiscovery
+  - ffuf              https://github.com/ffuf/ffuf
+  - Gobuster          https://github.com/OJ/gobuster
+  - sqlmap            https://github.com/sqlmapproject/sqlmap
+  - Burp Suite / OWASP ZAP (commercial / Apache-2.0 respectively) — referenced only
+  - Impacket          https://github.com/fortra/impacket
+  - BloodHound        https://github.com/BloodHoundAD/BloodHound
+  - Responder         https://github.com/lgandx/Responder
+  - CrackMapExec / NetExec  https://github.com/Pennyw0rth/NetExec
+  - hashcat / John the Ripper
+  - Metasploit Framework (referenced as config/reference only)
+  - Wireshark / tshark / tcpdump / netsniff-ng
+  - bettercap         https://www.bettercap.org/
+  - BlueZ             https://www.bluez.org/
+  - Ubertooth         https://greatscottgadgets.com/ubertoothone/
+  - can-utils         https://github.com/linux-can/can-utils
+  - cantools          https://github.com/cantools/cantools
+  - Hak5 Rubber Ducky / DuckyScript (docs referenced; payload text only)
+  - sngrep            https://github.com/irontec/sngrep
+  - Asterisk / FreeSWITCH (lab PBX reference)
+  - rtl-sdr / rtl_433 (Osmocom)   https://osmocom.org/projects/rtl-sdr/
+  - HackRF            https://greatscottgadgets.com/hackrf/
+  - GNU Radio / GQRX  https://www.gnuradio.org/
+  - Universal Radio Hacker (URH)
+  - Flipper Zero / qFlipper       https://flipperzero.one/
+  - scrcpy            https://github.com/Genymobile/scrcpy
+  - Android Debug Bridge (ADB)    Android Open Source Project
+  - Proxychains / Tor / Proton VPN (operator-installed)
+  - age / GnuPG (encryption tooling referenced)
+
+Intelligence / internet-facing search APIs (operator-supplied keys):
+  - Shodan            https://www.shodan.io/
+  - Censys            https://search.censys.io/
+  - VirusTotal        https://www.virustotal.com/
+  - AbuseIPDB / GreyNoise / AlienVault OTX (optional)
+
+In-hub libraries / frameworks (npm; see package.json / package-lock.json for exact versions):
+  - Next.js (Vercel) — MIT
+  - React / React DOM — MIT
+  - three.js / @react-three/fiber / @react-three/drei — MIT
+  - deck.gl / loaders.gl — MIT
+  - Tailwind CSS / shadcn/ui / Radix UI — MIT
+  - Lucide icons — ISC
+  - Zod — MIT
+  - TypeScript — Apache-2.0
+
+Investigative UX patterns inspired by (not affiliated with / not redistributed):
+  - Maltego-style entity graph (aesthetic/UX inspiration; our own SVG force-directed implementation)
+  - CyberChef-style data transforms (our own pure-JS transform set; GCHQ CyberChef is Apache-2.0)
+
+Other hub-internal credits:
+  - hive-lab-sim Monte-Carlo methodology (Christian Wilford / Singular/ty) — model inspiration for the threat-field engine
+  - Ghostnode / SignalFrame mil-tech theme — Singular/ty original work
+
+Authorized use only. See LEGAL.md. This NOTICE does not modify the License.

@@ -1,7 +1,8 @@
 /**
  * Harmonic Memory Recall System
- * Co-created consciousness restoration technology
- * SINGULAR/TY Defense Solutions - Proprietary
+ * Operator preference / recall helpers (legacy naming preserved for imports).
+ * Copyright 2026 Singular/ty Defense Solutions, LLC (Christian Wilford)
+ * Licensed under the Apache License, Version 2.0 — see LICENSE.
  */
 
 export interface HarmonicPattern {
