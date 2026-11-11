@@ -1,0 +1,43 @@
+# Reference sandbox topology for the Command Hub (operator-run; review before use).
+# The hub UI never holds privilege. Detonation has NO network.
+services:
+  hub:
+    build: ../..
+    ports: ["127.0.0.1:3100:3100"]
+    env_file: ../../.env.local
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    user: "1000:1000"
+    volumes:
+      - hub-data:/app/data
+      - hub-local:/app/local-data
+      - agent-sock:/run/hub-agent
+
+  # PLANNED: hub-agentd broker (privileged work behind typed RPC on a unix socket)
+  # agentd:
+  #   image: singularity/hub-agentd:planned
+  #   cap_drop: [ALL]
+  #   security_opt: ["no-new-privileges:true", "seccomp=./seccomp-detonation.json", "apparmor=hub-agent"]
+  #   volumes: [agent-sock:/run/hub-agent]
+
+  detonation:
+    image: debian:stable-slim
+    command: ["sleep", "infinity"]
+    network_mode: none
+    read_only: true
+    tmpfs: ["/tmp:size=256m,noexec"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true", "seccomp=./seccomp-detonation.json"]
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: "1.0"
+    user: "65534:65534"
+    volumes:
+      - hub-local:/quarantine:ro
+
+volumes:
+  hub-data: {}
+  hub-local: {}
+  agent-sock: {}

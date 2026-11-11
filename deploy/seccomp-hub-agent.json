@@ -1,0 +1,22 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "architectures": ["SCMP_ARCH_X86_64", "SCMP_ARCH_AARCH64"],
+  "syscalls": [
+    {
+      "names": [
+        "read", "write", "readv", "writev", "pread64", "pwrite64", "openat", "close", "fstat", "newfstatat",
+        "lseek", "mmap", "mprotect", "munmap", "brk", "rt_sigaction", "rt_sigprocmask", "rt_sigreturn",
+        "ioctl", "access", "faccessat", "faccessat2", "pipe", "pipe2", "dup", "dup2", "dup3", "getpid", "gettid",
+        "getuid", "geteuid", "getgid", "getegid", "getppid", "futex", "clock_gettime", "clock_nanosleep",
+        "nanosleep", "gettimeofday", "exit", "exit_group", "epoll_create1", "epoll_ctl", "epoll_wait",
+        "epoll_pwait", "eventfd2", "socket", "socketpair", "connect", "accept4", "bind", "listen",
+        "recvfrom", "sendto", "recvmsg", "sendmsg", "shutdown", "getsockname", "getpeername", "setsockopt",
+        "getsockopt", "fcntl", "getdents64", "getcwd", "mkdirat", "unlinkat", "renameat2", "fsync",
+        "fdatasync", "statx", "readlinkat", "prlimit64", "sched_yield", "sched_getaffinity", "set_robust_list",
+        "rseq", "set_tid_address", "arch_prctl", "uname", "getrandom", "madvise", "clone", "clone3", "wait4",
+        "execve", "poll", "ppoll", "select", "pselect6", "membarrier", "sigaltstack", "statfs", "fstatfs"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}

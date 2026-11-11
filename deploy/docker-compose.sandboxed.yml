@@ -1,0 +1,53 @@
+# Reference sandboxed deployment for the Command Hub.
+# UI/API container is unprivileged. Privileged verbs belong in hub-agent,
+# which is isolated with dropped capabilities, a read-only rootfs, seccomp,
+# and per-operator volumes. Adjust for your host. No secrets in this file.
+services:
+  hub:
+    build: ..
+    image: command-hub:local
+    command: ["npx", "next", "start", "-p", "3100"]
+    ports:
+      - "127.0.0.1:3100:3100"
+    env_file:
+      - ../.env.local
+    environment:
+      SECURE_MODE: "1"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: ["ALL"]
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./seccomp-hub-agent.json
+    volumes:
+      - operator-data:/app/data
+      - operator-local:/app/local-data
+      - agent-sock:/run/hub-agent
+    networks: [hubnet]
+
+  hub-agent:
+    image: command-hub-agent:local   # build your own minimal agent image; verify by digest
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: ["ALL"]
+    # cap_add only what a specific verb needs, ideally in a short-lived sibling container:
+    # cap_add: ["NET_RAW"]
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./seccomp-hub-agent.json
+      # - apparmor=hub-agent
+    volumes:
+      - operator-data:/data
+      - operator-local:/local-data
+      - agent-sock:/run/hub-agent
+    network_mode: "none"            # no network unless a verb explicitly needs it
+
+volumes:
+  operator-data:
+  operator-local:
+  agent-sock:
+
+networks:
+  hubnet:

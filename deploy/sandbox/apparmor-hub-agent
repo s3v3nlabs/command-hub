@@ -1,0 +1,19 @@
+# AppArmor profile SKETCH for hub-agentd (planned). Review before loading.
+#include <tunables/global>
+
+profile hub-agent flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # no raw network for the broker itself; workers get scoped egress
+  deny network raw,
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_ptrace,
+  deny /proc/sys/kernel/** w,
+  deny mount,
+
+  /run/hub-agent/** rw,
+  /app/local-data/deception-quarantine/** r,
+  /usr/bin/ffmpeg ix,
+  /usr/bin/adb ix,
+}

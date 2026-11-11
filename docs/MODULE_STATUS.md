@@ -185,3 +185,11 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 - System prompt aware of new OffSec / CCTV / threat-field modules.
 - Backend status: `lib/dev-operator/backend-status.ts` + UI strip (sigma-lane / panel-twin / model-connected).
 - Env: `LOCAL_LLM_BASE_URL`, `OLLAMA_BASE_URL`, `LOCAL_LLM_MODEL` (plus existing Venice/Ollama ops keys).
+
+## Deception / Heimdall eyes-only (Workstream F, 2026-11-11)
+- `/offsec/deception` + `/api/offsec/deception{,/capture,/vt,/canary}` — REAL defensive deception mesh.
+- Decoys emulated (USB/serial/service/route); canaries; capture+quarantine+hash; fingerprinting.
+- VT: hash lookup free; sample upload opt-in (`DECEPTION_VT_SUBMIT_ENABLED`) + staged ladder.
+- Eyes-only logs: AES-256-GCM (`lib/heimdall/eyes-only.ts`, key `HEIMDALL_LOG_KEY`). Glyph skin COSMETIC.
+- Sandboxed agent: design + privsep stub + compose/seccomp/AppArmor sketches (`docs/architecture/SANDBOXED_AGENT.md`). Detonation refused on-host.
+- Artifacts: `data/offsec/deception/` (decoys/canaries/profiles/samples/events), `local-data/deception-quarantine/`, `local-data/heimdall-eyes-only/` (all gitignored).

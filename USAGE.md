@@ -77,6 +77,18 @@ No real camera IPs or credentials are shipped in the repo.
 
 Open `/offsec/threat-field`. Recompute with a seed/trial count. Outputs are **modeled** (Nash mixed strategies, Fourier peaks, Monte-Carlo zone probabilities). Language stays preferred / estimated / modeled — never guaranteed / lock / certain.
 
+
+## Deception Mesh
+
+Route: `/offsec/deception`. Emulated USB/serial/service/route decoys, canary tokens, malware capture + quarantine, attacker fingerprinting. Every event hits Heimdall IDS and the eyes-only encrypted log.
+
+- **Emulation honesty:** we emulate the *interface surface* BadUSB-style tooling finds attractive. We do not expose a real host USB stack.
+- **Capture:** `POST /api/offsec/deception/capture` → sha256 + quarantine under `local-data/deception-quarantine/` (never executed). Detonation must run in the F1 sandbox, not on the host.
+- **VirusTotal:** set `VT_API_KEY`. Hash lookup is free; sample *upload* is Stage-1 gated (`DECEPTION_VT_SUBMIT_ENABLED`) + Stage-2/3 ladder (can tip off an attacker).
+- **Eyes-only logs:** set `HEIMDALL_LOG_KEY` (AES-256-GCM). Only a caller presenting `HEIMDALL_SUBSYSTEM_TOKEN` (or the log key) may decrypt. The glyph/symbol/"EchoNexus" skin is **cosmetic only** — it provides no security.
+- **Vault keys:** see [docs/VAULT_KEYS.md](./docs/VAULT_KEYS.md).
+- **Sandbox architecture:** [docs/architecture/SANDBOXED_AGENT.md](./docs/architecture/SANDBOXED_AGENT.md).
+
 ## Dev Operator
 
 See the **Dev Operator** section below (Workstream E) once wired; route `/dev-operator`. Defensive-mode only (`lattice_sync: false`, no exploit generation).

@@ -1,0 +1,11 @@
+{
+  "_comment": "Sketch: default-deny seccomp for the detonation container. Review/extend before use.",
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "architectures": ["SCMP_ARCH_X86_64", "SCMP_ARCH_AARCH64"],
+  "syscalls": [
+    {
+      "names": ["read", "write", "openat", "close", "fstat", "newfstatat", "lseek", "mmap", "mprotect", "munmap", "brk", "rt_sigaction", "rt_sigprocmask", "rt_sigreturn", "ioctl", "pread64", "access", "getpid", "getuid", "getgid", "geteuid", "getegid", "exit", "exit_group", "futex", "nanosleep", "clock_gettime", "clock_nanosleep", "getrandom", "arch_prctl", "set_tid_address", "set_robust_list", "prlimit64", "readlink", "getcwd", "execve", "wait4", "uname", "fcntl", "dup", "dup2", "dup3", "pipe", "pipe2", "getdents64"],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}
