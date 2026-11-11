@@ -77,9 +77,15 @@ export default function OffsecArsenalPage() {
           <SuiteNavLink href="/offsec/graph" label="Entity Graph" />
           <SuiteNavLink href="/offsec/toolkit" label="Data Toolkit" />
           <SuiteNavLink href="/offsec/privacy" label="Privacy Stack" />
+          <SuiteNavLink href="/offsec/hardware" label="Hardware & RF" />
+          <SuiteNavLink href="/offsec/phone" label="Phone Suite" />
+          <SuiteNavLink href="/offsec/threat-field" label="Threat Field" />
+          <SuiteNavLink href="/offsec/deception" label="Deception" />
+          <SuiteNavLink href="/intelligence/cctv" label="CCTV Wall" />
           <SuiteNavLink href="/offsec/engagements" label="Engagements" />
           <SuiteNavLink href="/bounty" label="Bug Bounty" />
           <SuiteNavLink href="/offsec/lab" label="WIP Lab" />
+          <SuiteNavLink href="/help" label="Help" />
         </>
       }
     >

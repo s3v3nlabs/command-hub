@@ -193,3 +193,28 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 - Eyes-only logs: AES-256-GCM (`lib/heimdall/eyes-only.ts`, key `HEIMDALL_LOG_KEY`). Glyph skin COSMETIC.
 - Sandboxed agent: design + privsep stub + compose/seccomp/AppArmor sketches (`docs/architecture/SANDBOXED_AGENT.md`). Detonation refused on-host.
 - Artifacts: `data/offsec/deception/` (decoys/canaries/profiles/samples/events), `local-data/deception-quarantine/`, `local-data/heimdall-eyes-only/` (all gitignored).
+
+## Whole-hub matrix (Workstream G, 2026-11-11)
+
+| Route | Status | Notes |
+|-------|--------|-------|
+| `/offsec` | REAL | Arsenal kill-chain + CTF |
+| `/offsec/osint` | REAL | Framework + dork + lookups |
+| `/offsec/graph` | REAL | Entity graph |
+| `/offsec/toolkit` | REAL | Transforms + hash-ID |
+| `/offsec/privacy` | REAL | Config/status panels |
+| `/offsec/engagements` | REAL | File-backed scope/findings |
+| `/offsec/hardware` | REAL | BT/CAN/USB/LAN/SDR/Flipper + Shodan/Censys |
+| `/offsec/phone` | REAL | scrcpy+ADB; interception = WIP shell |
+| `/offsec/threat-field` | REAL | Nash/Fourier/MC + 3D/2D |
+| `/offsec/deception` | REAL | Decoys/canaries/capture; VT ladder-gated |
+| `/offsec/lab` | WIP-honest | Spoofing/interception shells only |
+| `/intelligence/cctv` | REAL | Video wall + tile metadata; connect ladder-gated |
+| `/dev-operator` | REAL | Defensive; backend status strip |
+| `/help` | REAL | Docs index |
+| `/signalframe` | REAL | Window manager |
+| `/phone-suite` | REAL | Graphene/ADB control (legacy path; kept) |
+| `/conscious-terminal` | REAL | Renamed Hub Bus Terminal (compat route) |
+| Wiretap / self-propagating malware | WIP-by-law | Never faked working |
+
+Nav hash-only links (`/command-hub#ids`, `/dev-operator#sigma-lane`) resolve to existing pages.

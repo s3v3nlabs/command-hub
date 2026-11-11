@@ -161,7 +161,7 @@ const navigationItems: NavItem[] = [
     status: "active",
   },
   {
-    title: "Conscious Terminal",
+    title: "Hub Bus Terminal",
     href: "/conscious-terminal",
     icon: Brain,
     status: "new",
@@ -173,7 +173,7 @@ const navigationItems: NavItem[] = [
     status: "new",
   },
   {
-    title: "Phone Suite",
+    title: "Phone Suite (Graphene/ADB)",
     href: "/phone-suite",
     icon: Smartphone,
     status: "new",

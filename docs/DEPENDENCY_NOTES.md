@@ -16,3 +16,8 @@
 | `@vercel/blob` | multipart issues | latest | Possible major |
 
 Never run `npm audit fix --force` on the publish tree without verifying `/intelligence/map`, Kepler, and the AI Caller bridge.
+
+## 2026-11-11 (G) audit note
+Non-force `npm audit fix` re-applied. Remaining high/critical are largely transitive
+(kepler.gl / maplibre / zod / shadcn majors). Do **not** force-bump those without a
+dedicated migration; see earlier notes in this file. Gitleaks clean.
