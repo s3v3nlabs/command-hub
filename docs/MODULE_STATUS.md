@@ -147,3 +147,16 @@ Not built:
 - **CISA KEV joined to vendor country.** A vendor's headquarters says nothing about where a vulnerability is exploited, so the KEV feed stays a list on `/recon`.
 - **`components/terminal/network-map.tsx`.** This is a non-geographic topology diagram inside the simulated `/terminal` output and stays sample data.
 - **`NmapVault`.** No route mounts it, so it is excluded from typecheck as legacy.
+
+## Security hardening (2026-11-11)
+
+Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-implemented, not blind-copied):
+
+- Root `middleware.ts` + `next.config.mjs` `headers()` — CSP / XFO / nosniff / referrer-policy; URL signature gate.
+- `lib/security/api-auth.ts` (`requireHubAuth`, `SECURE_MODE`, `HUB_API_TOKEN`) wired to ADB, DIMM mutators, evidence SQLite, ghostlight, brain, shodan search/host.
+- ADB shell: `ADB_SHELL_ENABLED=1` + command allowlist (no shell metacharacters).
+- Threat-intel analyze: blocks loopback / RFC1918 / link-local / metadata targets.
+- Markdown XSS: escape-first in `lib/markdown.ts` and markdown-editor; `javascript:` hrefs blocked.
+- Heimdall IDS: file-backed ring at `local-data/heimdall-ids/` + `/api/security/ids/ingest`.
+- hub-config placeholders emptied; biofeedback `eval` removed; fake base64 encrypt → 501.
+- See `SECURITY.md` for operator env and `docs/DEPENDENCY_NOTES.md` for package upgrades.

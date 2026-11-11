@@ -1,9 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { requireHubAuth } from "@/lib/security/api-auth"
 import { needsKey, shodanKey, upstreamError } from "@/lib/shodan/server"
 
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
+  const denied = requireHubAuth(request, { surface: "shodan:search", requireInSecureMode: true })
+  if (denied) return denied
+
   const { query, facets, page = 1 } = await request.json().catch(() => ({}) as any)
   const apiKey = shodanKey()
   if (!apiKey) return needsKey()

@@ -63,13 +63,61 @@ export interface IdsStatusPayload {
   }
 }
 
-/** In-memory failed API auth counter (process-local). */
-let failedApiAuthCount = 0
-const eventRing: IdsEvent[] = []
+/** File-backed IDS ring so detections survive across Next.js route module copies. */
 const MAX_EVENTS = 40
+const IDS_DIR = path.join(process.cwd(), "local-data", "heimdall-ids")
+const EVENTS_FILE = path.join(IDS_DIR, "events.jsonl")
+const AUTH_FILE = path.join(IDS_DIR, "failed-auth.count")
+
+function ensureIdsDir() {
+  try {
+    fs.mkdirSync(IDS_DIR, { recursive: true, mode: 0o700 })
+  } catch {
+    /* ignore */
+  }
+}
+
+function readAuthCount(): number {
+  try {
+    ensureIdsDir()
+    if (!fs.existsSync(AUTH_FILE)) return 0
+    return Math.max(0, parseInt(fs.readFileSync(AUTH_FILE, "utf8").trim(), 10) || 0)
+  } catch {
+    return 0
+  }
+}
+
+function writeAuthCount(n: number) {
+  try {
+    ensureIdsDir()
+    fs.writeFileSync(AUTH_FILE, String(n), { mode: 0o600 })
+  } catch {
+    /* ignore */
+  }
+}
+
+function readEvents(): IdsEvent[] {
+  try {
+    ensureIdsDir()
+    if (!fs.existsSync(EVENTS_FILE)) return []
+    const lines = fs.readFileSync(EVENTS_FILE, "utf8").split("\n").filter(Boolean)
+    const out: IdsEvent[] = []
+    for (const line of lines.slice(-MAX_EVENTS)) {
+      try {
+        out.push(JSON.parse(line) as IdsEvent)
+      } catch {
+        /* skip */
+      }
+    }
+    return out.reverse()
+  } catch {
+    return []
+  }
+}
 
 export function recordFailedApiAuth(reason = "unauthorized"): number {
-  failedApiAuthCount += 1
+  const failedApiAuthCount = readAuthCount() + 1
+  writeAuthCount(failedApiAuthCount)
   pushEvent({
     id: `auth-fail-${Date.now()}`,
     ts: new Date().toISOString(),
@@ -82,12 +130,37 @@ export function recordFailedApiAuth(reason = "unauthorized"): number {
 }
 
 export function getFailedApiAuthCount(): number {
-  return failedApiAuthCount
+  return readAuthCount()
 }
 
 function pushEvent(ev: IdsEvent) {
-  eventRing.unshift(ev)
-  if (eventRing.length > MAX_EVENTS) eventRing.length = MAX_EVENTS
+  try {
+    ensureIdsDir()
+    fs.appendFileSync(EVENTS_FILE, JSON.stringify(ev) + "\n", { mode: 0o600 })
+  } catch {
+    /* ignore */
+  }
+}
+
+export type IdsSeverity = IdsEvent["severity"]
+
+/** Record a live threat/detection event into the IDS ring (Heimdall request-guard + API auth). */
+export function recordIdsThreat(input: {
+  severity: IdsSeverity
+  source: string
+  message: string
+  blocked?: boolean
+  meta?: Record<string, unknown>
+}): void {
+  const blocked = Boolean(input.blocked)
+  pushEvent({
+    id: `threat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    ts: new Date().toISOString(),
+    severity: input.severity,
+    source: input.source,
+    message: blocked ? `[BLOCKED] ${input.message}` : input.message,
+    kind: "live",
+  })
 }
 
 function hasEnv(name: string): boolean {
@@ -160,7 +233,7 @@ export function buildIdsStatus(): IdsStatusPayload {
   ]
 
   const bootEvents: IdsEvent[] =
-    eventRing.length > 0
+    readEvents().length > 0
       ? []
       : [
           {
@@ -181,7 +254,7 @@ export function buildIdsStatus(): IdsStatusPayload {
           },
         ]
 
-  const events = [...eventRing, ...bootEvents].slice(0, MAX_EVENTS)
+  const events = [...readEvents(), ...bootEvents].slice(0, MAX_EVENTS)
 
   return {
     ok: true,
@@ -206,14 +279,14 @@ export function buildIdsStatus(): IdsStatusPayload {
         process.env.REPLAY_APPROVED_ONLY === "true" || process.env.REPLAY_APPROVED_ONLY === "1",
     },
     auth: {
-      failedApiAuthCount,
-      note: "Counter is process-local; increments only when callers invoke recordFailedApiAuth",
+      failedApiAuthCount: readAuthCount(),
+      note: "File-backed counter under local-data/heimdall-ids/; increments when callers invoke recordFailedApiAuth",
     },
     modules,
     lastScan: {
       at: now,
       kind: "live",
-      summary: `Local signal sweep: env.local=${envLocalPresent()}, modules=${modules.filter((m) => m.available).length}/${modules.length}, failedAuth=${failedApiAuthCount}`,
+      summary: `Local signal sweep: env.local=${envLocalPresent()}, modules=${modules.filter((m) => m.available).length}/${modules.length}, failedAuth=${readAuthCount()}`,
     },
     events,
     legend: {

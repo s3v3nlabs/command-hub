@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { spawn } from "child_process"
 import fs from "fs"
 import { assertReadOnlySql, resolveSqlitePath } from "@/lib/evidence/paths"
+import { recordIdsThreat } from "@/lib/security/ids-status"
+import { inspectRequest } from "@/lib/security/request-guard"
+import { requireHubAuth } from "@/lib/security/api-auth"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -93,10 +96,21 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = requireHubAuth(req, { surface: "evidence:sqlite", requireInSecureMode: true })
+    if (denied) return denied
     const body = await req.json()
     const sql = String(body.sql || "")
     const limit = Math.min(500, Math.max(1, Number(body.limit) || 200))
-    assertReadOnlySql(sql)
+    const verdict = inspectRequest({ method: "POST", pathname: "/api/evidence/sqlite", search: "", bodySnippet: sql.slice(0, 400) })
+    try {
+      assertReadOnlySql(sql)
+    } catch (e) {
+      recordIdsThreat({ severity: "high", source: "evidence-sqlite", message: "mutating_sql_blocked", blocked: true })
+      return NextResponse.json({ ok: false, error: "mutating_sql_blocked" }, { status: 400 })
+    }
+    if (verdict.reasons.includes("sqli_probe_signature")) {
+      recordIdsThreat({ severity: "high", source: "evidence-sqlite", message: "sqli_probe", blocked: true })
+    }
     const db = resolveSqlitePath()
     if (!fs.existsSync(db)) {
       return NextResponse.json({ ok: false, error: "sqlite_missing" }, { status: 404 })

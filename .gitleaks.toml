@@ -1,0 +1,20 @@
+# Gitleaks config for the public Command Hub repo.
+# Extends the default ruleset and allowlists known false positives only:
+#  - .env.example contains EMPTY placeholder variable NAMES (value is always ""), not secrets.
+#  - localStorage / config key names flagged by the generic entropy heuristic.
+# Real secrets never live in the repo (see SECURITY.md, .gitignore).
+title = "command-hub gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known non-secret false positives"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.next/''',
+]
+regexes = [
+  '''signalframe_prefs_v2''',
+]

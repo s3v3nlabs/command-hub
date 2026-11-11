@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
+import { requireHubAuth } from "@/lib/security/api-auth"
 import { spawn } from "node:child_process"
 import path from "node:path"
 import fs from "node:fs"
@@ -77,6 +78,9 @@ function runBrain(payload: object, timeoutMs = 8000): Promise<object> {
 }
 
 export async function GET(req: Request) {
+  const denied = requireHubAuth(req, { surface: "brain", requireInSecureMode: true })
+  if (denied) return denied
+
   const { searchParams } = new URL(req.url)
   const action = searchParams.get("action") || "status"
   try {
@@ -103,6 +107,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const denied = requireHubAuth(req, { surface: "brain", requireInSecureMode: true })
+  if (denied) return denied
+
   try {
     const body = await req.json().catch(() => ({}))
     const action = typeof body?.action === "string" ? body.action : "status"

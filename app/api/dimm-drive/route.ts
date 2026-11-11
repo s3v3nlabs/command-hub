@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
+import { requireHubAuth } from "@/lib/security/api-auth"
 import {
   getStatus,
   setQuotaGb,
@@ -46,6 +47,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({} as Record<string, unknown>))
     const action = typeof body?.action === "string" ? body.action : "status"
+
+    const MUTATING = new Set(["setQuotaGb", "set_quota", "ensureMounted", "create", "ensure", "destroy"])
+    if (MUTATING.has(action)) {
+      const denied = requireHubAuth(req, { surface: `dimm-drive:${action}`, requireInSecureMode: true })
+      if (denied) return denied
+    }
 
     if (action === "setQuotaGb" || action === "set_quota") {
       const n = Number(body?.sizeGb ?? body?.quotaGb ?? body?.gb)

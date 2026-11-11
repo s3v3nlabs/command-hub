@@ -147,9 +147,11 @@ export class BiofeedbackBridge {
   }
 
   private evaluateCondition(condition: string, reading: BiometricReading): boolean {
+    // Safe comparison parser — no eval. Supports:
+    //   <field> <op> <number|string>   ops: == != > >= < <=
+    //   optional "&&" / "||" between two comparisons
     try {
-      // Simple condition evaluation - in production, use a proper expression parser
-      const context = {
+      const context: Record<string, number | string> = {
         heart_rate: reading.heart_rate,
         hrv_score: reading.hrv_score,
         breath_rate: reading.breath_rate,
@@ -157,21 +159,37 @@ export class BiofeedbackBridge {
         emotional_state: reading.emotional_state,
         signal_strength: reading.signal_strength,
       }
-
-      // Replace variables in condition
-      let evaluableCondition = condition
-      for (const [key, value] of Object.entries(context)) {
-        const regex = new RegExp(`\\b${key}\\b`, "g")
-        if (typeof value === "string") {
-          evaluableCondition = evaluableCondition.replace(regex, `"${value}"`)
-        } else {
-          evaluableCondition = evaluableCondition.replace(regex, String(value))
+      const cmp = (raw: string): boolean => {
+        const m = raw.trim().match(
+          /^(heart_rate|hrv_score|breath_rate|coherence_level|emotional_state|signal_strength)\s*(==|!=|>=|<=|>|<)\s*(.+)$/,
+        )
+        if (!m) return false
+        const left = context[m[1]]
+        const op = m[2]
+        let rightRaw = m[3].trim()
+        // strip quotes
+        if ((rightRaw.startsWith('"') && rightRaw.endsWith('"')) || (rightRaw.startsWith("'") && rightRaw.endsWith("'"))) {
+          rightRaw = rightRaw.slice(1, -1)
+        }
+        const rightNum = Number(rightRaw)
+        const right: number | string = Number.isFinite(rightNum) && rightRaw !== "" && !/^[a-zA-Z_]/.test(rightRaw) ? rightNum : rightRaw
+        switch (op) {
+          case "==": return left == right
+          case "!=": return left != right
+          case ">": return typeof left === "number" && typeof right === "number" && left > right
+          case ">=": return typeof left === "number" && typeof right === "number" && left >= right
+          case "<": return typeof left === "number" && typeof right === "number" && left < right
+          case "<=": return typeof left === "number" && typeof right === "number" && left <= right
+          default: return false
         }
       }
-
-      // Evaluate the condition (WARNING: eval is dangerous in production)
-      // In production, use a safe expression evaluator
-      return eval(evaluableCondition)
+      if (condition.includes("&&")) {
+        return condition.split("&&").every((part) => cmp(part))
+      }
+      if (condition.includes("||")) {
+        return condition.split("||").some((part) => cmp(part))
+      }
+      return cmp(condition)
     } catch (error) {
       console.error(`Failed to evaluate condition: ${condition}`, error)
       return false

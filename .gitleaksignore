@@ -1,2 +1,0 @@
-# Known false positive: empty placeholder S3V3N_PRIVACY_KEY="" in .env.example (variable name, no value)
-.env.example:generic-api-key:84

@@ -137,35 +137,25 @@ const consciousness = {
                   <div
                     className="prose prose-invert prose-sm max-w-none p-4 text-dark-700"
                     dangerouslySetInnerHTML={{
-                      __html: markdown
-                        .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold mb-4 text-dark-800">$1</h1>')
-                        .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold mb-3 text-dark-700">$1</h2>')
-                        .replace(/^### (.*$)/gim, '<h3 class="text-md font-bold mb-2 text-dark-700">$1</h3>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-dark-800">$1</strong>')
-                        .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                        .replace(
-                          /`(.*?)`/g,
-                          '<code class="bg-dark-300/30 px-1 py-0.5 rounded font-mono text-xs">$1</code>',
-                        )
-                        .replace(
-                          /```(\w+)?\n([\s\S]*?)```/g,
-                          '<pre class="bg-dark-300/30 p-3 rounded font-mono text-xs overflow-x-auto mb-4"><code>$2</code></pre>',
-                        )
-                        .replace(
-                          /^> (.*$)/gim,
-                          '<blockquote class="border-l-4 border-dark-500 pl-4 italic text-dark-600 mb-4">$1</blockquote>',
-                        )
-                        .replace(
-                          /^- \[x\] (.*$)/gim,
-                          '<div class="flex items-center mb-1"><input type="checkbox" checked disabled class="mr-2"><span class="line-through text-dark-600">$1</span></div>',
-                        )
-                        .replace(
-                          /^- \[ \] (.*$)/gim,
-                          '<div class="flex items-center mb-1"><input type="checkbox" disabled class="mr-2"><span>$1</span></div>',
-                        )
-                        .replace(/^- (.*$)/gim, '<li class="ml-4 mb-1">• $1</li>')
-                        .replace(/^---$/gim, '<hr class="border-dark-400/50 my-4">')
-                        .replace(/\n/g, "<br>"),
+                      __html: (() => {
+                        // Escape HTML first so raw tags never reach the DOM, then apply markdown.
+                        const esc = (t: string) =>
+                          t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+                        return esc(markdown)
+                          .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold mb-4 text-dark-800">$1</h1>')
+                          .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold mb-3 text-dark-700">$1</h2>')
+                          .replace(/^### (.*$)/gim, '<h3 class="text-md font-bold mb-2 text-dark-700">$1</h3>')
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-dark-800">$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                          .replace(/`(.*?)`/g, '<code class="bg-dark-300/30 px-1 py-0.5 rounded font-mono text-xs">$1</code>')
+                          .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-dark-300/30 p-3 rounded font-mono text-xs overflow-x-auto mb-4"><code>$2</code></pre>')
+                          .replace(/^&gt; (.*$)/gim, '<blockquote class="border-l-4 border-dark-500 pl-4 italic text-dark-600 mb-4">$1</blockquote>')
+                          .replace(/^- \[x\] (.*$)/gim, '<div class="flex items-center mb-1"><input type="checkbox" checked disabled class="mr-2" /><span class="line-through text-dark-600">$1</span></div>')
+                          .replace(/^- \[ \] (.*$)/gim, '<div class="flex items-center mb-1"><input type="checkbox" disabled class="mr-2" /><span>$1</span></div>')
+                          .replace(/^- (.*$)/gim, '<li class="ml-4 mb-1">• $1</li>')
+                          .replace(/^---$/gim, '<hr class="border-dark-400/50 my-4" />')
+                          .replace(/\n/g, "<br />")
+                      })(),
                     }}
                   />
                 </ScrollArea>

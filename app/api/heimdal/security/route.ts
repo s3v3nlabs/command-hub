@@ -23,73 +23,25 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case "encrypt_memory":
-        const { content, glyph, memoryType } = data
-
-        // Simple glyph-based encryption
-        const glyphHash = glyph.split("").reduce((hash: number, char: string) => hash + char.charCodeAt(0), 0)
-        const encryptedContent = Buffer.from(content).toString("base64") + "::" + glyphHash.toString(16)
-
-        const { data: memory, error } = await supabase
-          .from("symbolic_memory")
-          .insert({
-            glyph_signature: glyph,
-            encrypted_content: encryptedContent,
-            memory_type: memoryType,
-            coherence_required: 0.5,
-          })
-          .select()
-          .single()
-
-        if (error) {
-          console.error("Database insert error:", error)
-          throw error
-        }
-
-        return NextResponse.json({
-          success: true,
-          memory_id: memory.id,
-          glyph_signature: glyph,
-        })
+        // Fake base64 "encryption" disabled. Real AES-GCM requires HEIMDALL_MEMORY_KEY.
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "encryption_unavailable",
+            detail: "Base64 placeholder encryption has been disabled. Configure AES-GCM with HEIMDALL_MEMORY_KEY to enable.",
+          },
+          { status: 501 },
+        )
 
       case "decrypt_memory":
-        const { memoryId, userCoherence } = data
-
-        const { data: memoryRecord, error: fetchError } = await supabase
-          .from("symbolic_memory")
-          .select("*")
-          .eq("id", memoryId)
-          .single()
-
-        if (fetchError) {
-          console.error("Database fetch error:", fetchError)
-          throw fetchError
-        }
-
-        if (userCoherence < memoryRecord.coherence_required) {
-          return NextResponse.json({
-            success: false,
-            error: "Insufficient coherence for memory access",
-            required: memoryRecord.coherence_required,
-            current: userCoherence,
-          })
-        }
-
-        // Decrypt content
-        const [encodedContent, hash] = memoryRecord.encrypted_content.split("::")
-        const decryptedContent = Buffer.from(encodedContent, "base64").toString()
-
-        // Update access count
-        await supabase
-          .from("symbolic_memory")
-          .update({ access_count: memoryRecord.access_count + 1 })
-          .eq("id", memoryId)
-
-        return NextResponse.json({
-          success: true,
-          content: decryptedContent,
-          glyph_signature: memoryRecord.glyph_signature,
-          access_count: memoryRecord.access_count + 1,
-        })
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "encryption_unavailable",
+            detail: "Base64 placeholder decryption has been disabled. Configure AES-GCM with HEIMDALL_MEMORY_KEY to enable.",
+          },
+          { status: 501 },
+        )
 
       case "security_scan":
         // Perform security scan of the system

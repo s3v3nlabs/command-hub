@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 import { NextRequest, NextResponse } from "next/server"
+import { requireHubAuth } from "@/lib/security/api-auth"
 import { spawn } from "child_process"
 import fs from "fs"
 import path from "path"
@@ -186,6 +187,9 @@ conn.close()
  * FTS over /workspace/chatgpt-vault — titles/snippets/paths only. Never secrets.
  */
 export async function GET(req: NextRequest) {
+  const denied = requireHubAuth(req, { surface: "ghostlight:search", requireInSecureMode: true })
+  if (denied) return denied
+
   const q = sanitizeQuery(req.nextUrl.searchParams.get("q") || "")
   const limit = Math.min(
     MAX_LIMIT,
@@ -195,6 +199,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = requireHubAuth(req, { surface: "ghostlight:search", requireInSecureMode: true })
+  if (denied) return denied
+
   let body: { q?: string; query?: string; limit?: number } = {}
   try {
     body = (await req.json()) as typeof body

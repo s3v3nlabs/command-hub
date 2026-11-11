@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import fs from "fs"
 import readline from "readline"
 import { resolveAllowlistedFile } from "@/lib/evidence/paths"
+import { recordIdsThreat } from "@/lib/security/ids-status"
+import { inspectRequest } from "@/lib/security/request-guard"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -10,6 +12,10 @@ const MAX_PAGE = 200
 const MAX_JSON_BYTES = 8 * 1024 * 1024 // 8MB for full JSON files
 
 export async function GET(req: NextRequest) {
+  const verdict = inspectRequest({ method: "GET", pathname: "/api/evidence/json", search: req.nextUrl.search })
+  if (verdict.blocked) {
+    return NextResponse.json({ ok: false, error: "blocked_by_heimdall", reasons: verdict.reasons }, { status: 403 })
+  }
   const sp = req.nextUrl.searchParams
   const id = sp.get("id") || ""
   const offset = Math.max(0, parseInt(sp.get("offset") || "0", 10) || 0)
@@ -19,6 +25,10 @@ export async function GET(req: NextRequest) {
   try {
     const file = resolveAllowlistedFile(id)
     if (!file.exists) {
+      if (id.includes("..") || id.includes("%2e") || id.includes("\\")) {
+        recordIdsThreat({ severity: "high", source: "evidence-json", message: `path traversal / unknown id blocked`, blocked: true })
+        return NextResponse.json({ ok: false, error: "unknown_file_id", id }, { status: 400 })
+      }
       return NextResponse.json({ ok: false, error: "file_not_found", id, rel: file.rel }, { status: 404 })
     }
 
