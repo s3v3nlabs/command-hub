@@ -1,0 +1,13 @@
+{
+  "id": "signalframe-presence",
+  "name": "Multi-Operator Presence",
+  "version": "1.0.0",
+  "description": "SignalFrame multi-operator presence: shared cursors, live engagement notes, and encrypted team chat (reuses the team-bus). Same-origin hub-shared transport; degrades to single-operator honestly. Not a live internet mesh.",
+  "route": "/signalframe/presence",
+  "nav": { "label": "Team Presence", "group": "comms", "order": 11, "badge": "new" },
+  "permissions": ["ui", "read", "messaging"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
