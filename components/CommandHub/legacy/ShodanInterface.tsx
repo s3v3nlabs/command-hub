@@ -50,17 +50,8 @@ export default function ShodanInterface() {
       setApiInfo(info)
     } catch (error) {
       console.error("Failed to load API info:", error)
-      // Set mock API info
-      setApiInfo({
-        plan: "dev",
-        scan_credits: 100,
-        usage: {
-          query_credits: 50,
-          scan_credits: 10,
-          monitored_ips: 0,
-        },
-        unlocked: true,
-      })
+      // No fake plan data: show the honest "needs SHODAN_API_KEY" state
+      setApiInfo(null)
     }
   }
 
@@ -171,7 +162,7 @@ export default function ShodanInterface() {
                 <TypographySmall className="text-dark-600">
                   {apiInfo
                     ? `${apiInfo.plan?.toUpperCase()} Plan • ${apiInfo.usage?.query_credits || 0} credits`
-                    : "Connecting..."}
+                    : "Needs SHODAN_API_KEY in .env.local (InternetDB lookups still work keyless)"}
                 </TypographySmall>
               </div>
             </div>

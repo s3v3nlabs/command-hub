@@ -1,40 +1,19 @@
 import { NextResponse } from "next/server"
+import { needsKey, shodanKey, upstreamError } from "@/lib/shodan/server"
+
+export const dynamic = "force-dynamic"
 
 export async function GET() {
+  const apiKey = shodanKey()
+  if (!apiKey) return needsKey()
   try {
-    const apiKey = process.env.SHODAN_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: "Shodan API key not configured" }, { status: 500 })
-    }
-
-    const response = await fetch(`https://api.shodan.io/api-info?key=${apiKey}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
+    const r = await fetch(`https://api.shodan.io/api-info?key=${encodeURIComponent(apiKey)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
     })
-
-    if (!response.ok) {
-      throw new Error(`Shodan API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return NextResponse.json(data)
-  } catch (error) {
-    console.error("Shodan API info error:", error)
-
-    // Return mock data on error
-    const mockData = {
-      plan: "dev",
-      scan_credits: 100,
-      usage: {
-        query_credits: 50,
-        scan_credits: 10,
-        monitored_ips: 0,
-      },
-      unlocked: true,
-    }
-
-    return NextResponse.json(mockData)
+    if (!r.ok) throw new Error(`Shodan API error: ${r.status}`)
+    return NextResponse.json({ ...(await r.json()), configured: true })
+  } catch (e) {
+    return upstreamError(e)
   }
 }

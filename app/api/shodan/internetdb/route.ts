@@ -1,40 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { upstreamError } from "@/lib/shodan/server"
 
+export const dynamic = "force-dynamic"
+
+/** InternetDB is Shodan's free, keyless endpoint — works without SHODAN_API_KEY. */
 export async function POST(request: NextRequest) {
+  const { ip } = await request.json().catch(() => ({}) as any)
+  if (!ip || typeof ip !== "string") return NextResponse.json({ error: "IP address is required" }, { status: 400 })
   try {
-    const { ip } = await request.json()
-
-    if (!ip) {
-      return NextResponse.json({ error: "IP address is required" }, { status: 400 })
-    }
-
-    // InternetDB doesn't require API key
-    const response = await fetch(`https://internetdb.shodan.io/${ip}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
+    const r = await fetch(`https://internetdb.shodan.io/${encodeURIComponent(ip)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
     })
-
-    if (!response.ok) {
-      throw new Error(`InternetDB API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return NextResponse.json(data)
-  } catch (error) {
-    console.error("InternetDB lookup error:", error)
-
-    // Return mock data on error
-    const mockData = {
-      ip: request.body?.ip || "192.168.1.1",
-      ports: [22, 80, 443],
-      cpes: ["cpe:2.3:a:nginx:nginx:1.18.0:*:*:*:*:*:*:*"],
-      hostnames: ["example.com"],
-      tags: ["web-server"],
-      vulns: [],
-    }
-
-    return NextResponse.json(mockData)
+    if (r.status === 404) return NextResponse.json({ ip, ports: [], cpes: [], hostnames: [], tags: [], vulns: [], note: "No data for this IP" })
+    if (!r.ok) throw new Error(`InternetDB API error: ${r.status}`)
+    return NextResponse.json(await r.json())
+  } catch (e) {
+    return upstreamError(e)
   }
 }
