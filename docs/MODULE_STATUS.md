@@ -170,3 +170,8 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
   `/api/censys/{search,host,status}`. Keys server-only; hub-auth gated in SECURE_MODE; SSRF-blocked IPs.
 - Honest WIP shells remain: call interception / audio injection, IMSI-catcher / Stingray-class — never shipped functional.
 - New libs: `lib/offsec/hardware.ts`, `lib/offsec/duckyscript.ts`, `lib/censys/server.ts`.
+
+## Threat Field engine (Workstream C, 2026-11-11)
+- `/offsec/threat-field` + `/api/offsec/threat-field` — Nash (fictitious play), Fourier/FFT, Monte-Carlo zone field.
+- 3D viz via `@react-three/fiber` / `three` with automatic 2D canvas fallback.
+- `lib/offsec/threat-engine/{types,nash,fourier,montecarlo,field}.ts`. Model output only.

@@ -341,6 +341,7 @@ const navigationItems: NavItem[] = [
       { title: "Bug Bounty", href: "/bounty", icon: Bug },
       { title: "Hardware & RF", href: "/offsec/hardware", icon: Radio, status: "new" },
       { title: "Phone Suite", href: "/offsec/phone", icon: Smartphone, status: "new" },
+      { title: "Threat Field", href: "/offsec/threat-field", icon: Activity, status: "new" },
       { title: "WIP Lab", href: "/offsec/lab", icon: Wrench, status: "beta" },
     ],
   },
