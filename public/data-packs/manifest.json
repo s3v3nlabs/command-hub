@@ -1,0 +1,62 @@
+{
+  "note": "Cached public datasets for the map modules. Refresh with: node scripts/update-data-packs.mjs",
+  "generated": "2026-11-11T07:47:27.452Z",
+  "packs": [
+    {
+      "id": "natural-earth-countries",
+      "name": "Natural Earth countries (1:110m)",
+      "description": "Simplified country polygons with ISO codes, continent and population estimate. Also used to place country-level data.",
+      "kind": "polygons",
+      "source": "https://github.com/nvkelso/natural-earth-vector",
+      "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson",
+      "license": "Public domain (Natural Earth)",
+      "live": false,
+      "file": "/data-packs/natural-earth-countries.geojson",
+      "updated": "2026-11-11T07:47:11.509Z",
+      "features": 177,
+      "bytes": 193588
+    },
+    {
+      "id": "usgs-earthquakes",
+      "name": "USGS earthquakes M2.5+ (past 7 days)",
+      "description": "Every M2.5+ earthquake worldwide in the last week. Weight scales with magnitude.",
+      "kind": "points",
+      "source": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php",
+      "sourceUrl": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson",
+      "license": "Public domain (U.S. Geological Survey)",
+      "live": true,
+      "file": "/data-packs/usgs-earthquakes.geojson",
+      "updated": "2026-11-11T07:47:11.572Z",
+      "features": 317,
+      "bytes": 109952
+    },
+    {
+      "id": "feodo-c2-by-country",
+      "name": "abuse.ch Feodo Tracker botnet C2s (by country)",
+      "description": "Botnet C2 servers on the Feodo Tracker recommended blocklist, aggregated to country centroids (country-level location only; no IP geolocation).",
+      "kind": "points",
+      "source": "https://feodotracker.abuse.ch/blocklist/",
+      "sourceUrl": "https://feodotracker.abuse.ch/downloads/ipblocklist.json",
+      "license": "CC0 (abuse.ch)",
+      "live": true,
+      "file": "/data-packs/feodo-c2-by-country.geojson",
+      "updated": "2026-11-11T07:47:11.722Z",
+      "features": 3,
+      "bytes": 1049
+    },
+    {
+      "id": "noaa-alerts",
+      "name": "NOAA / NWS active weather alerts (US)",
+      "description": "Active National Weather Service alerts. Alerts with a polygon keep it; zone-based alerts are placed at the state or marine-area centre (approximate location).",
+      "kind": "mixed",
+      "source": "https://www.weather.gov/documentation/services-web-api",
+      "sourceUrl": "https://api.weather.gov/alerts/active?status=actual&message_type=alert",
+      "license": "Public domain (U.S. National Weather Service)",
+      "live": true,
+      "file": "/data-packs/noaa-alerts.geojson",
+      "updated": "2026-11-11T07:47:27.451Z",
+      "features": 35,
+      "bytes": 19004
+    }
+  ]
+}
