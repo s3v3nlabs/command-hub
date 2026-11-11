@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Bell, Settings, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { WorkspaceSwitcher } from "@/components/workspace/workspace-switcher"
 import Link from "next/link"
 
 interface HeaderProps {
@@ -39,6 +40,7 @@ export function Header({ title, subtitle, className, actions }: HeaderProps) {
       {/* Actions */}
       <div className="flex items-center space-x-1 sm:space-x-2 relative z-10 shrink-0">
         {actions}
+        <WorkspaceSwitcher />
         <ThemeToggle />
         <Button
           size="sm"

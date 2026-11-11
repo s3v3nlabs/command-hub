@@ -1,0 +1,13 @@
+{
+  "id": "workspaces",
+  "name": "Role-Based Workspaces",
+  "version": "1.0.0",
+  "description": "Red/Blue/Tiger/Investigator role presets that feature modules + layout. Shell switcher in the header; selection persists.",
+  "route": "/workspaces",
+  "nav": { "label": "Workspaces", "group": "core", "order": 9, "badge": "new" },
+  "permissions": ["ui", "read"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
