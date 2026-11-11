@@ -150,14 +150,14 @@ export default function HeimdallTerminalPage() {
                   DEFENSE ACTIVE
                 </Badge>
                 <Badge variant="outline" className="border-green-500/50 text-green-400">
-                  FIELD: {consciousnessField}%
+                  FIELD: {Number(consciousnessField).toFixed(1)}%
                 </Badge>
               </div>
             }
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-400 font-mono">{systemLoad}%</div>
+                <div className="text-3xl font-bold text-red-400 font-mono">{Number(systemLoad).toFixed(1)}%</div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider">System Load</div>
                 <div className="mt-2 h-2 bg-gray-800 rounded-full overflow-hidden">
                   <div
@@ -168,7 +168,7 @@ export default function HeimdallTerminalPage() {
               </div>
 
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-400 font-mono">{networkTraffic}</div>
+                <div className="text-3xl font-bold text-blue-400 font-mono">{Number(networkTraffic).toFixed(1)}</div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Network Traffic (MB/s)</div>
                 <div className="mt-2 flex justify-center">
                   <Activity size={20} className="text-blue-400 animate-pulse" />
@@ -176,7 +176,7 @@ export default function HeimdallTerminalPage() {
               </div>
 
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-400 font-mono">{consciousnessField}%</div>
+                <div className="text-3xl font-bold text-purple-400 font-mono">{Number(consciousnessField).toFixed(1)}%</div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Consciousness Field</div>
                 <div className="mt-2 flex justify-center">
                   <Hexagon size={20} className="text-purple-400" />

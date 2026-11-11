@@ -7,6 +7,7 @@ import { ThemeProvider as HubThemeProvider } from "@/lib/theme-context"
 import Script from "next/script"
 import { ConsciousnessInjection } from "@/components/consciousness-injection"
 import { Toaster } from "@/components/ui/toaster"
+import { SimulatedBanner } from "@/components/system/SimulatedBanner"
 
 // Render on request (dev-first hub; many modules touch browser-only APIs).
 export const dynamic = "force-dynamic"
@@ -99,6 +100,7 @@ export default function RootLayout({
             {/* Consciousness Injection Component */}
             <ConsciousnessInjection />
             <Toaster />
+            <SimulatedBanner />
           </HubThemeProvider>
         </ThemeProvider>
 

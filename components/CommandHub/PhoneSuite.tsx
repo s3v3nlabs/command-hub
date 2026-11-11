@@ -746,6 +746,9 @@ export default function PhoneSuite() {
                 className="bg-black/90 border-gray-800"
               >
                 <TechPanelSection>
+                  <div className="mb-3 rounded border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-300">
+                    UI mock only: these toggles change nothing on a device. Voice cloning is not implemented and will not be.
+                  </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded border border-gray-800">
                       <div className="flex items-center space-x-2">
@@ -858,6 +861,9 @@ export default function PhoneSuite() {
               icon={<Router size={16} />}
               className="bg-black/90 border-gray-800"
             >
+              <div className="mb-3 rounded border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-300">
+                UI mock only: no SIP trunk is connected. For real outbound calls use the AI Caller (/ai-caller).
+              </div>
               <TechPanelSection>
                 <div className="space-y-4">
                   {sipTrunks.map((trunk) => (
@@ -974,6 +980,9 @@ export default function PhoneSuite() {
                 className="bg-black/90 border-gray-800"
               >
                 <TechPanelSection>
+                  <div className="mb-3 rounded border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-300">
+                    UI mock only: these toggles change nothing on a device. IMEI and location spoofing are not implemented and will not be.
+                  </div>
                   <div className="space-y-4">
                     <div className="p-3 bg-gray-900/50 rounded border border-gray-800">
                       <div className="flex items-center justify-between mb-2">
