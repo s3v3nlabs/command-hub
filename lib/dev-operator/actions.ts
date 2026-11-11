@@ -11,7 +11,7 @@ const MODULES_ROOT = path.join(process.cwd(), "modules")
 const PROPOSALS = path.join(process.cwd(), "modules", "proposals")
 const DOC_PROPOSALS = path.join(process.cwd(), "docs", "proposals")
 
-export function createModuleStub(manifest: ModuleManifest): { ok: true; path: string } | { ok: false; error: string } {
+export function createModuleStub(manifest: ModuleManifest): { ok: true; path: string; nextSteps: string[] } | { ok: false; error: string } {
   if (!isModuleManifest(manifest)) return { ok: false, error: "invalid manifest" }
   if (/(exploit|malware|pwn|ransomware|keylog)/i.test(manifest.id + manifest.name)) {
     return { ok: false, error: "rejected exploit-flavored id" }
@@ -23,7 +23,13 @@ export function createModuleStub(manifest: ModuleManifest): { ok: true; path: st
   fs.writeFileSync(dest, JSON.stringify(body, null, 2) + "\n", { mode: 0o644 })
   // also register in bay
   registerModule(body)
-  return { ok: true, path: dest }
+  // Full lifecycle next steps (sign + verify before enable).
+  const nextSteps = [
+    `Signed? Sign the manifest: node scripts/sign-registry.mjs ${path.relative(process.cwd(), dest)}`,
+    `Verify integrity before enable: node scripts/verify-registry.mjs ${path.relative(process.cwd(), dest)}`,
+    `Enable via /marketplace once VERIFIED (or re-sign the index: node scripts/sign-registry.mjs).`,
+  ]
+  return { ok: true, path: dest, nextSteps }
 }
 
 export function writePatchProposal(title: string, markdown: string): { ok: true; path: string } | { ok: false; error: string } {
