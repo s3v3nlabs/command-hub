@@ -55,6 +55,7 @@ import {
   Hand,
   Menu,
   X,
+  PhoneCall,
 } from "lucide-react"
 import { NetworkIntelligencePanel } from "@/components/system/network-intelligence-panel"
 import { SystemControlPanel } from "@/components/system/system-control-panel"
@@ -350,6 +351,7 @@ const navigationItems: NavItem[] = [
     title: "Ops Modules",
     icon: Layers,
     children: [
+      { title: "AI Caller (Grok Bot)", href: "/ai-caller", icon: PhoneCall, status: "new" },
       { title: "AI Ops Hub", href: "/ai-hub", icon: Brain, status: "new" },
       { title: "Triadic Local AI", href: "/triadic", icon: Cpu, status: "new" },
       { title: "SoundCheck / Business Tech", href: "/soundcheck", icon: AudioLines, status: "new" },

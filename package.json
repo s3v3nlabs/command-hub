@@ -10,7 +10,10 @@
     "setup-android": "node scripts/setup-android.js",
     "check-adb": "node scripts/check-adb.js",
     "test-adb": "adb devices",
-    "install-deps": "npm install && npm run setup-android"
+    "install-deps": "npm install && npm run setup-android",
+    "caller:bridge": "node server/caller-bridge/index.mjs",
+    "caller:smoke": "node server/caller-bridge/smoke.mjs",
+    "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
     "@ai-sdk/groq": "^0.0.3",
@@ -65,7 +68,8 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.170.0",
-    "utf-8-validate": "^6.0.6"
+    "utf-8-validate": "^6.0.6",
+    "ws": "^8.22.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",

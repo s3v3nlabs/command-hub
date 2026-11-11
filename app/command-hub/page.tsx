@@ -31,6 +31,7 @@ import {
   Music2,
   Mic,
   Hand,
+  PhoneCall,
 } from "lucide-react"
 
 type SignalKind = "live" | "simulated"
@@ -83,6 +84,7 @@ const FORTRESS_LINKS = [
   { id: "modules", name: "Module Bay", href: "/modules", icon: Package },
   { id: "dev-operator", name: "Dev Operator AI", href: "/dev-operator", icon: Terminal },
   { id: "sigma-lane", name: "Sigma Lane", href: "/dev-operator#sigma-lane", icon: Activity },
+  { id: "ai-caller", name: "AI Caller", href: "/ai-caller", icon: PhoneCall },
   { id: "music-hub", name: "Music Hub", href: "/music", icon: Music2 },
   { id: "voice-bus", name: "Voice Bus", href: "/voice", icon: Mic },
   { id: "handsfree", name: "Hands-free", href: "/handsfree", icon: Hand },
