@@ -67,6 +67,14 @@ In-hub libraries / frameworks (npm; see package.json / package-lock.json for exa
   - Zod — MIT
   - TypeScript — Apache-2.0
 
+Reverse Engineering Workbench engines (local install, brokered; not redistributed):
+  - REA — Reverse Engineer Anything (morluto)   https://github.com/morluto/rea
+      MIT License, Copyright (c) 2026 morluto. The hub acts as an MCP client to an
+      operator-installed REA server (npm: rea-agents); no REA code is vendored.
+  - radare2 (pancake & contributors)            https://github.com/radareorg/radare2   — LGPL-3.0
+  - Ghidra (National Security Agency)           https://github.com/NationalSecurityAgency/ghidra — Apache-2.0
+  - scripts/ghidra/HubExportEvidence.java is original hub code (Apache-2.0) using the Ghidra script API.
+
 Investigative UX patterns inspired by (not affiliated with / not redistributed):
   - Maltego-style entity graph (aesthetic/UX inspiration; our own SVG force-directed implementation)
   - CyberChef-style data transforms (our own pure-JS transform set; GCHQ CyberChef is Apache-2.0)
@@ -76,3 +84,17 @@ Other hub-internal credits:
   - Ghostnode / SignalFrame mil-tech theme — Singular/ty original work
 
 Authorized use only. See LEGAL.md. This NOTICE does not modify the License.
+
+--------------------------------------------------------------------------------
+MITRE ATT&CK®
+
+This project bundles a curated subset of MITRE ATT&CK (Enterprise) technique
+references (lib/offsec/attack/techniques.ts) for engagement-report mapping and
+the live ATT&CK navigator.
+
+  ATT&CK® is a registered trademark of The MITRE Corporation.
+  © The MITRE Corporation. Used under the MITRE ATT&CK Terms of Use:
+  https://attack.mitre.org/resources/legal-and-branding/terms-of-use/
+  Source data: https://github.com/mitre-attack/attack-stix-data
+
+The bundled list is a subset for in-hub mapping, not the complete matrix.

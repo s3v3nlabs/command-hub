@@ -1,0 +1,13 @@
+{
+  "id": "report-engine",
+  "name": "Engagement Reporting",
+  "version": "1.0.0",
+  "description": "Auto-generate a pentest report from the engagements DB: findings -> MITRE ATT&CK mapping -> markdown + server-side PDF export.",
+  "route": "/offsec/report",
+  "nav": { "label": "Report Builder", "group": "ops", "order": 18, "badge": "new" },
+  "permissions": ["ui", "read", "ops"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
