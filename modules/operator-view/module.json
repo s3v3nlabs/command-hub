@@ -1,0 +1,13 @@
+{
+  "id": "operator-view",
+  "name": "Mobile Operator View",
+  "version": "1.0.0",
+  "description": "Compact mobile/tablet-first operator console for field work: Heimdall status, workspace-featured module grid with large tap targets, top ATT&CK, recent audit. Single-column responsive.",
+  "route": "/operator",
+  "nav": { "label": "Operator (mobile)", "group": "core", "order": 3, "badge": "new" },
+  "permissions": ["ui", "read"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
