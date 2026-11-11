@@ -72,6 +72,9 @@ export async function GET(req: Request) {
     })
   }
 
+  // Probe backends so the dashboard is not stuck on "unknown" health.
+  await refreshPoolHealth()
+
   // Optional warm-on-start (once per process when flag set and never warmed)
   if (getWarmOnStart()) {
     const snap = statusPayload()

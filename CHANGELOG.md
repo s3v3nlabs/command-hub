@@ -8,6 +8,7 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 
 ### Added
 - **Compute / AI Acceleration:** `/compute` + `/api/compute` + `lib/compute/*` — multi-backend router (Ollama/RunPod/OpenAI-compat), bounded job queue (async + worker_threads), warm-pool, speculative race, circuit-breaker failover; honest performance surface (quantization/GPU/KV/batching documented-only). Debunks virtual-RAM-to-compute claims. See `docs/COMPUTE.md`.
+- **ATT&CK navigator heatmap:** `/offsec/attack-navigator` — Heimdall/deception-observed techniques lit on a live enterprise heatmap.
 - **RE Workbench:** `/offsec/reverse-engineering` + `/api/offsec/reverse-engineering/*` — REA (MIT) MCP broker (stdio, verified against rea-agents 6.8.0) with radare2 + Ghidra headless fallback; evidence records with provider/source/limitations; one engine per session; sha256 cache; local-model AI assist (defensive); dynamic REA tools staged-ladder gated + audit-logged.
 - **Android Lab:** `/offsec/android-lab` + `/api/offsec/android-lab` — local AVD lifecycle, adb control, screencap live view, app assessment hooks; honest SDK-not-installed state.
 - **Security hardening (Workstream A):** root `middleware.ts` + `next.config` headers; `requireHubAuth` / `SECURE_MODE`; ADB shell allowlist; SSRF blocks; markdown XSS escape-first; empty hub-config secrets; Heimdall IDS file-backed; next → 15.5.29; `SECURITY.md`.
