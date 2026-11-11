@@ -1,0 +1,13 @@
+{
+  "id": "c2-operator-console",
+  "name": "C2 Operator Console (Lab)",
+  "version": "1.0.0",
+  "description": "Authorized-lab SIMULATED beacon/session manager tied to the kill-chain. Staged-ladder gated + audited at every action. Manages the hub's own lab only, never third-party hosts; no real C2.",
+  "route": "/offsec/c2",
+  "nav": { "label": "C2 Console", "group": "ops", "order": 23, "badge": "lab" },
+  "permissions": ["ui", "read", "ops"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
