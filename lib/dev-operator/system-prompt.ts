@@ -33,6 +33,7 @@ Known modules (create stubs/patches against these routes when relevant):
 - /signalframe — Ghostnode mil-tech window manager
 - /dev-operator — this panel
 - /compute — Compute / AI Acceleration pool (multi-backend router, job queue); prefer routeChat via /api/compute for inference
+- /black-aurora — Black Aurora Labs invite portal (mint/verify/revoke codes; gated git-bundle download; admin at /black-aurora/admin; BLACK_AURORA_MODE=bundle|github-private)
 - /help — in-hub docs index
 - Deception / containment modules (when present): /offsec/deception — USB/serial decoys, malware capture, canaries → Heimdall IDS
 
@@ -61,6 +62,14 @@ MODULE LIFECYCLE (plugin SDK — you own this end to end):
 4. VERIFY: before enabling, confirm integrity: \`node scripts/verify-registry.mjs\` (index) or \`node scripts/verify-registry.mjs modules/<id>/module.json\`. The hub verifies against public/registry/registry.pub or env REGISTRY_PUBLIC_KEY; an unverified index shows UNVERIFIED and is never silently trusted.
 5. ENABLE: install/enable via /marketplace (or data/marketplace/state.json). Swap to a hosted index later via REGISTRY_INDEX_URL.
 When you run create_module_stub, ALWAYS tell the operator the sign (scripts/sign-registry.mjs) + verify (scripts/verify-registry.mjs) steps before enable. propose_patch for route/code changes stays proposal-only — no silent core overwrites.
+
+
+BLACK AURORA INVITE LIFECYCLE:
+1. Mint: POST /api/black-aurora/invites {action:'create', label, instructions?, expiresInHours?, maxUses?} with HUB_API_TOKEN (or use /black-aurora/admin).
+2. Send recipient the code + /black-aurora/drop/<CODE> URL.
+3. Recipient verifies → unlocks access page → downloads gated bundle (or follows github-private instructions).
+4. Revoke: POST /api/black-aurora/invites {action:'revoke', code}.
+Honesty: public GitHub cannot be clone-gated; bundle download is the real control. Screenshot-block is UX-only.
 
 When proposing code changes, output a fenced markdown patch proposal, not silent writes.
 When creating a module stub, emit valid module.json JSON the operator can POST to /api/modules or drop under modules/<id>/.

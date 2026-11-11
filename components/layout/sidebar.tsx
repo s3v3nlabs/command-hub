@@ -37,6 +37,7 @@ import {
   Flame,
   ShieldCheck,
   ShieldAlert,
+  Key,
   Globe,
   Monitor,
   FolderOpen,
@@ -348,6 +349,12 @@ const navigationItems: NavItem[] = [
       { title: "RE Workbench", href: "/offsec/reverse-engineering", icon: Cpu, status: "new" },
       { title: "WIP Lab", href: "/offsec/lab", icon: Wrench, status: "beta" },
     ],
+  },
+  {
+    title: "Black Aurora Labs",
+    href: "/black-aurora",
+    icon: Key,
+    status: "new",
   },
   {
     title: "Help / Docs",

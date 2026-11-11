@@ -16,6 +16,18 @@ npx next start -p 3100
 
 Full install: [INSTALL.md](./INSTALL.md) · Usage: [USAGE.md](./USAGE.md) · Updating: [UPDATING.md](./UPDATING.md) · Security: [SECURITY.md](./SECURITY.md) · Legal: [LEGAL.md](./LEGAL.md) · OffSec suite: [docs/OFFSEC_SUITE.md](./docs/OFFSEC_SUITE.md)
 
+## Black Aurora Labs (invite portal)
+
+Invite-only access packaging with a monochrome classified-terminal UI:
+
+- `/black-aurora` → verify code → unlock gated **git bundle / tarball** download + install instructions
+- `/black-aurora/admin` — mint / revoke codes (gated by `HUB_API_TOKEN` when set / `SECURE_MODE`)
+- **Honesty:** a public GitHub repo cannot be code-gated for `git clone`. The portal gates a server-side bundle. True clone-gating = private repo (`BLACK_AURORA_MODE=github-private`, documented path).
+
+Details: [USAGE.md § Black Aurora](./USAGE.md) · [docs/black-aurora/](./docs/black-aurora/)
+
+
+
 
 
 **Module status:** see [docs/MODULE_STATUS.md](docs/MODULE_STATUS.md) for an honest per-route table (Working / Works with API key / Stub). Routes that still show sample data display a **SIMULATED** banner.

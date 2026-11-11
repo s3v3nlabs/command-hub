@@ -332,3 +332,65 @@ git revert <bad-commit-sha>                  # safe, keeps history
 ```
 
 Your local `data/` and `local-data/` are unaffected by a code rollback.
+
+
+## Black Aurora Labs — Invite Portal
+
+Monochrome classified-terminal portal for **invite-only access packaging**.
+
+Routes: `/black-aurora` → `/black-aurora/verify` → `/black-aurora/drop/[code]` → `/black-aurora/access/[code]`. Admin: `/black-aurora/admin`.
+
+### Honesty (read this)
+
+- A **public** GitHub repo **cannot** be locked behind a code for `git clone`. Anyone can clone it.
+- Black Aurora gates a **server-side bundle/tarball** after a valid invite is redeemed (`BLACK_AURORA_MODE=bundle`, default).
+- For true clone-gating: make the GitHub repo **private** and set `BLACK_AURORA_MODE=github-private` (documented path — no live GitHub token minting). Hand out collaborator invites / fine-grained PATs out-of-band.
+- SecureFrame anti-screenshot / destroy-on-blur is a **UX deterrent only**. Real controls: single-use tokens, server expiry/revoke, `Cache-Control: no-store`.
+
+### Operator: mint a code
+
+1. Set `HUB_API_TOKEN` (and ideally `SECURE_MODE=1`) in `.env.local`.
+2. Open `/black-aurora/admin`, paste the token, fill recipient label (e.g. `zerocipher/Jerry`) + optional instructions / expiry / max-uses.
+3. **GENERATE CODE** → copy the invite message (code + drop URL).
+4. Send that to the tester. Revoke anytime from the same page.
+
+API equivalent:
+
+```bash
+curl -s -X POST http://127.0.0.1:3100/api/black-aurora/invites \
+  -H "Authorization: Bearer $HUB_API_TOKEN" -H "Content-Type: application/json" \
+  -d '{"action":"create","label":"zerocipher/Jerry","expiresInHours":168,"maxUses":1}'
+```
+
+### Tester: verify + download
+
+1. Open the drop URL (`/black-aurora/drop/<CODE>`) or enter the code at `/black-aurora/verify`.
+2. Click **UNLOCK INSTALL PACKAGE** (this **redeems** one use and issues a 30-minute download grant).
+3. On the access page: read instructions, then **DOWNLOAD GIT BUNDLE** (or tarball).
+4. Locally:
+
+```bash
+git clone command-hub-*.bundle command-hub
+# or: tar -xzf command-hub-*.tar.gz
+cd command-hub
+cp .env.example .env.local
+npm install && npm run build
+# see INSTALL.md / UPDATING.md
+```
+
+### Revoke
+
+Admin UI → REVOKE, or:
+
+```bash
+curl -s -X POST http://127.0.0.1:3100/api/black-aurora/invites \
+  -H "Authorization: Bearer $HUB_API_TOKEN" -H "Content-Type: application/json" \
+  -d '{"action":"revoke","code":"XXXXXXXX"}'
+```
+
+### Env
+
+- `BLACK_AURORA_MODE` — `bundle` (default) | `github-private`
+- Reuses `HUB_API_TOKEN` / `SECURE_MODE` for admin APIs
+
+Invites: `data/black-aurora/invites.json` (gitignored). Bundles: `local-data/black-aurora/bundles/` (gitignored). More: `docs/black-aurora/README.md`.

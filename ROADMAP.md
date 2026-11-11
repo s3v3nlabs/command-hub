@@ -4,6 +4,7 @@ Iterative. This is a living map of what is REAL, what is WIP-by-law, and what is
 
 ## REAL now
 
+- Black Aurora Labs invite portal (`/black-aurora`) — gated bundle download + admin mint/revoke
 - Security hardening (middleware headers, `requireHubAuth`, SSRF guards, markdown XSS escape-first, Heimdall IDS file-backed, next 15.5.x)
 - OffSec Arsenal (kill-chain + CTF), OSINT, entity graph, toolkit/hash-ID, privacy stack, engagements
 - Hardware & RF (BT, CAN, USB/Ducky+BadUSB, LAN, Shodan+Censys server-side, VoIP, SDR, Flipper Zero + Flipper One predicted)

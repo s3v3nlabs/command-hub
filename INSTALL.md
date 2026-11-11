@@ -42,3 +42,12 @@ Pass the token as `Authorization: Bearer <HUB_API_TOKEN>` or `X-Hub-Token` on ga
 - `local-data/` — Heimdall IDS ring, CCTV HLS samples, other runtime state
 
 See [USAGE.md](./USAGE.md), [UPDATING.md](./UPDATING.md), [SECURITY.md](./SECURITY.md), [LEGAL.md](./LEGAL.md).
+
+## Invite-only distribution (Black Aurora)
+
+To hand a tester a code-gated copy without relying on a public `git clone`:
+
+1. Run the hub, open `/black-aurora/admin`, mint a code (see USAGE.md).
+2. Send the code + drop URL. The tester downloads a git bundle / tarball from the portal.
+3. Or set `BLACK_AURORA_MODE=github-private` and make the GitHub repo private (documented path).
+

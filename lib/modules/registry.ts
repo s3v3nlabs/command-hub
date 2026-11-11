@@ -340,6 +340,20 @@ export const BUILTIN_MANIFESTS: ModuleManifest[] = [
     source: "builtin",
     lattice_sync: false,
   },
+  {
+    id: "black-aurora",
+    name: "Black Aurora Labs",
+    version: "1.0.0",
+    description: "Invite-gated secure client portal: mint codes, verify, unlock gated git-bundle/tarball download. Monochrome classified aesthetic. Public repos cannot be clone-gated — bundle download is the real mechanism.",
+    route: "/black-aurora",
+    nav: { label: "Black Aurora", group: "core", order: 9, badge: "new" },
+    permissions: ["ui", "ops", "privacy"],
+    entry: null,
+    enabled: true,
+    kind: "route",
+    source: "builtin",
+    lattice_sync: false,
+  },
 ]
 
 function ensureRegisteredDir(): void {
