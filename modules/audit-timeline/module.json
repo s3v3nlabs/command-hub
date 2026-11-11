@@ -1,0 +1,13 @@
+{
+  "id": "audit-timeline",
+  "name": "Audit Timeline",
+  "version": "1.0.0",
+  "description": "Unified who-did-what-when timeline across modules: staged-ladder authz, Heimdall IDS detections, deception events, and Heimdall eyes-only (sealed unless Heimdall token).",
+  "route": "/audit",
+  "nav": { "label": "Audit Timeline", "group": "core", "order": 7, "badge": "new" },
+  "permissions": ["ui", "read", "ops"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false
+}
