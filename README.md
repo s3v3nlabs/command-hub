@@ -4,6 +4,33 @@ The Singular/ty Defense Solutions **Command Hub**: a dark-themed Next.js 15 oper
 
 Maintained at **https://github.com/s3v3nlabs/command-hub**.
 
+
+## Screenshots
+
+![Home dashboard](docs/screenshots/home-desktop.png)
+
+*Home dashboard with module tiles and live-looking status cards.*
+
+![Command Hub fortress](docs/screenshots/command-hub-desktop.png)
+
+*Command Hub fortress: module links, sidebar, and node status.*
+
+![Music Hub](docs/screenshots/music-desktop.png)
+
+*Music Hub with the harmonic EQ lane and official-OAuth streamer stubs.*
+
+![Home on a phone](docs/screenshots/home-mobile.png)
+
+*Home dashboard at a phone-sized width (412×915).*
+
+![Command Hub on a phone](docs/screenshots/command-hub-mobile.png)
+
+*Command Hub fortress at a phone-sized width.*
+
+![Music Hub on a phone](docs/screenshots/music-mobile.png)
+
+*Music Hub at a phone-sized width.*
+
 ## Quick start
 
 Requirements: Node.js 20+ and npm.
