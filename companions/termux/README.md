@@ -11,6 +11,11 @@ Android Lab, Docker, or the Next.js 15 suite on the device. The full hub
 still needs Node 20+ on a real Linux host — Termux is the wrong place for
 that build.
 
+For camera, microphone, and live telemetry, use the hub-served **Device
+Bridge PWA** instead: open `https://<hub-host>/companion` in the phone
+browser and Add to Home Screen. See [docs/COMPANION_BRIDGE.md](../../docs/COMPANION_BRIDGE.md).
+This Termux client remains the scripting / operator-deck node.
+
 Credit: **Christian Wilford (s3v3n), AI Architect, Offensive Security
 Enthusiast, Founder of Singular/ty Defense Solutions, LLC.** Apache-2.0,
 same license as the hub.

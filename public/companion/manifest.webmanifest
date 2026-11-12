@@ -1,0 +1,32 @@
+{
+  "name": "Singular/ty Device Bridge",
+  "short_name": "Device Bridge",
+  "description": "Phone ↔ Command Hub camera, microphone, and telemetry companion. Authorized operators only.",
+  "start_url": "/companion",
+  "scope": "/companion/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/companion/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/companion/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/companion/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

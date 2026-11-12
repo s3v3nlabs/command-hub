@@ -50,6 +50,17 @@ export function TileCard({
     tile.meta.network.protocol === "http"
 
   const preview = useMemo(() => {
+    if (tile.meta.network.protocol === "bodycam") {
+      const href = tile.meta.network.streamUrl || (tile.webcamDeviceId ? `/companion/hub-view?session=${tile.webcamDeviceId}` : "/companion/hub-view")
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-1 p-2 text-center font-mono text-[10px] text-[color:var(--ghost-faint)]">
+          <span>Device Bridge bodycam</span>
+          <a href={href} className="text-[color:var(--ghost-ink)] underline-offset-2 hover:underline">
+            Open hub seat (1:1 WebRTC — a second viewer would steal the call)
+          </a>
+        </div>
+      )
+    }
     if (tile.meta.network.protocol === "webcam") {
       return (
         <div className="flex h-full items-center justify-center font-mono text-[10px] text-[color:var(--ghost-faint)]">

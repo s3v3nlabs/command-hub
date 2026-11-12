@@ -159,9 +159,14 @@ export default function OperatorViewPage() {
           )}
         </div>
 
-        <a href="/" className="block rounded border border-[color:var(--ghost-line)] bg-black/50 px-3 py-2 text-center text-xs active:bg-dark-100/10">
-          Full desktop hub →
-        </a>
+        <div className="grid grid-cols-2 gap-2">
+          <a href="/companion" className="block rounded border border-[color:var(--ghost-line)] bg-black/50 px-3 py-3 text-center text-xs active:bg-dark-100/10">
+            Device Bridge
+          </a>
+          <a href="/" className="block rounded border border-[color:var(--ghost-line)] bg-black/50 px-3 py-3 text-center text-xs active:bg-dark-100/10">
+            Full desktop hub →
+          </a>
+        </div>
       </div>
     </div>
   )

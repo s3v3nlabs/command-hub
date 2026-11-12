@@ -180,6 +180,12 @@ const navigationItems: NavItem[] = [
     status: "new",
   },
   {
+    title: "Device Bridge",
+    href: "/companion",
+    icon: Camera,
+    status: "new",
+  },
+  {
     title: "Intelligence",
     icon: Brain,
     children: [

@@ -8,7 +8,7 @@
  * Metadata display itself is fine while locked.
  */
 
-export type StreamProtocol = "rtsp" | "http" | "mjpeg" | "hls" | "mp4" | "webcam" | "unknown"
+export type StreamProtocol = "rtsp" | "http" | "mjpeg" | "hls" | "mp4" | "webcam" | "bodycam" | "unknown"
 
 export type AuthState = "open" | "auth-required" | "unknown"
 

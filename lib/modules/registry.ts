@@ -354,6 +354,20 @@ export const BUILTIN_MANIFESTS: ModuleManifest[] = [
     source: "builtin",
     lattice_sync: false,
   },
+  {
+    id: "device-bridge",
+    name: "Device Bridge",
+    version: "1.0.0",
+    description: "Hub-served PWA companion: phone ↔ hub WebRTC camera/mic, GPS/battery/network telemetry, safe remote actions. Install to the home screen. Termux remains the scripting node.",
+    route: "/companion",
+    nav: { label: "Device Bridge", group: "ops", order: 8, badge: "new" },
+    permissions: ["ui", "ops"],
+    entry: null,
+    enabled: true,
+    kind: "route",
+    source: "builtin",
+    lattice_sync: false,
+  },
 ]
 
 function ensureRegisteredDir(): void {

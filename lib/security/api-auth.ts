@@ -84,3 +84,17 @@ export function requireHubAuth(
 
   return null
 }
+
+/** True when the request may access privileged hub surfaces (token match, or open lab). */
+export function isHubAuthorized(req: Request): boolean {
+  const token = configuredToken()
+  const presented = extractHubToken(req)
+  if (token) return !!presented && presented === token
+  // SECURE_MODE with no token configured: not authorized for privileged surfaces.
+  if (isSecureMode()) return false
+  return true
+}
+
+export function hasConfiguredHubToken(): boolean {
+  return configuredToken() !== null
+}

@@ -64,3 +64,5 @@ bash install.sh && bash start.sh
 
 Open http://127.0.0.1:8788 and point Setup at the machine running this install (`npx next start -H 0.0.0.0 -p 3100`). See [companions/termux/README.md](./companions/termux/README.md).
 
+For camera, microphone, and telemetry, use the **Device Bridge PWA** instead: on the phone open `https://<hub-host>/companion` (HTTPS required; localhost is ok for lab), Add to Home Screen, paste `HUB_API_TOKEN`, pair, start the bodycam. Hub viewer: `/companion/hub-view`. Details: [docs/COMPANION_BRIDGE.md](./docs/COMPANION_BRIDGE.md).
+

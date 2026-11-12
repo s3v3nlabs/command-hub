@@ -37,6 +37,21 @@ bash start.sh
 
 The hub host must listen on a reachable interface: `npx next start -H 0.0.0.0 -p 3100`. Details: [companions/termux/README.md](./companions/termux/README.md).
 
+## Device Bridge (phone PWA)
+
+A hub-served, installable PWA at **`/companion`** — the recommended way to use a phone as a sensor for the hub. The phone streams camera and mic over WebRTC, pushes GPS / battery / network telemetry, and can trigger safe hub actions. The hub can share a webcam back when one is attached.
+
+```
+# on the phone, in Chrome or Safari, open:
+https://<hub-host>/companion
+# Android: menu → Add to Home Screen
+# iOS:    Share → Add to Home Screen
+# paste HUB_API_TOKEN, pair, start bodycam
+# on the hub desktop: /companion/hub-view
+```
+
+Camera / mic require **HTTPS** (localhost is fine for lab). A raw LAN HTTP IP will be blocked by the browser. One phone + one viewer per session; no TURN server is shipped. Full write-up: [docs/COMPANION_BRIDGE.md](./docs/COMPANION_BRIDGE.md) · [USAGE.md](./USAGE.md). The Termux companion stays the scripting node and is not replaced.
+
 ## Black Aurora Labs (invite portal)
 
 Invite-only access packaging with a monochrome classified-terminal UI:
@@ -220,6 +235,7 @@ A typical 3-minute call costs roughly $0.08 to $0.15 all-in.
 - `lib/`: engines, mesh, privacy, AI router, and other libraries
 - `docs/`: module docs (WhisperMesh, Music Hub, Voice Bus, SymTrain, and others)
 - `companions/termux/`: Termux phone companion (FastAPI client — not a phone-hosted hub)
+- `app/companion/`, `components/companion/`, `lib/companion/`: Device Bridge PWA (WebRTC phone ↔ hub)
 
 ## Author
 

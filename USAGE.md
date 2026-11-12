@@ -23,6 +23,7 @@ Authorized, lawful use only — see [LEGAL.md](./LEGAL.md). Written authorizatio
 | Compute / AI Pool | `/compute` | Multi-backend router, job queue, warm-pool; honest perf surface |
 | Help | `/help` | In-hub docs index |
 | Termux companion | `companions/termux` (phone client @ `:8788`) | Talks to a remote hub; not a phone-hosted Next.js build |
+| Device Bridge PWA | `/companion` · `/companion/bridge` · `/companion/hub-view` | Phone ↔ hub WebRTC cam/mic + telemetry; install to home screen |
 | WIP Lab | `/offsec/lab` | Honest non-functional shells |
 
 Command builders only **render text** for you to copy into your own authorized terminal. The hub does not auto-run exploits.
@@ -44,6 +45,16 @@ bash install.sh && bash start.sh
 ```
 
 It pings `/api/modules`, `/api/audit/timeline`, and `/api/offsec/attack-navigator`, offers workspace-preset chips as a local filter, deep-links into the remote hub, can soft-check / redeem a Black Aurora invite, and can send a SignalFrame presence heartbeat. It does not run Ghidra, the Android Lab, Docker, or the Next.js suite on the phone. The hub host must bind a reachable interface (`npx next start -H 0.0.0.0 -p 3100`).
+
+## Device Bridge (hub-served PWA)
+
+The recommended phone sensor path. Served by the hub at `/companion` (installable PWA) so the phone can **Add to Home Screen** and stream its own camera, mic, and telemetry to `/companion/hub-view`. Live sessions also appear as a strip on the [CCTV wall](/intelligence/cctv) — they link to the hub seat rather than opening a second WebRTC peer (the bridge is 1:1).
+
+**Install.** Open `https://<hub-host>/companion` on the phone (HTTPS required for `getUserMedia`; `http://localhost` is fine for lab). Android Chrome: menu → Add to Home Screen. iOS Safari: Share → Add to Home Screen.
+
+**Pair.** Set `HUB_API_TOKEN` (and `SECURE_MODE=1` on a shared host). Paste the same token into the Pair field, label the device, create a session. The page stores a short-lived session **ticket** (not the hub token) for SSE signaling. On the desktop, open `/companion/hub-view`, authorize, and take the seat. Then start the bodycam on the phone.
+
+**Honest limits.** No TURN server (same LAN / Tailscale usually works; symmetric NAT will fail). Signaling is SSE+POST in a single Node process. Safe remote actions only (presence heartbeat, in-hub module prompt — the phone will not auto-navigate and drop the call). This is your device talking to your hub, behind the browser's own permission prompts. Full write-up: [docs/COMPANION_BRIDGE.md](./docs/COMPANION_BRIDGE.md).
 
 ## Compute / AI Acceleration
 

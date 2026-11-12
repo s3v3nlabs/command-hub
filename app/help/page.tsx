@@ -12,6 +12,8 @@ const LINKS: Array<{ href: string; title: string; blurb: string; external?: bool
   { href: "/offsec/android-lab", title: "Android Lab", blurb: "Disposable Android emulators + adb for app QA/security testing on this host." },
   { href: "/offsec/threat-field", title: "Threat Field", blurb: "Nash / Fourier / Monte-Carlo model field." },
   { href: "/intelligence/cctv", title: "CCTV Wall", blurb: "Multi-feed wall with per-tile recon metadata." },
+  { href: "/companion", title: "Device Bridge", blurb: "Installable PWA: phone cam/mic/telemetry ↔ hub over WebRTC." },
+  { href: "/operator", title: "Operator view", blurb: "Mobile/tablet field deck." },
   { href: "/dev-operator", title: "Dev Operator", blurb: "Defensive coding assistant (HOLD_VYRNA_UNSYNC)." },
   { href: "/compute", title: "Compute / AI Pool", blurb: "Multi-backend router, job queue, warm-pool, honest performance surface." },
   { href: "/offsec/engagements", title: "Engagements", blurb: "Scope, RoE, findings log." },

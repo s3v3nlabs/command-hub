@@ -74,6 +74,7 @@ export const WORKSPACE_PRESETS: WorkspacePreset[] = [
       "/offsec/osint",
       "/offsec/graph",
       "/intelligence/cctv",
+      "/companion",
       "/offsec/toolkit",
       "/evidence-explorer",
       "/reports",

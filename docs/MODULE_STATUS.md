@@ -98,7 +98,10 @@ Status legend:
 | Threat analysis | `/threat-analysis` | Stub | Sample threats; use `/intelligence/threat-intel` |
 | Reports | `/reports` | Stub | Sample list |
 | Singularity hub | `/hub` | Stub | Sample panels |
-| CCTV | `/intelligence/cctv` | Stub | No camera feeds |
+| CCTV | `/intelligence/cctv` | Partial | Third-party feeds still need a URL / connect ladder; live Device Bridge bodycams listed when a phone is paired |
+| Device Bridge | `/companion` | Working | HTTPS (or localhost) for cam/mic; `HUB_API_TOKEN` on shared hosts |
+| Device Bridge (phone) | `/companion/bridge` | Working | Same PWA bridge UI |
+| Device Bridge (hub view) | `/companion/hub-view` | Working | Watch phone bodycam + telemetry; optional reverse cam |
 | ERD / investigation graph | `/intelligence/erd` | Stub | Sample data |
 | OSINT | `/intelligence/osint` | Stub | Simulated search |
 | Recruit | `/intelligence/recruit` | Stub | Simulated search |
@@ -212,7 +215,10 @@ Applied from the audit of `/workspace/command-hub-audit` onto this tree (re-impl
 | `/offsec/threat-field` | REAL | Nash/Fourier/MC + 3D/2D |
 | `/offsec/deception` | REAL | Decoys/canaries/capture; VT ladder-gated |
 | `/offsec/lab` | WIP-honest | Spoofing/interception shells only |
-| `/intelligence/cctv` | REAL | Video wall + tile metadata; connect ladder-gated |
+| `/intelligence/cctv` | REAL | Video wall + tile metadata; connect ladder-gated; Device Bridge bodycam strip |
+| `/companion` | REAL | PWA Device Bridge (cam/mic/telemetry); HTTPS + token gating |
+| `/companion/bridge` | REAL | Phone bridge UI |
+| `/companion/hub-view` | REAL | Hub seat for a phone bodycam |
 | `/dev-operator` | REAL | Defensive; backend status strip |
 | `/help` | REAL | Docs index |
 | `/signalframe` | REAL | Window manager |

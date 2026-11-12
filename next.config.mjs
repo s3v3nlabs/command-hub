@@ -12,23 +12,30 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
+      "media-src 'self' blob:",
+      "worker-src 'self'",
       "connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; ")
+    const base = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "X-DNS-Prefetch-Control", value: "off" },
+      { key: "Content-Security-Policy", value: csp },
+    ]
+    // Permissions-Policy is set path-aware in middleware.ts only. Sending both
+    // camera=() and camera=(self) on the same response would intersect to deny.
+    const allowSensors = { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self)" }
     return [
-      {
-        source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "X-DNS-Prefetch-Control", value: "off" },
-          { key: "Content-Security-Policy", value: csp },
-        ],
-      },
+      { source: "/:path*", headers: base },
+      { source: "/companion", headers: [allowSensors] },
+      { source: "/companion/:path*", headers: [allowSensors] },
+      { source: "/intelligence/cctv", headers: [allowSensors] },
+      { source: "/intelligence/cctv/:path*", headers: [allowSensors] },
+      { source: "/companion/sw.js", headers: [{ key: "Service-Worker-Allowed", value: "/companion/" }, { key: "Cache-Control", value: "no-cache" }] },
     ]
   },
   transpilePackages: [

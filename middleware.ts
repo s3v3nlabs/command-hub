@@ -11,11 +11,26 @@ const PATH_TRAVERSAL =
 const XSS_PROBE = /(<\s*script[\s>]|javascript\s*:|onerror\s*=|onload\s*=)/i
 const SQLI_PROBE = /(\bunion\b\s+\bselect\b|\bdrop\b\s+\btable\b)/i
 
-function securityHeaders(res: NextResponse): NextResponse {
+function isMediaBridgePath(pathname: string): boolean {
+  return (
+    pathname === "/companion" ||
+    pathname.startsWith("/companion/") ||
+    pathname === "/intelligence/cctv" ||
+    pathname.startsWith("/intelligence/cctv/")
+  )
+}
+
+function securityHeaders(res: NextResponse, pathname = ""): NextResponse {
   res.headers.set("X-Content-Type-Options", "nosniff")
   res.headers.set("X-Frame-Options", "DENY")
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
-  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+  // Default-deny sensors globally. The Device Bridge + CCTV wall need self-origin access.
+  res.headers.set(
+    "Permissions-Policy",
+    isMediaBridgePath(pathname)
+      ? "camera=(self), microphone=(self), geolocation=(self)"
+      : "camera=(), microphone=(), geolocation=()",
+  )
   res.headers.set("X-DNS-Prefetch-Control", "off")
   res.headers.set(
     "Content-Security-Policy",
@@ -25,6 +40,8 @@ function securityHeaders(res: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
+      "media-src 'self' blob:",
+      "worker-src 'self'",
       "connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -76,10 +93,10 @@ export function middleware(req: NextRequest) {
       { ok: false, error: "blocked_by_heimdall", reasons },
       { status: 403 },
     )
-    return securityHeaders(res)
+    return securityHeaders(res, pathname)
   }
 
-  return securityHeaders(NextResponse.next())
+  return securityHeaders(NextResponse.next(), pathname)
 }
 
 export const config = {

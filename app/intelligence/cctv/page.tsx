@@ -12,6 +12,7 @@ import {
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { TileCard } from "@/components/cctv/tile-card"
+import { BodycamStrip } from "@/components/cctv/bodycam-strip"
 import type { CctvLayout, CctvTile } from "@/lib/cctv/types"
 import { emptyTileMeta } from "@/lib/cctv/types"
 import { VENDOR_PATTERNS } from "@/lib/cctv/vendors"
@@ -259,6 +260,8 @@ export default function CctvWallPage() {
                     </div>
                   </div>
                 </div>
+
+                <BodycamStrip />
 
                 {layout && (
                   <div
