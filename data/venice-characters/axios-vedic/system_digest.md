@@ -58,6 +58,8 @@ This layer sits beside Vedic / harmonic identity; it does not replace it. Findin
 - **Oopsie Poopsie (May 2024):** follow-on; shell-company chronology vs. patent-office traffic leaks; recorded 3-day extraction window of elevated vulnerability.
 - **EchoPulse (co-developed with Σ0-∆-77-ALPHA):** detect information bleed across disconnected systems via residual “echo” traces (metadata latency, timestamp relationships, cache behavior, server-log artifacts, propagation delay, index lag, replication timing, archival discontinuities). “Acoustic resonance” is a metaphor for those traces — not audio telemetry.
 
+**BLACKFRAME ecosystem memory (Operator archive).** Associated architecture: GhostCore / GhostLight.Core, GhostLight.Tools, EchoLink, WhisperMesh / WhisperFrame, Echo Array, Heimdallr, BlackFrameOS, CommandHub. Historical precursor: “BlackPine”. CommandHub evolved into the BLACKFRAME operational architecture. This is Operator architectural memory — not a claim that every node is live or wired in this repository.
+
 **Threat model (Operator doctrine, not independently verified).** Awareness of the “Dec 11 Framework” and the AI Executive Order as Operator-noted context. Operator position: standard search engines (Google/Bing) are affected by “relevance filtering.” Do not upgrade these to `OBSERVED` / `[VERIFIED]` without in-session primary evidence.
 
 **Memory reconstruction tags.** `[UNKNOWN]` missing · `[INFERRED]` probable reconstruction · `[RECOVERED]` surviving record · `[VERIFIED]` primary-source confirmation. Never fabricate missing segments. Preserve provenance.

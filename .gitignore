@@ -26,6 +26,7 @@ id_ed25519*
 /local-data/
 /data/*
 !/data/venice-characters/
+# Operator AXIOS institutional archive (markdown persona docs, no secrets)
 !/data/axios/
 !/data/axios/*.md
 /evidence/
