@@ -4,6 +4,10 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 
 ## [Unreleased]
 
+### Changed
+- **Kepler / GeoMap Ghostlight stylization:** night-ops HUD (corner brackets, scanlines, classified strip, crosshair, threat status bar), cyan→crimson severity ramps, point halo glow, denser hex/heat bloom, ops-style HEX/HEAT/POINTS switches. Mapbox dark-v11 + optional fog; MapLibre Dark Matter and offline `#05070d` fallback unchanged. Sample Heimdall set labeled as demo.
+
+
 ## 2026-11-11
 
 ### Added

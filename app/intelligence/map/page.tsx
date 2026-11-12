@@ -12,8 +12,8 @@ export default function MapPage() {
       <div className="hub-shell-main">
         <Header title="MAP INTEGRATION" />
         <main className="hub-shell-scroll p-6">
-          <div className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-cyan-300">
-            <Globe size={16} /> Geospatial visualization · public data packs
+          <div className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-cyan-300">
+            <Globe size={16} /> Kepler · geospatial visualization · public data packs
           </div>
           <KeplerMap />
         </main>

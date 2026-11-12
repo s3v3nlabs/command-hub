@@ -8,6 +8,7 @@
  * - Layers: deck.gl hexagon / heatmap / points (the same layer engine Kepler.gl uses) + GeoJSON polygons.
  * - Data: cached data packs from public/data-packs (live refresh via /api/data-packs/:id?live=1),
  *   caller-supplied collections, and "Load your own" uploads (GeoJSON / JSON / CSV).
+ * - Chrome: Ghostlight night-ops HUD (threat ramps, halo points, classified overlay). Visual only.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Deck } from "@deck.gl/core"
@@ -17,6 +18,7 @@ import type { FeatureCollection, GeoFeature, PackMeta } from "@/lib/data-packs"
 import { parseUpload } from "@/lib/data-packs/parse-upload"
 import "maplibre-gl/dist/maplibre-gl.css"
 import "mapbox-gl/dist/mapbox-gl.css"
+import "./geomap-hud.css"
 
 export type GeoMapProps = {
   /** Packs enabled on first render (ids from public/data-packs/manifest.json). */
@@ -35,29 +37,66 @@ type Loaded = { id: string; label: string; data: FeatureCollection; mode: "cache
 
 const CARTO_DARK = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 const BLANK_STYLE: any = { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#05070d" } }] }
+
+/** Ghostlight severity ramp: cool cyan → mint → amber → orange → crimson. */
 const RAMP: [number, number, number][] = [
-  [1, 152, 189],
-  [73, 227, 206],
-  [216, 254, 181],
-  [254, 237, 177],
-  [254, 173, 84],
-  [209, 55, 78],
+  [0, 229, 255],
+  [52, 245, 197],
+  [255, 209, 102],
+  [255, 140, 50],
+  [239, 68, 68],
+  [185, 28, 55],
 ]
+
 const SEV: Record<string, [number, number, number, number]> = {
-  critical: [239, 68, 68, 230],
-  high: [249, 115, 22, 220],
-  medium: [234, 179, 8, 210],
-  low: [34, 197, 94, 200],
+  critical: [220, 38, 60, 245],
+  high: [255, 140, 50, 240],
+  medium: [255, 191, 72, 235],
+  low: [52, 245, 197, 230],
 }
 const CAT: Record<string, [number, number, number, number]> = {
-  earthquake: [56, 189, 248, 210],
-  "botnet-c2": [244, 63, 94, 230],
-  "weather-alert": [250, 204, 21, 210],
-  upload: [167, 139, 250, 220],
+  earthquake: [0, 229, 255, 230],
+  "botnet-c2": [220, 38, 60, 245],
+  "weather-alert": [255, 191, 72, 230],
+  upload: [52, 245, 197, 230],
 }
-const colorOf = (p: any) => (p?.category && CAT[p.category] && p.category !== "upload" ? CAT[p.category] : SEV[p?.severity] || [0, 200, 255, 200])
+const colorOf = (p: any): [number, number, number, number] =>
+  (p?.category && CAT[p.category] && p.category !== "upload" ? CAT[p.category] : SEV[p?.severity] || [0, 229, 255, 230]) as [
+    number,
+    number,
+    number,
+    number,
+  ]
 
-export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-by-country", "noaa-alerts"], collections = [], height = 520, className = "", onSelect, compact = false }: GeoMapProps) {
+const MODE_LABEL: Record<Mode, string> = { points: "POINTS", hexagon: "HEX", heatmap: "HEAT" }
+
+function countThreats(points: { p: any }[]) {
+  const t = { critical: 0, high: 0, medium: 0, low: 0, untyped: 0 }
+  for (const d of points) {
+    const s = String(d.p?.severity || "").toLowerCase()
+    if (s === "critical" || s === "high" || s === "medium" || s === "low") t[s]++
+    else t.untyped++
+  }
+  return t
+}
+
+const MAPBOX_FOG = {
+  range: [0.8, 8] as [number, number],
+  color: "#05070d",
+  "horizon-blend": 0.08,
+  "high-color": "#0a1628",
+  "space-color": "#02040a",
+  "star-intensity": 0.18,
+}
+
+export default function GeoMap({
+  defaultPacks = ["usgs-earthquakes", "feodo-c2-by-country", "noaa-alerts"],
+  collections = [],
+  height = 520,
+  className = "",
+  onSelect,
+  compact = false,
+}: GeoMapProps) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
@@ -97,8 +136,23 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
         if (useMapbox) {
           const mapboxgl = (await import("mapbox-gl")).default
           mapboxgl.accessToken = token
-          map = new mapboxgl.Map({ container: container.current!, style: "mapbox://styles/mapbox/dark-v11", center: [-30, 25], zoom: 1.4, attributionControl: true, projection: "mercator" } as any)
+          map = new mapboxgl.Map({
+            container: container.current!,
+            style: "mapbox://styles/mapbox/dark-v11",
+            center: [-30, 25],
+            zoom: 1.4,
+            attributionControl: true,
+            projection: "mercator",
+          } as any)
           map.addControl(new mapboxgl.NavigationControl(), "top-right")
+          const applyFog = () => {
+            try {
+              if (typeof map.setFog === "function") map.setFog(MAPBOX_FOG)
+            } catch {
+              /* fog is optional; free/offline path must keep working */
+            }
+          }
+          map.once("style.load", applyFog)
           setBasemap("mapbox")
         } else {
           const maplibregl = (await import("maplibre-gl")).default
@@ -245,6 +299,8 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
     return { points: pts, polygons: polys }
   }, [active])
 
+  const threats = useMemo(() => countThreats(points), [points])
+
   // --- deck layers ---
   useEffect(() => {
     const overlay = overlayRef.current
@@ -270,8 +326,8 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
           data: countries as any,
           stroked: true,
           filled: true,
-          getFillColor: basemap === "offline" ? [20, 40, 60, 200] : [0, 180, 255, 18],
-          getLineColor: [80, 200, 255, 120],
+          getFillColor: basemap === "offline" ? [8, 18, 32, 210] : [0, 180, 255, 16],
+          getLineColor: [0, 229, 255, 110],
           lineWidthMinPixels: 0.6,
           pickable: true,
           onHover,
@@ -297,9 +353,48 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
     if (points.length) {
       const common = { data: points, getPosition: (d: any) => d.position, pickable: true, onHover, onClick }
       if (mode === "hexagon")
-        layers.push(new HexagonLayer({ id: "hex", ...common, radius: 300000, extruded: true, elevationScale: 150, coverage: 0.9, colorRange: RAMP, getElevationWeight: (d: any) => d.p.weight ?? 0.5, getColorWeight: (d: any) => d.p.weight ?? 0.5 } as any))
+        layers.push(
+          new HexagonLayer({
+            id: "hex",
+            ...common,
+            radius: 240000,
+            extruded: true,
+            elevationScale: 240,
+            coverage: 0.82,
+            colorRange: RAMP,
+            getElevationWeight: (d: any) => d.p.weight ?? 0.5,
+            getColorWeight: (d: any) => d.p.weight ?? 0.5,
+          } as any),
+        )
       else if (mode === "heatmap")
-        layers.push(new HeatmapLayer({ id: "heat", data: points, getPosition: (d: any) => d.position, getWeight: (d: any) => d.p.weight ?? 0.5, radiusPixels: 45, intensity: 1.3, threshold: 0.04, colorRange: RAMP } as any))
+        layers.push(
+          new HeatmapLayer({
+            id: "heat",
+            data: points,
+            getPosition: (d: any) => d.position,
+            getWeight: (d: any) => d.p.weight ?? 0.5,
+            radiusPixels: 60,
+            intensity: 1.75,
+            threshold: 0.03,
+            colorRange: RAMP,
+          } as any),
+        )
+      // Soft halo under each point (pulse feel without a fake animation clock).
+      layers.push(
+        new ScatterplotLayer({
+          id: "pts-halo",
+          data: points,
+          getPosition: (d: any) => d.position,
+          radiusUnits: "pixels",
+          getRadius: (d: any) => 10 + (d.p.weight ?? 0.5) * (mode === "points" ? 24 : 10),
+          getFillColor: (d: any) => {
+            const c = colorOf(d.p)
+            return [c[0], c[1], c[2], mode === "points" ? 55 : 28]
+          },
+          stroked: false,
+          pickable: false,
+        } as any),
+      )
       layers.push(
         new ScatterplotLayer({
           id: "pts",
@@ -307,8 +402,8 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
           radiusUnits: "pixels",
           getRadius: (d: any) => 3 + (d.p.weight ?? 0.5) * (mode === "points" ? 12 : 5),
           getFillColor: (d: any) => colorOf(d.p),
-          getLineColor: [255, 255, 255, 140],
-          lineWidthMinPixels: 0.5,
+          getLineColor: [232, 255, 255, 180],
+          lineWidthMinPixels: 0.6,
           stroked: true,
         } as any),
       )
@@ -324,8 +419,15 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
       setErr(null)
       const coords = fc.features.filter((f) => f.geometry?.type === "Point").map((f) => f.geometry!.coordinates as [number, number])
       if (coords.length && mapRef.current) {
-        const xs = coords.map((c) => c[0]), ys = coords.map((c) => c[1])
-        mapRef.current.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 60, maxZoom: 8, duration: 600 })
+        const xs = coords.map((c) => c[0]),
+          ys = coords.map((c) => c[1])
+        mapRef.current.fitBounds(
+          [
+            [Math.min(...xs), Math.min(...ys)],
+            [Math.max(...xs), Math.max(...ys)],
+          ],
+          { padding: 60, maxZoom: 8, duration: 600 },
+        )
       }
     } catch (e: any) {
       setErr(`${file.name}: ${e.message}`)
@@ -340,46 +442,72 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
 
   const basemapLabel =
     basemap === "mapbox" ? "MAPBOX DARK" : basemap === "maplibre-carto" ? "MAPLIBRE · CARTO DARK (OSM)" : basemap === "offline" ? "OFFLINE BASEMAP (Natural Earth)" : "…"
+  const dataMode = active.some((a) => a.mode === "live") ? "LIVE+CACHED" : "CACHED PACKS"
+  const threatLine = `CRIT ${threats.critical} · HIGH ${threats.high} · MED ${threats.medium} · LOW ${threats.low}${threats.untyped ? ` · UNTYPED ${threats.untyped}` : ""}`
 
   return (
-    <div className={`relative w-full overflow-hidden rounded-lg border border-white/10 bg-black ${className}`} style={{ height }} data-testid="geo-map">
+    <div className={`geomap-surface relative w-full overflow-hidden rounded-sm border border-cyan-500/30 bg-[#05070d] ${className}`} style={{ height }} data-testid="geo-map">
       {/* Mapbox/MapLibre add position:relative to the map element, so size it from an absolute wrapper. */}
       <div className="absolute inset-0">
         <div ref={container} style={{ width: "100%", height: "100%" }} />
       </div>
       <div ref={deckHost} className="pointer-events-none absolute inset-0 z-[1]" />
 
-      <div className="absolute left-3 top-3 z-10 flex gap-1">
-        {hasToken && (
-          <button
-            type="button"
-            onClick={() => {
-              const next = !preferFree
-              window.localStorage.setItem("geomap-basemap", next ? "maplibre" : "mapbox")
-              window.location.reload()
-            }}
-            className="rounded border border-white/15 bg-black/60 px-2 py-1 font-mono text-[10px] uppercase text-gray-400 backdrop-blur"
-          >
-            {preferFree ? "use mapbox" : "use free basemap"}
-          </button>
-        )}
-        {(["points", "hexagon", "heatmap"] as const).map((m) => (
-          <button key={m} type="button" onClick={() => setMode(m)} className={`rounded border px-2 py-1 font-mono text-[10px] uppercase backdrop-blur ${mode === m ? "border-cyan-400/60 bg-cyan-500/20 text-cyan-200" : "border-white/15 bg-black/60 text-gray-400"}`}>
-            {m}
-          </button>
-        ))}
+      <div className="geomap-hud" aria-hidden="true">
+        <div className="geomap-vignette" />
+        <div className="geomap-scanlines" />
+        <span className="geomap-bracket tl" />
+        <span className="geomap-bracket tr" />
+        <span className="geomap-bracket bl" />
+        <span className="geomap-bracket br" />
+        <div className="geomap-crosshair">
+          <span className="geomap-crosshair-dot" />
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col items-start gap-2">
+        <div className="flex items-center gap-2 border border-cyan-500/40 bg-[#05070d]/85 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-200 backdrop-blur">
+          <span>KEPLER · INTEL SURFACE</span>
+          <span className="flex items-center gap-1 text-emerald-300">
+            <span className="geomap-live-dot" />
+            LIVE
+          </span>
+        </div>
+        <div className="pointer-events-auto flex flex-wrap items-center gap-1">
+          {hasToken && (
+            <button
+              type="button"
+              onClick={() => {
+                const next = !preferFree
+                setPreferFree(next)
+                window.localStorage.setItem("geomap-basemap", next ? "maplibre" : "mapbox")
+                window.location.reload()
+              }}
+              className="border border-cyan-500/25 bg-[#05070d]/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-400 backdrop-blur hover:border-cyan-400/50 hover:text-cyan-200"
+            >
+              {preferFree ? "use mapbox" : "use free basemap"}
+            </button>
+          )}
+          <div className="geomap-mode-switch" role="group" aria-label="Layer mode">
+            {(["points", "hexagon", "heatmap"] as const).map((m) => (
+              <button key={m} type="button" data-active={mode === m} onClick={() => setMode(m)}>
+                {MODE_LABEL[m]}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {!compact && (
-        <div className="absolute right-12 top-3 z-10 w-72 max-h-[calc(100%-4rem)] overflow-auto rounded border border-white/15 bg-black/80 p-3 font-mono text-[11px] text-gray-300 backdrop-blur">
-          <div className="mb-2 text-[10px] uppercase tracking-wider text-cyan-300">Data packs</div>
+        <div className="absolute right-12 top-3 z-10 w-72 max-h-[calc(100%-4.5rem)] overflow-auto rounded-sm border border-cyan-500/30 bg-[#05070d]/92 p-3 font-mono text-[11px] text-slate-300 backdrop-blur">
+          <div className="mb-2 text-[10px] uppercase tracking-[0.16em] text-cyan-300">Data packs</div>
           {manifest.map((p) => (
             <div key={p.id} className="mb-2">
               <label className="flex cursor-pointer items-start gap-2">
-                <input type="checkbox" className="mt-0.5" checked={enabled.has(p.id)} onChange={() => setEnabled((s) => toggle(s, p.id))} />
+                <input type="checkbox" className="mt-0.5 accent-cyan-400" checked={enabled.has(p.id)} onChange={() => setEnabled((s) => toggle(s, p.id))} />
                 <span>
-                  <span className="text-gray-100">{p.name}</span>
-                  <span className="block text-[10px] text-gray-500">
+                  <span className="text-cyan-50">{p.name}</span>
+                  <span className="block text-[10px] text-slate-500">
                     {p.license} · {p.features ?? "?"} features{p.updated ? ` · cached ${p.updated.slice(0, 10)}` : ""}
                     {loaded[p.id]?.mode === "live" ? " · LIVE" : ""}
                     {busy === p.id ? " · loading…" : ""}
@@ -388,35 +516,37 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
                 </span>
               </label>
               {p.live && enabled.has(p.id) && (
-                <label className="ml-6 mt-0.5 flex cursor-pointer items-center gap-1 text-[10px] text-gray-400">
-                  <input type="checkbox" checked={live.has(p.id)} onChange={() => setLive((s) => toggle(s, p.id))} /> fetch live from source
+                <label className="ml-6 mt-0.5 flex cursor-pointer items-center gap-1 text-[10px] text-slate-400">
+                  <input type="checkbox" className="accent-cyan-400" checked={live.has(p.id)} onChange={() => setLive((s) => toggle(s, p.id))} /> fetch live from source
                 </label>
               )}
             </div>
           ))}
           {collections.map((c) => (
-            <div key={c.id} className="mb-1 text-[10px] text-gray-400">
+            <div key={c.id} className="mb-1 text-[10px] text-cyan-300/80">
               ● {c.label} ({c.data.features.length})
             </div>
           ))}
-          <div className="mt-3 border-t border-white/10 pt-2">
-            <div className="mb-1 text-[10px] uppercase tracking-wider text-violet-300">Load your own</div>
+          <div className="mt-3 border-t border-cyan-500/20 pt-2">
+            <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-violet-300">Load your own</div>
             <input
               type="file"
               accept=".geojson,.json,.csv,.tsv"
               data-testid="geo-upload"
-              className="block w-full text-[10px] file:mr-2 file:rounded file:border file:border-violet-400/40 file:bg-violet-500/10 file:px-2 file:py-0.5 file:text-violet-200"
+              className="block w-full text-[10px] file:mr-2 file:rounded-sm file:border file:border-violet-400/40 file:bg-violet-500/10 file:px-2 file:py-0.5 file:text-violet-200"
               onChange={(e) => {
                 const f = e.target.files?.[0]
                 if (f) onFile(f)
                 e.currentTarget.value = ""
               }}
             />
-            <div className="mt-1 text-[10px] text-gray-500">GeoJSON, JSON array, or CSV with lat/lng columns. Stays in your browser.</div>
+            <div className="mt-1 text-[10px] text-slate-500">GeoJSON, JSON array, or CSV with lat/lng columns. Stays in your browser.</div>
             {uploads.map((u) => (
               <div key={u.id} className="mt-1 flex items-center justify-between text-[10px] text-violet-200">
-                <span className="truncate">● {u.label} ({u.data.features.length})</span>
-                <button type="button" className="text-gray-500 hover:text-rose-300" onClick={() => setUploads((x) => x.filter((y) => y.id !== u.id))}>
+                <span className="truncate">
+                  ● {u.label} ({u.data.features.length})
+                </span>
+                <button type="button" className="text-slate-500 hover:text-rose-300" onClick={() => setUploads((x) => x.filter((y) => y.id !== u.id))}>
                   ✕
                 </button>
               </div>
@@ -426,27 +556,44 @@ export default function GeoMap({ defaultPacks = ["usgs-earthquakes", "feodo-c2-b
       )}
 
       {hover && (
-        <div className="pointer-events-none absolute z-20 max-w-xs rounded border border-cyan-500/40 bg-black/90 px-2 py-1 font-mono text-[10px] text-gray-200" style={{ left: hover.x + 12, top: hover.y + 12 }}>
+        <div
+          className="pointer-events-none absolute z-20 max-w-xs rounded-sm border border-cyan-400/50 bg-[#05070d]/95 px-2 py-1 font-mono text-[10px] text-slate-200 shadow-[0_0_18px_rgba(0,229,255,0.18)]"
+          style={{ left: hover.x + 12, top: hover.y + 12 }}
+        >
           <div className="text-cyan-200">{hover.p.name}</div>
-          {hover.p.headline && <div className="text-gray-400">{hover.p.headline}</div>}
-          {hover.p.malware && <div className="text-gray-400">malware: {hover.p.malware}</div>}
-          {hover.p.time && <div className="text-gray-400">{new Date(hover.p.time).toLocaleString()}</div>}
+          {hover.p.headline && <div className="text-slate-400">{hover.p.headline}</div>}
+          {hover.p.malware && <div className="text-slate-400">malware: {hover.p.malware}</div>}
+          {hover.p.time && <div className="text-slate-400">{new Date(hover.p.time).toLocaleString()}</div>}
+          {hover.p.severity && <div className="uppercase tracking-wider text-amber-300/90">threat: {hover.p.severity}</div>}
           {hover.p.location_precision && hover.p.location_precision !== "polygon" && <div className="text-amber-300/80">location: {hover.p.location_precision}-level</div>}
-          {hover.p._layer && <div className="text-gray-500">{hover.p._layer}</div>}
+          {hover.p._layer && <div className="text-slate-500">{hover.p._layer}</div>}
         </div>
       )}
 
       {err && (
-        <div className="absolute bottom-10 left-3 z-20 max-w-md rounded border border-rose-500/40 bg-black/85 px-2 py-1 font-mono text-[10px] text-rose-200">
+        <div className="absolute bottom-10 left-3 z-20 max-w-md rounded-sm border border-rose-500/40 bg-[#05070d]/90 px-2 py-1 font-mono text-[10px] text-rose-200">
           {err}{" "}
-          <button type="button" className="ml-1 text-gray-400" onClick={() => setErr(null)}>
+          <button type="button" className="ml-1 text-slate-400" onClick={() => setErr(null)}>
             ✕
           </button>
         </div>
       )}
 
-      <div className="pointer-events-none absolute bottom-2 left-3 z-10 rounded border border-cyan-500/30 bg-black/70 px-2 py-1 font-mono text-[10px] text-cyan-300" data-testid="geo-status">
-        {basemapLabel} · DECK.GL {mode.toUpperCase()} · {points.length} PTS · {polygons.length} AREAS · {active.some((a) => a.mode === "live") ? "LIVE+CACHED" : "CACHED PACKS"}
+      <div
+        className="pointer-events-none absolute bottom-2 left-3 right-40 z-10 flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-sm border border-cyan-500/30 bg-[#05070d]/85 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-300"
+        data-testid="geo-status"
+      >
+        <span>{basemapLabel}</span>
+        <span className="text-cyan-500/60">·</span>
+        <span>DECK.GL {MODE_LABEL[mode]}</span>
+        <span className="text-cyan-500/60">·</span>
+        <span>
+          {points.length} PTS · {polygons.length} AREAS
+        </span>
+        <span className="text-cyan-500/60">·</span>
+        <span>{dataMode}</span>
+        <span className="text-cyan-500/60">·</span>
+        <span className="normal-case tracking-wide text-amber-200/90">{threatLine}</span>
       </div>
     </div>
   )

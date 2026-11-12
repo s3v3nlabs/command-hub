@@ -9,7 +9,7 @@ import { TypographyHeading2 } from "@/components/ui/typography"
 
 export default function KeplerMapPage() {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col bg-[#05070d]">
       <Header title="KEPLER GEOSPATIAL" />
 
       <div className="flex-1 p-6 overflow-auto">

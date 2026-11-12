@@ -1,0 +1,141 @@
+/* Ghostlight HUD chrome for the shared GeoMap surface. Overlay only — does not capture pointer events. */
+
+.geomap-surface {
+  --gl-cyan: rgba(0, 229, 255, 0.85);
+  --gl-cyan-dim: rgba(0, 229, 255, 0.35);
+  --gl-void: #05070d;
+  background: var(--gl-void);
+  box-shadow: inset 0 0 80px rgba(0, 40, 70, 0.35), 0 0 24px rgba(0, 229, 255, 0.06);
+}
+
+.geomap-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.geomap-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(2, 4, 10, 0.45) 78%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+.geomap-scanlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 229, 255, 0.35) 3px,
+    transparent 4px
+  );
+  mix-blend-mode: screen;
+  animation: geomap-scan-drift 14s linear infinite;
+}
+
+@keyframes geomap-scan-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+.geomap-bracket {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: var(--gl-cyan);
+  border-style: solid;
+  border-width: 0;
+  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.45));
+}
+.geomap-bracket.tl { top: 8px; left: 8px; border-top-width: 2px; border-left-width: 2px; }
+.geomap-bracket.tr { top: 8px; right: 8px; border-top-width: 2px; border-right-width: 2px; }
+.geomap-bracket.bl { bottom: 8px; left: 8px; border-bottom-width: 2px; border-left-width: 2px; }
+.geomap-bracket.br { bottom: 8px; right: 8px; border-bottom-width: 2px; border-right-width: 2px; }
+
+.geomap-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  opacity: 0.35;
+}
+.geomap-crosshair::before,
+.geomap-crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(0, 229, 255, 0.7);
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+}
+.geomap-crosshair::before {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.geomap-crosshair::after {
+  top: 50%;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  transform: translateY(-50%);
+}
+.geomap-crosshair-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(0, 229, 255, 0.8);
+  transform: translate(-50%, -50%);
+}
+
+.geomap-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #34f5c5;
+  box-shadow: 0 0 8px #34f5c5;
+  animation: geomap-live-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes geomap-live-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.geomap-mode-switch {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: rgba(5, 7, 13, 0.86);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.08);
+}
+.geomap-mode-switch button {
+  padding: 4px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.9);
+  border-right: 1px solid rgba(0, 229, 255, 0.18);
+  background: transparent;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.geomap-mode-switch button:last-child {
+  border-right: 0;
+}
+.geomap-mode-switch button[data-active="true"] {
+  color: #e8ffff;
+  background: rgba(0, 229, 255, 0.18);
+  box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.35), 0 0 10px rgba(0, 229, 255, 0.25);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
+}

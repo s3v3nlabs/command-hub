@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { TechButton } from "@/components/ui/tech-button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -66,7 +66,6 @@ export default function KeplerIntelligencePage() {
   const [processingStatus, setProcessingStatus] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [activeView, setActiveView] = useState<"map" | "grid" | "list">("map")
-  const [threatLevel, setThreatLevel] = useState<"low" | "medium" | "high" | "critical">("medium")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize with sample intelligence data
@@ -76,7 +75,7 @@ export default function KeplerIntelligencePage() {
 
   const loadSampleIntelligenceData = useCallback(async () => {
     setIsProcessing(true)
-    setProcessingStatus("Initializing Heimdal Intelligence Network...")
+    setProcessingStatus("Loading bundled Heimdall sample network (demo)...")
 
     const sampleData = {
       id: "heimdal_intelligence",
@@ -209,7 +208,7 @@ export default function KeplerIntelligencePage() {
     }))
 
     setEntities(sampleEntities)
-    setProcessingStatus("✓ Heimdal Intelligence Network Online")
+    setProcessingStatus("✓ Heimdall sample network loaded (demo data)")
 
     setTimeout(() => {
       setIsProcessing(false)
@@ -348,12 +347,25 @@ export default function KeplerIntelligencePage() {
       entity.type.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
+  // Highest labeled severity among loaded entities (sample or uploads) — not a live threat feed.
+  const threatLevel = useMemo((): "low" | "medium" | "high" | "critical" => {
+    const ranks: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 }
+    let max: "low" | "medium" | "high" | "critical" = "low"
+    for (const entity of entities) {
+      const t = String(entity.metadata?.threat_level || "low").toLowerCase()
+      if ((ranks[t] || 0) > ranks[max] && (t === "critical" || t === "high" || t === "medium" || t === "low")) {
+        max = t
+      }
+    }
+    return entities.length ? max : "low"
+  }, [entities])
+
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* SignalFrame-style background */}
+    <div className="relative min-h-screen overflow-hidden bg-[#05070d] text-cyan-50">
+      {/* Ghostlight fortress backdrop */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 via-black to-gray-900/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.03)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#071018] via-[#05070d] to-[#0a1020]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.05)_0%,transparent_55%)]" />
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
@@ -369,39 +381,44 @@ export default function KeplerIntelligencePage() {
       <div className="relative z-10 p-6 max-w-[100vw] mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <div className="glass-panel p-6 rounded-lg border border-white/10 backdrop-blur-md bg-black/20">
+          <div className="rounded-sm border border-cyan-500/30 bg-[#05070d]/80 p-6 backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Globe className="w-8 h-8 text-cyan-400" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full" />
+                  <Globe className="h-8 w-8 text-cyan-300" />
+                  <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-cyan-400 font-mono uppercase tracking-wider">
-                    Kepler Intelligence Engine
+                  <h1 className="font-mono text-2xl font-bold uppercase tracking-[0.16em] text-cyan-300">
+                    Kepler++ Intelligence Surface
                   </h1>
-                  <p className="text-gray-400 text-sm font-mono mt-1">
-                    Geospatial consciousness mapping with Heimdal pattern recognition
+                  <p className="mt-1 font-mono text-sm text-slate-400">
+                    Night-ops geospatial map — hex, heat, and points over Heimdall / data-pack layers
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="border-green-500/30 text-green-400 font-mono bg-green-500/5">
-                  <Activity className="w-3 h-3 mr-1" />
-                  ONLINE
+                <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/5 font-mono text-emerald-300">
+                  <Activity className="mr-1 h-3 w-3" />
+                  SURFACE ONLINE
                 </Badge>
-                <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 font-mono bg-cyan-500/5">
+                {datasets.some((d) => d.id === "heimdal_intelligence") && (
+                  <Badge variant="outline" className="border-amber-500/40 bg-amber-500/5 font-mono text-amber-300">
+                    SAMPLE / DEMO SET
+                  </Badge>
+                )}
+                <Badge variant="outline" className="border-cyan-500/30 bg-cyan-500/5 font-mono text-cyan-300">
                   <Database className="w-3 h-3 mr-1" />
                   {datasets.length} DATASETS
                 </Badge>
-                <Badge variant="outline" className="border-orange-500/30 text-orange-400 font-mono bg-orange-500/5">
+                <Badge variant="outline" className="border-orange-500/30 bg-orange-500/5 font-mono text-orange-300">
                   <Target className="w-3 h-3 mr-1" />
                   {entities.length} ENTITIES
                 </Badge>
                 <Badge
                   variant="outline"
-                  className={`${getThreatLevelColor(threatLevel)} bg-${threatLevel === "critical" ? "red" : threatLevel === "high" ? "orange" : threatLevel === "medium" ? "yellow" : "green"}-500/5`}
+                  className={`${getThreatLevelColor(threatLevel)} bg-black/40`}
                 >
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   THREAT: {threatLevel.toUpperCase()}
@@ -413,10 +430,10 @@ export default function KeplerIntelligencePage() {
 
         {/* Control Panel */}
         <div className="mb-6">
-          <div className="glass-panel p-6 rounded-lg border border-white/10 backdrop-blur-md bg-black/20">
-            <div className="flex items-center gap-2 mb-4">
-              <Brain className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-lg font-bold text-cyan-400 font-mono uppercase">Intelligence Operations Control</h2>
+          <div className="rounded-sm border border-cyan-500/30 bg-[#05070d]/80 p-6 backdrop-blur-md">
+            <div className="mb-4 flex items-center gap-2">
+              <Brain className="h-5 w-5 text-cyan-300" />
+              <h2 className="font-mono text-lg font-bold uppercase tracking-wider text-cyan-300">Operations control</h2>
             </div>
 
             <div className="flex flex-wrap gap-3 mb-6">
@@ -431,8 +448,8 @@ export default function KeplerIntelligencePage() {
                 variant="outline"
                 className="border-orange-500/30 text-orange-400 bg-orange-500/5"
               >
-                <FileText className="w-4 h-4 mr-2" />
-                Load Tumbleweed
+                <FileText className="mr-2 h-4 w-4" />
+                Load Tumbleweed demo
               </TechButton>
 
               <TechButton variant="outline" className="border-purple-500/30 text-purple-400 bg-purple-500/5">
@@ -459,7 +476,7 @@ export default function KeplerIntelligencePage() {
                   placeholder="Search intelligence entities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-black/30 border-white/20 text-white font-mono backdrop-blur-sm"
+                  className="border-cyan-500/25 bg-black/50 pl-10 font-mono text-cyan-50 backdrop-blur-sm"
                 />
               </div>
 
@@ -492,7 +509,7 @@ export default function KeplerIntelligencePage() {
             </div>
 
             {processingStatus && (
-              <div className="mt-4 p-4 glass-panel rounded-lg border border-cyan-500/30 bg-cyan-500/5">
+              <div className="mt-4 rounded-sm border border-cyan-500/30 bg-cyan-500/5 p-4">
                 <div className="flex items-center gap-3">
                   {isProcessing && (
                     <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
@@ -508,12 +525,12 @@ export default function KeplerIntelligencePage() {
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 h-[calc(100vh-400px)]">
           {/* Map/Visualization View - Much Larger */}
           <div className="xl:col-span-4">
-            <div className="glass-panel h-full rounded-lg border border-white/10 backdrop-blur-md bg-black/20 overflow-hidden">
-              <div className="p-4 border-b border-white/10">
+            <div className="h-full overflow-hidden rounded-sm border border-cyan-500/30 bg-[#05070d]/80 backdrop-blur-md">
+              <div className="border-b border-cyan-500/20 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Satellite className="w-5 h-5 text-cyan-400" />
-                    <h3 className="text-lg font-bold text-cyan-400 font-mono uppercase">Geospatial Intelligence Map</h3>
+                    <Satellite className="h-5 w-5 text-cyan-300" />
+                    <h3 className="font-mono text-lg font-bold uppercase tracking-wider text-cyan-300">Geospatial intelligence map</h3>
                   </div>
                   <div className="flex items-center gap-2">
                     <TechButton size="sm" variant="outline" className="bg-black/20">
@@ -558,7 +575,7 @@ export default function KeplerIntelligencePage() {
               {filteredEntities.map((entity) => (
                 <div
                   key={entity.id}
-                  className="glass-panel p-4 rounded-lg border border-white/10 backdrop-blur-md bg-black/20 hover:border-cyan-500/30 transition-all cursor-pointer"
+                  className="cursor-pointer rounded-sm border border-cyan-500/20 bg-[#05070d]/80 p-4 backdrop-blur-md transition-all hover:border-cyan-400/50"
                   onClick={() => handleNodeSelect(entity)}
                 >
                   <div className="flex items-start justify-between mb-3">

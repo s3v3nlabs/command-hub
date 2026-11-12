@@ -13,8 +13,8 @@ import dynamic from "next/dynamic"
 const GeoMap = dynamic(() => import("@/components/maps/GeoMap"), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 flex items-center justify-center bg-black text-cyan-400 font-mono text-xs">
-      LOADING MAP…
+    <div className="absolute inset-0 flex items-center justify-center bg-[#05070d] font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+      INITIALIZING INTEL SURFACE…
     </div>
   ),
 })
@@ -135,7 +135,7 @@ export default function KeplerModule({
       case "medium":
         return "rgb(234, 179, 8)"
       case "low":
-        return "rgb(34, 197, 94)"
+        return "rgb(52, 245, 197)"
       default:
         return "rgb(156, 163, 175)"
     }
@@ -146,17 +146,17 @@ export default function KeplerModule({
   )
 
   return (
-    <div className={`text-white rounded-lg overflow-hidden h-full ${className}`}>
+    <div className={`h-full overflow-hidden rounded-sm border border-cyan-500/25 bg-[#05070d] text-cyan-50 ${className}`}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <div className="border-b border-white/10 px-4 py-3 bg-black/10 backdrop-blur-sm">
+        <div className="border-b border-cyan-500/25 bg-[#05070d]/95 px-4 py-3 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Satellite className="w-5 h-5 text-dark-700" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" />
+                <Satellite className="w-5 h-5 text-cyan-300" />
+                <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
               </div>
-              <h3 className="text-lg font-semibold text-dark-700 font-mono uppercase tracking-wider">
-                Kepler Intelligence Engine
+              <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                Kepler++ Intel Surface
               </h3>
             </div>
             <div className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export default function KeplerModule({
                 <Activity className="w-3 h-3 mr-1" />
                 {isLoaded ? "ONLINE" : "LOADING..."}
               </Badge>
-              <Badge variant="outline" className="border-dark-500/30 text-dark-700 font-mono bg-dark-500/5">
+              <Badge variant="outline" className="border-cyan-500/30 bg-cyan-500/5 font-mono text-cyan-300">
                 <Target className="w-3 h-3 mr-1" />
                 {activeDatasets.length} LAYERS
               </Badge>
@@ -186,25 +186,25 @@ export default function KeplerModule({
                 <AlertTriangle className="w-3 h-3 mr-1" />
                 {hasMapbox ? "MAPBOX + DECK.GL" : "MAPLIBRE (CARTO/OSM) + DECK.GL"}
               </Badge>
-              <div className="flex rounded border border-white/10 overflow-hidden">
+              <div className="flex overflow-hidden rounded-sm border border-cyan-500/40 bg-black/60 shadow-[0_0_12px_rgba(0,229,255,0.08)]">
                 <button
                   type="button"
                   onClick={() => setMapBackend("geo")}
-                  className={`px-2 py-1 text-[10px] font-mono ${mapBackend === "geo" ? "bg-violet-500/20 text-violet-300" : "text-gray-400"}`}
+                  className={`px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${mapBackend === "geo" ? "bg-cyan-500/20 text-cyan-100 shadow-[inset_0_0_10px_rgba(0,229,255,0.35)]" : "text-slate-400 hover:text-cyan-200"}`}
                 >
                   GEO
                 </button>
                 <button
                   type="button"
                   onClick={() => setMapBackend("tactical")}
-                  className={`px-2 py-1 text-[10px] font-mono ${mapBackend === "tactical" ? "bg-cyan-500/20 text-cyan-300" : "text-gray-400"}`}
+                  className={`px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${mapBackend === "tactical" ? "bg-cyan-500/20 text-cyan-100 shadow-[inset_0_0_10px_rgba(0,229,255,0.35)]" : "text-slate-400 hover:text-cyan-200"}`}
                 >
                   TACTICAL
                 </button>
                 <button
                   type="button"
                   onClick={() => setMapBackend("osm")}
-                  className={`px-2 py-1 text-[10px] font-mono ${mapBackend === "osm" ? "bg-emerald-500/20 text-emerald-300" : "text-gray-400"}`}
+                  className={`px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${mapBackend === "osm" ? "bg-cyan-500/20 text-cyan-100 shadow-[inset_0_0_10px_rgba(0,229,255,0.35)]" : "text-slate-400 hover:text-cyan-200"}`}
                 >
                   OSM
                 </button>
@@ -212,22 +212,22 @@ export default function KeplerModule({
             </div>
           </div>
 
-          <TabsList className="grid w-full grid-cols-3 bg-black/20 border border-white/10 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 border border-cyan-500/25 bg-black/50 backdrop-blur-sm">
             <TabsTrigger
               value="map"
-              className="font-mono text-xs data-[state=active]:bg-dark-500/20 data-[state=active]:text-dark-700"
+              className="font-mono text-xs uppercase tracking-wider text-slate-400 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200"
             >
               MAP VIEW
             </TabsTrigger>
             <TabsTrigger
               value="layers"
-              className="font-mono text-xs data-[state=active]:bg-dark-500/20 data-[state=active]:text-dark-700"
+              className="font-mono text-xs uppercase tracking-wider text-slate-400 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200"
             >
               LAYERS
             </TabsTrigger>
             <TabsTrigger
               value="data"
-              className="font-mono text-xs data-[state=active]:bg-dark-500/20 data-[state=active]:text-dark-700"
+              className="font-mono text-xs uppercase tracking-wider text-slate-400 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200"
             >
               INTEL DATA
             </TabsTrigger>
@@ -238,21 +238,21 @@ export default function KeplerModule({
           <TabsContent value="map" className="p-0 m-0 h-full">
             <div ref={mapContainerRef} className="relative bg-black h-full">
               {!isLoaded ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                <div className="absolute inset-0 flex items-center justify-center bg-[#05070d]">
                   <div className="text-center">
                     <div className="relative mb-6">
-                      <Radar className="w-16 h-16 mx-auto text-dark-700 animate-spin" />
-                      <div className="absolute inset-0 border-2 border-dark-400/30 rounded-full animate-ping" />
+                      <Radar className="mx-auto h-16 w-16 animate-spin text-cyan-300" />
+                      <div className="absolute inset-0 animate-ping rounded-full border-2 border-cyan-400/30" />
                     </div>
-                    <p className="text-dark-700 font-mono text-sm mb-2">INITIALIZING KEPLER.GL...</p>
-                    <p className="text-gray-500 font-mono text-xs">Establishing satellite uplink...</p>
-                    <div className="mt-4 w-64 h-1 bg-gray-800 rounded-full mx-auto overflow-hidden">
-                      <div className="h-full bg-dark-700 rounded-full animate-pulse" style={{ width: "75%" }} />
+                    <p className="mb-2 font-mono text-sm uppercase tracking-[0.18em] text-cyan-200">Initializing Kepler++ surface…</p>
+                    <p className="font-mono text-xs text-slate-500">Loading basemap and data packs</p>
+                    <div className="mx-auto mt-4 h-1 w-64 overflow-hidden rounded-full bg-slate-800">
+                      <div className="h-full animate-pulse rounded-full bg-cyan-400" style={{ width: "75%" }} />
                     </div>
                   </div>
                 </div>
               ) : mapBackend === "geo" ? (
-                <div className="absolute inset-0 bg-black rounded-lg overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden rounded-sm bg-[#05070d]">
                   <GeoMap
                     height="100%"
                     defaultPacks={["usgs-earthquakes", "feodo-c2-by-country"]}
@@ -263,13 +263,13 @@ export default function KeplerModule({
                   />
                 </div>
               ) : mapBackend === "osm" ? (
-                <div className="absolute inset-0 bg-black rounded-lg overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden rounded-sm bg-[#05070d]">
                   <iframe
                     title="OpenStreetMap Kepler focus"
                     className="w-full h-full border-0"
                     src={osmEmbedSrc}
                   />
-                  <div className="absolute top-3 left-3 glass-panel bg-black/70 border border-emerald-500/30 rounded px-3 py-2 text-[10px] font-mono text-emerald-300 backdrop-blur-md max-w-xs">
+                  <div className="absolute left-3 top-3 max-w-xs rounded-sm border border-cyan-500/30 bg-[#05070d]/85 px-3 py-2 font-mono text-[10px] text-cyan-300 backdrop-blur-md">
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="w-3 h-3" />
                       OSM EMBED (no Mapbox token)
@@ -282,22 +282,22 @@ export default function KeplerModule({
                     </div>
                   </div>
                   {selectedEntity && (
-                    <div className="absolute top-3 right-3 glass-panel bg-black/70 border-dark-500/30 rounded-lg p-3 backdrop-blur-md max-w-xs text-xs font-mono">
-                      <div className="text-dark-700 font-bold mb-1">{selectedEntity.name}</div>
+                    <div className="absolute right-3 top-3 max-w-xs rounded-sm border border-cyan-500/30 bg-[#05070d]/85 p-3 font-mono text-xs backdrop-blur-md">
+                      <div className="mb-1 font-bold text-cyan-200">{selectedEntity.name}</div>
                       <div className="text-gray-400">{selectedEntity.type} · {selectedEntity.threatLevel}</div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 rounded-lg overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden rounded-sm bg-gradient-to-br from-[#071018] via-[#05070d] to-[#0a1020]">
                   {/* Cyber Grid Background */}
                   <div className="absolute inset-0 opacity-10">
                     <div
                       className="w-full h-full"
                       style={{
                         backgroundImage: `
-                          linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+                          linear-gradient(rgba(0, 229, 255, 0.12) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(0, 229, 255, 0.12) 1px, transparent 1px)
                         `,
                         backgroundSize: "50px 50px",
                       }}
@@ -338,8 +338,8 @@ export default function KeplerModule({
                               />
 
                               {/* Hover Tooltip */}
-                              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 glass-panel border border-dark-500/30 rounded px-3 py-2 text-xs font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-black/80 backdrop-blur-md">
-                                <div className="text-dark-700 font-bold">{name}</div>
+                              <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-sm border border-cyan-500/30 bg-[#05070d]/90 px-3 py-2 font-mono text-xs opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100">
+                                <div className="font-bold text-cyan-200">{name}</div>
                                 <div className="text-gray-400">
                                   {type} • {(confidence * 100).toFixed(1)}%
                                 </div>
@@ -357,20 +357,20 @@ export default function KeplerModule({
 
                   {/* Map Controls */}
                   <div className="absolute top-4 right-4 space-y-2">
-                    <TechButton size="sm" variant="outline" className="glass-panel bg-black/50 border-dark-500/30">
+                    <TechButton size="sm" variant="outline" className="border-cyan-500/30 bg-[#05070d]/80">
                       <Zap className="w-3 h-3" />
                     </TechButton>
-                    <TechButton size="sm" variant="outline" className="glass-panel bg-black/50 border-dark-500/30">
+                    <TechButton size="sm" variant="outline" className="border-cyan-500/30 bg-[#05070d]/80">
                       <Settings className="w-3 h-3" />
                     </TechButton>
-                    <TechButton size="sm" variant="outline" className="glass-panel bg-black/50 border-dark-500/30">
+                    <TechButton size="sm" variant="outline" className="border-cyan-500/30 bg-[#05070d]/80">
                       <Target className="w-3 h-3" />
                     </TechButton>
                   </div>
 
                   {/* Legend */}
-                  <div className="absolute bottom-4 left-4 max-w-xs glass-panel bg-black/60 border-dark-500/30 rounded-lg p-4 backdrop-blur-md">
-                    <h4 className="text-sm font-semibold mb-3 text-dark-700 font-mono">ACTIVE LAYERS</h4>
+                  <div className="absolute bottom-4 left-4 max-w-xs rounded-sm border border-cyan-500/30 bg-[#05070d]/85 p-4 backdrop-blur-md">
+                    <h4 className="mb-3 font-mono text-sm font-semibold uppercase tracking-wider text-cyan-200">Active layers</h4>
                     <ScrollArea className="max-h-32">
                       <div className="space-y-2">
                         {activeDatasets
@@ -394,8 +394,8 @@ export default function KeplerModule({
                     </ScrollArea>
 
                     {/* Threat Level Legend */}
-                    <div className="mt-4 pt-3 border-t border-white/10">
-                      <h5 className="text-xs font-mono text-gray-400 mb-2">THREAT LEVELS</h5>
+                    <div className="mt-4 border-t border-cyan-500/20 pt-3">
+                      <h5 className="mb-2 font-mono text-xs uppercase tracking-wider text-slate-400">Threat levels</h5>
                       <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-red-500" />
@@ -410,8 +410,8 @@ export default function KeplerModule({
                           <span className="text-yellow-400">MEDIUM</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span className="text-green-400">LOW</span>
+                          <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34f5c5]" />
+                          <span className="text-emerald-300">LOW</span>
                         </div>
                       </div>
                     </div>
@@ -419,9 +419,9 @@ export default function KeplerModule({
 
                   {/* Selected Entity Info */}
                   {selectedEntity && (
-                    <div className="absolute top-4 left-4 max-w-sm glass-panel bg-black/70 border-dark-500/30 rounded-lg p-4 backdrop-blur-md">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-bold text-dark-700 font-mono">ENTITY SELECTED</h4>
+                    <div className="absolute left-4 top-4 max-w-sm rounded-sm border border-cyan-500/30 bg-[#05070d]/90 p-4 backdrop-blur-md">
+                      <div className="mb-2 flex items-center justify-between">
+                        <h4 className="font-mono text-sm font-bold uppercase tracking-wider text-cyan-200">Entity selected</h4>
                         <TechButton size="sm" variant="ghost" onClick={() => setSelectedEntity(null)}>
                           ×
                         </TechButton>
@@ -434,7 +434,7 @@ export default function KeplerModule({
                           </div>
                           <div>
                             <span className="text-gray-400">TYPE:</span>
-                            <div className="text-dark-700 uppercase">{selectedEntity.type}</div>
+                            <div className="uppercase text-cyan-300">{selectedEntity.type}</div>
                           </div>
                           <div>
                             <span className="text-gray-400">COORDINATES:</span>
@@ -484,7 +484,7 @@ export default function KeplerModule({
                     placeholder="Search intelligence datasets..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-black/30 border-white/20 font-mono text-sm backdrop-blur-sm"
+                    className="border-cyan-500/25 bg-black/50 pl-10 font-mono text-sm text-cyan-50 backdrop-blur-sm"
                   />
                 </div>
               </div>
@@ -495,7 +495,7 @@ export default function KeplerModule({
                 {filteredDatasets.map((dataset) => (
                   <div
                     key={dataset.id}
-                    className="glass-panel p-4 rounded-lg border border-white/10 backdrop-blur-md bg-black/20"
+                    className="rounded-sm border border-cyan-500/25 bg-[#05070d]/80 p-4 backdrop-blur-md"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -535,7 +535,7 @@ export default function KeplerModule({
             <ScrollArea className="h-full">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-lg font-semibold font-mono text-dark-700">INTELLIGENCE DATA OVERVIEW</h4>
+                  <h4 className="font-mono text-lg font-semibold uppercase tracking-wider text-cyan-200">Intelligence data overview</h4>
                   <TechButton size="sm" variant="outline" className="bg-black/20">
                     <Download className="w-3 h-3 mr-2" />
                     Export
@@ -545,21 +545,21 @@ export default function KeplerModule({
                 {activeDatasets.map((dataset) => (
                   <div
                     key={dataset.id}
-                    className="glass-panel p-4 rounded-lg border border-white/10 backdrop-blur-md bg-black/20"
+                    className="rounded-sm border border-cyan-500/25 bg-[#05070d]/80 p-4 backdrop-blur-md"
                   >
                     <div className="flex items-center gap-2 mb-4">
-                      <Layers className="w-4 h-4 text-dark-700" />
-                      <h5 className="text-base font-mono text-dark-700">{dataset.name}</h5>
+                      <Layers className="h-4 w-4 text-cyan-300" />
+                      <h5 className="font-mono text-base text-cyan-200">{dataset.name}</h5>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-mono mb-4">
                       <div>
                         <span className="text-gray-400">ENTITIES:</span>
-                        <div className="text-dark-700 font-bold">{dataset.data.data?.rows?.length || 0}</div>
+                        <div className="font-bold text-cyan-100">{dataset.data.data?.rows?.length || 0}</div>
                       </div>
                       <div>
                         <span className="text-gray-400">FIELDS:</span>
-                        <div className="text-dark-700 font-bold">{dataset.data.data?.fields?.length || 0}</div>
+                        <div className="font-bold text-cyan-100">{dataset.data.data?.fields?.length || 0}</div>
                       </div>
                       <div>
                         <span className="text-gray-400">STATUS:</span>
@@ -586,9 +586,9 @@ export default function KeplerModule({
                     {dataset.data.data?.rows && (
                       <div>
                         <h6 className="text-sm font-medium mb-2 font-mono text-gray-400">SAMPLE INTELLIGENCE DATA:</h6>
-                        <div className="glass-panel bg-black/50 rounded p-3 text-xs font-mono overflow-x-auto border border-white/10">
+                        <div className="overflow-x-auto rounded-sm border border-cyan-500/20 bg-black/60 p-3 font-mono text-xs">
                           <ScrollArea className="max-h-32">
-                            <div className="grid grid-cols-5 gap-4 mb-2 text-dark-700 font-bold">
+                            <div className="mb-2 grid grid-cols-5 gap-4 font-bold text-cyan-300">
                               {dataset.data.data.fields?.slice(0, 5).map((field: any) => (
                                 <div key={field.name} className="uppercase">
                                   {field.name}
