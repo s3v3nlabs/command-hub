@@ -6,7 +6,7 @@
       "id": "c2-operator-console",
       "name": "C2 Operator Console (Lab)",
       "version": "1.0.0",
-      "description": "Authorized-lab simulated beacon/session manager tied to a kill-chain nav. Staged-ladder gated at every action; manages the hub's own lab only, never third-party hosts.",
+      "description": "Real lab session manager tied to the kill-chain. Allowlisted commands execute on localhost / RFC1918 / *.lab.local after the scope ladder authorizes the action. Never contacts third-party hosts.",
       "route": "/offsec/c2",
       "nav": { "label": "C2 Console", "group": "ops", "order": 23, "badge": "lab" },
       "permissions": ["ui", "read", "ops"],

@@ -6,6 +6,7 @@ import { requireHubAuth } from "@/lib/security/api-auth"
 import { enforceLadder } from "@/lib/offsec/scope-ladder"
 import {
   listBeacons,
+  listVerbs,
   killChainView,
   createBeacon,
   advancePhase,
@@ -15,6 +16,7 @@ import {
   KILL_CHAIN_PHASES,
   type KillChainPhase,
 } from "@/lib/offsec/c2/store"
+import { isLabHost } from "@/lib/offsec/lab-exec"
 
 const CAP = "c2-lab-console"
 function stage1(): boolean {
@@ -26,12 +28,12 @@ export async function GET(request: NextRequest) {
   if (denied) return denied
   return NextResponse.json({
     ok: true,
-    simulated: true,
     stage1Enabled: stage1(),
     phases: KILL_CHAIN_PHASES,
+    verbs: listVerbs(),
     beacons: listBeacons(),
     killChain: killChainView(),
-    note: "AUTHORIZED LAB SIMULATION ONLY — simulated beacons in the hub's own lab. No real C2, no third-party control.",
+    note: "Real lab sessions. Tasks execute allowlisted commands on localhost / RFC1918 / *.lab.local after the scope ladder allows them. No third-party host is contacted.",
     hold: "HOLD_VYRNA_UNSYNC",
     lattice_sync: false,
   })
@@ -47,7 +49,13 @@ export async function POST(request: NextRequest) {
   const attestation = String(body.attestation || "")
   const target = String(body.labHost || body.target || "")
 
-  // Every mutating C2 lab action is staged-ladder gated + audited.
+  if (target && !isLabHost(target) && action === "create") {
+    return NextResponse.json(
+      { ok: false, error: `labHost "${target}" is not a local/lab address` },
+      { status: 400 },
+    )
+  }
+
   const gate = enforceLadder({
     capability: `${CAP}:${action || "unknown"}`,
     scopeId,
@@ -57,29 +65,29 @@ export async function POST(request: NextRequest) {
     operator,
   })
   if (gate.blocked) {
-    return NextResponse.json({ ok: false, blocked: true, ladder: gate.check, simulated: true }, { status: 403 })
+    return NextResponse.json({ ok: false, blocked: true, ladder: gate.check }, { status: 403 })
   }
 
   switch (action) {
     case "create": {
       const r = createBeacon({ label: body.label, labHost: target, os: body.os, scopeId: scopeId || "" })
-      return NextResponse.json({ ...r, simulated: true }, { status: r.ok ? 200 : 400 })
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 })
     }
     case "advance": {
       const r = advancePhase(String(body.id || ""), body.phase as KillChainPhase)
-      return NextResponse.json({ ...r, simulated: true }, { status: r.ok ? 200 : 400 })
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 })
     }
     case "task": {
-      const r = queueTask(String(body.id || ""), { verb: body.verb, arg: body.arg, phase: body.phase })
-      return NextResponse.json({ ...r, simulated: true }, { status: r.ok ? 200 : 400 })
+      const r = await queueTask(String(body.id || ""), { verb: body.verb, arg: body.arg, phase: body.phase })
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 })
     }
     case "retire": {
       const r = retireBeacon(String(body.id || ""))
-      return NextResponse.json({ ...r, simulated: true }, { status: r.ok ? 200 : 400 })
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 })
     }
     case "delete": {
       const r = deleteBeacon(String(body.id || ""))
-      return NextResponse.json({ ...r, simulated: true }, { status: r.ok ? 200 : 400 })
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 })
     }
     default:
       return NextResponse.json({ ok: false, error: "unknown_action" }, { status: 400 })
