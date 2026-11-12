@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "ghostlight-vault": {
+      "command": "python3",
+      "args": [
+        "-m",
+        "ghostlight_vault",
+        "serve",
+        "--stdio"
+      ],
+      "env": {
+        "GHOSTLIGHT_VAULT": "/ABSOLUTE/PATH/TO/your-vault",
+        "PYTHONPATH": "/ABSOLUTE/PATH/TO/command-hub/modules/ghostlight-vault/src"
+      }
+    }
+  }
+}

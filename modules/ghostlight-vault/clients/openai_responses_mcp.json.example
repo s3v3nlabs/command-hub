@@ -1,0 +1,14 @@
+{
+  "model": "gpt-4.1",
+  "tools": [
+    {
+      "type": "mcp",
+      "server_label": "ghostlight_vault",
+      "server_description": "Search a local ChatGPT data-export vault.",
+      "server_url": "https://<YOUR_TUNNEL_HOST>/mcp",
+      "authorization": "<YOUR_GHOSTLIGHT_TOKEN>",
+      "require_approval": "never"
+    }
+  ],
+  "input": "Search the vault for 11:30 and summarize DOCUMENTED hits only."
+}

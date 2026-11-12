@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "ghostlight-vault": {
+      "command": "python3",
+      "args": ["-m", "ghostlight_vault", "serve", "--stdio"],
+      "env": {
+        "GHOSTLIGHT_VAULT": "${workspaceFolder}/local-data/ghostlight-vault",
+        "PYTHONPATH": "${workspaceFolder}/modules/ghostlight-vault/src"
+      }
+    },
+    "ghostlight-vault-http": {
+      "url": "http://127.0.0.1:8765/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:GHOSTLIGHT_MCP_TOKEN}"
+      }
+    }
+  }
+}

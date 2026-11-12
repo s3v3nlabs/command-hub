@@ -1,0 +1,19 @@
+{
+  "id": "ghostlight-vault",
+  "name": "Ghostlight Vault",
+  "version": "1.0.0",
+  "description": "Search a local ChatGPT data-export vault (SQLite FTS). Shareable MCP + REST server that GPT and other AI nodes can connect to. Ingest is staged-ladder gated and off by default.",
+  "route": "/vault",
+  "nav": { "label": "Ghostlight Vault", "group": "intel", "order": 18, "badge": "new" },
+  "permissions": ["ui", "read", "ai"],
+  "entry": null,
+  "enabled": true,
+  "kind": "route",
+  "lattice_sync": false,
+  "sdkVersion": "1.0.0",
+  "publisher": "Christian Wilford (s3v3n), Founder, Singular/ty Defense Solutions, LLC",
+  "homepage": "https://github.com/s3v3nlabs/command-hub",
+  "license": "Apache-2.0",
+  "minHubVersion": "0.1.0",
+  "category": "intel"
+}

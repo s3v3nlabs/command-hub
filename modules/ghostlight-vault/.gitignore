@@ -1,0 +1,21 @@
+# Local runtime — never commit tokens, indexes, exports, venvs, or logs
+.venv/
+venv/
+.bearer_token
+.env
+.env.*
+data/
+index/
+exports/
+__pycache__/
+*.py[cod]
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.jsonl
+PUBLIC_MCP_URL.txt
+RUNTIME_API_KEY.txt
+TUNNEL_ID.txt
+.pytest_cache/
+.mypy_cache/

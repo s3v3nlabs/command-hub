@@ -1,0 +1,6 @@
+# Ghostlight Vault server. Python 3.10+.
+# mcp 2.x provides MCPServer (streamable HTTP + stdio) and pulls in
+# starlette + uvicorn, which we also use for the REST API.
+mcp>=2.3,<3
+uvicorn>=0.32
+starlette>=1.0
