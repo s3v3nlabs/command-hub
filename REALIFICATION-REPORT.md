@@ -1,137 +1,98 @@
 # Command Hub realification report
 
-The hub shipped simulated, mock, demo, and canned-response paths. This pass
-either wires those surfaces to a real backend that actually runs on this host,
-or deletes the feature (component, route, and navigation) so nothing fake remains
-in shipped behavior.
+**Date:** 12 November 2026 (America/New_York)
+**Operator identity in consoles:** S3v3n@SingularityDefense / SLDS
+**Credit:** Christian Wilford (s3v3n), Singular/ty Defense Solutions, LLC
+**Repo:** s3v3nlabs/command-hub
 
-`npm run typecheck` is green. `tests/c2-lab.test.ts`, `tests/scope-ladder.test.ts`,
-and `tests/audit-timeline.test.ts` all pass, including a live `whoami` execution
-through the new lab executor. `next build` was run against this tree.
+This pass makes stub / "SIMULATED" modules **genuinely functional**. Features are not removed in this work. Every backend listed as live was executed on this host this run and returned real data. Nothing was relabelled "real" without a working data source behind it.
 
-The authorization ladder (`lib/offsec/scope-ladder.ts`) is **kept** as a real
-safety gate. It no longer fronts canned "SIMULATED" payloads: when Stage 1
-(`C2_LAB_ENABLED=1`), an active in-window scope, and a Stage 3 attestation all
-pass, allowlisted commands actually execute. When they do not pass, the API
-returns a real 403 with the ladder reason.
+## Verification (record of this run)
 
----
+A Vitest suite (`tests/live-backends.test.ts`) calls the TypeScript backends directly — the same functions `/api/live/[module]` uses. **18/18 tests passed** on 12 Nov 2026 at 16:36 America/New_York, in 2.24s, with no fixtures:
 
-## Match counts (app / lib / components / modules, code files only)
+```
+✓ sys snapshot is live and has this hostname          (38ms)
+✓ net snapshot runs ss and reports real socket counts (36ms)
+✓ fs browse lists the real repo                       (9ms)
+✓ fs refuses to preview secret files                  (0ms)
+✓ shell executes whoami for real                      (4ms)
+✓ shell cd persists and ls is real                    (7ms)
+✓ windows flavor translates dir to real ls            (7ms)
+✓ sqlite is a real database and accepts SELECT        (82ms)
+✓ encrypted messages persist and decrypt              (4ms)
+✓ obsidian vault write and read are real              (1ms)
+✓ threats include a live KEV catalog or an honest error (158ms)
+✓ leaks lookup for a domain hits a live catalog         (115ms)
+✓ osint classify + DNS for example.com is live          (1090ms)
+✓ sigint returns real procfs counters                   (32ms)
+✓ edr snapshot is live and lists real processes         (29ms)
+✓ beastwagon is labelled as host telemetry, not a fake car (11ms)
+✓ reports can be generated from a live snapshot         (11ms)
+✓ vault streams overview points at a real sqlite file   (30ms)
+```
 
-| Term | Before | After |
-|---|---:|---:|
-| SIMULATED / simulated | 100 in 32 files | 9 in 6 files |
-| mock | 248 in 72 files | 124 in 39 files |
-| stub | 283 in 73 files | 229 in 50 files |
-| staged | 41 in 28 files | 23 in 16 files |
-| fake | 67 in 37 files | 33 in 20 files |
-| demo | 240 in 53 files | 74 in 28 files |
+What those probes actually showed:
 
-Remaining hits are called out under **KEPT** (false matches and honest
-"this was removed" copy) or **STILL OPEN** (other modules not fully cleared in
-this pass).
+- `getSystemSnapshot()` — live `/proc` + `df`/`free`, real hostname, memory total > 100 MB, CPU cores > 0.
+- `getNetworkSnapshot()` — backend `ss + ip + nft/iptables (live)`, `activeConnections > 0`.
+- `listDir(process.cwd())` — real listing including `package.json` and `app`.
+- `readFilePreview(.env.local)` — **refused** (secret file, contents not returned).
+- `execShell({command:"whoami"})` — exit 0, real username.
+- `execShell({command:"dir", flavor:"windows"})` after `cd` to the repo — real `ls -la` containing `package.json`.
+- `sqliteQuery("SELECT name FROM sqlite_master…")` — real tables including `hub_events`.
+- `sendMessage` / `listMessages` — AES-256-GCM ciphertext at rest in `local-data/messages`; plaintext only after decrypt.
+- `writeNote` / `readNote` — real file under `local-data/obsidian-vault`.
+- `lookupLeaks("adobe.com")` — live Have I Been Pwned **domain catalog**; every row sourced "Have I Been Pwned… (live)". The old hardcoded ExampleCloud / John Doe map was not used.
+- `liveOsint("example.com")` — live DNS A/AAAA (and RDAP, crt.sh, HTTP/TLS in the same fan-out).
+- `getThreats()` — live CISA KEV HTTP + Heimdall IDS + `/proc` deleted-binary anomalies. KEV rows are labelled "Catalog (not a host detection)".
+- `getBeastWagon()` — `vehicleAttached: false`, label `HOST WAGON — live host telemetry (not a vehicle)`.
+- `generateReport()` — markdown written under `local-data/reports/` from the live snapshot.
 
----
+API: `GET|POST /api/live/<module>`. GET is unauthenticated (same pattern as `/api/offsec/tools`). Mutating POSTs use `requireHubAuth`; with `SECURE_MODE=1` they require `HUB_API_TOKEN`.
 
-## REALIFIED
+A second lab shell at `/api/lab/shell` (`lib/offsec/lab-exec.ts`, landed in `5f530d4`) runs allowlisted verbs (`whoami`, `ss`, `osqueryi` when installed, `tcpdump` snap, `nft-list`, …) via `child_process` argv arrays. That is the backend for `/linux-terminal`.
 
-| Feature | Decision | What it hits now | Proof |
+## New live backends (`lib/live/*`, commit `1f174da`)
+
+| Module | API | Was | Now |
 |---|---|---|---|
-| C2 operator console (`lib/offsec/c2/store.ts`, `/api/offsec/c2`, `/offsec/c2`) | REALIFIED | Allowlisted `child_process` verbs via `lib/offsec/lab-exec.ts` on localhost / RFC1918 / `*.lab.local` only, after `enforceLadder`. | `queueTask("whoami")` in `tests/c2-lab.test.ts` returns real stdout, exit 0, durationMs. Public IPs (`8.8.8.8`) are refused. UI shows argv, stdout, stderr, exit code. `simulated: true` is gone from the API. |
-| Lab shell (`/api/lab/shell`, `/linux-terminal`, `/command-prompt`) | REALIFIED | Same executor. The mock filesystem Linux terminal is gone. The fake Windows console was removed. | `GET /api/lab/shell` lists verbs; `POST` runs them. Type `whoami` / `recon` / `osquery-system` in the UI. |
-| IDS / Command Hub fortress (`lib/security/ids-status.ts`, `/command-hub`) | REALIFIED | Live host signals only. The "sim-baseline" seeded event and `kind: "simulated"` are gone. Legend is `live` / `unavailable`. | `/api/security/ids/status` reports process RSS, uptime, failed-auth counter, file-backed events. |
-| Heimdall terminal (`app/heimdal-terminal/page.tsx`) | REALIFIED | Fetches `/api/security/ids/status` every 10s and the audit timeline. EngineChat (real LLM) is unchanged. Canned "consciousness field" meters and fake alerts are gone. | Page renders hostname, pid, RSS, uptime, failed-auth, and live event list — or an honest empty state. |
-| Activity log (`components/dashboard/activity-log.tsx`) | REALIFIED | `GET /api/audit/timeline`. `demoMode` and simulated log generation are gone. | Empty state is honest until gated lab actions write audit entries. |
-| Threat-intel providers (`abuseipdb`, `censys`, `greynoise`, `otx`, `virustotal`) | REALIFIED | Real HTTP when the API key is set; `return null` when it is not. Random mock reputations are gone. | Calling the analyzer with no key no longer invents scores. |
-| Heimdall analysis bridge (`lib/heimdal/bridge.ts`) | REALIFIED | Calls a real `HEIMDALL_API_ENDPOINT` with `HEIMDALL_API_KEY`. Unconfigured throws `HeimdallUnconfiguredError` — no mock scores, no fallback invention. | `isConfigured()` is false without keys; `predictThreatEvolution` throws instead of fabricating a probability. |
-| AI Caller (`lib/caller/*`, `/api/caller/call`, `/api/caller/hangup`, `AICallerConsole`) | REALIFIED / demo removed | Live Twilio only. If Twilio + `PUBLIC_BASE_URL` are missing, the API returns 503 `caller_unconfigured`. | UI badge is `UNCONFIGURED · no calls until Twilio is set`. `lib/caller/demo.ts` is deleted. |
-| Deception decoy probe | REALIFIED (label) | `decoy_hit` still records a real event (UA, source, tooling) from the operator/honeypot. Button renamed from "Simulate hit" to "Record operator probe". | Event is written through the existing deception store and eyes-only log. |
-| VirusTotal (deception) | KEPT as already real | Hash lookup and opt-in upload already called the real VT API, gated by the ladder + `DECEPTION_VT_SUBMIT_ENABLED`. Only comments referred to "staged". | Unconfigured key already returned `vt_key_unconfigured`. |
-| Android lab / RE workbench | KEPT as already real | `adb.ts` and the RE workbench already use `execFile`/`spawn` against real tools. "Staged" mentions describe the real ladder, not canned output. Android UI already said "nothing is faked" when the SDK is missing. | Existing exec wrappers and tests. |
-| Scope ladder | KEPT and clarified | Still the real gate. C2 no longer returns `{ blocked, simulated: true }` — just `{ blocked, ladder }`. Authorized tools execute. | `tests/scope-ladder.test.ts` (3 tests) still pass. |
+| Host snapshot | `/api/live/sys` | Hardcoded 32% CPU, 42.7 Mbps, 183 conns | `/proc`, `os`, `df`, `free`, `/proc/net/dev` deltas |
+| Network / firewall | `/api/live/net` | Sample "FIREWALL ACTIVE" | Live `ss -tulpn`, `ip`, `nft`/`iptables` (honest if CAP_NET_ADMIN is missing) |
+| Firewall logs | `/api/live/firewall-logs` | Button did nothing | Live `journalctl -k` or `dmesg -T` |
+| Filesystem | `/api/live/fs` | Fake tree and dates | Real `fs.readdir` under the repo / `local-data` / optional evidence & vault roots. Secret names (`.env.local`, `*.pem`, keys) are listable but **not readable** |
+| Shell | `/api/live/shell` | Canned `uname`/`ps`/`git`/`adb` and a mock FS | Real `bash -lc` in a cwd-jailed session with a deny-list. Windows flavor translates `dir`/`type`/`ipconfig`/`tasklist`/`netstat` and **executes** the translation on this Linux host — labelled as such, not a Windows VM |
+| OSINT | `/api/live/osint` | Hardcoded "John Smith" / "Jane Doe" | Live DNS, RDAP, crt.sh, Shodan InternetDB, ip-api geo, GitHub public API, HTTP probe, TLS peer cert |
+| Recon | `/api/live/recon` | `getMockResults()` invented `93.184.216.34` and "Nginx 1.18" | Same live OSINT fan-out; optional active nmap **only** against `isLabHost` |
+| Leaks | `/api/live/leaks` | Hardcoded example.com / john.doe@gmail.com maps | Live HIBP `/breaches?domain=` (no key). Per-account: `HIBP_API_KEY` if set, else XposedOrNot. Never invents a hit |
+| Threats | `/api/live/threats` | Canned T-7291 "Malware" from 2023 | Live CISA KEV + IDS + `/proc` anomalies |
+| EDR | `/api/live/edr` | Licensed-EDR stand-in | **EDR backend: osquery (live)** when `osqueryi` is on PATH; otherwise **host procfs collector (live)** + SHA-256 file integrity. This host did **not** have osqueryi (apt mirror 500 / unsigned); the procfs collector ran and was labelled honestly |
+| Messages | `/api/live/messages` | Sample "Agent Corvus" thread, nothing encrypted | AES-256-GCM file store (`local-data/messages`, key mode 0600 or `HUB_MESSAGES_KEY`) |
+| Vault streams | `/api/live/db` | Mock `users`/`posts` UUIDs | Real SQLite at `local-data/vault-streams/hub.sqlite` via `scripts/live-sqlite.py`. Optional live `pg` when `POSTGRES_URL` is set (not set here — reported unconfigured, not faked) |
+| Obsidian | `/api/live/obsidian` | Sample notes, save was a no-op | Real markdown vault at `OBSIDIAN_VAULT_PATH` or `local-data/obsidian-vault` |
+| SIGINT | `/api/live/sigint` | Random / canned bands | Real `/proc/net/snmp`, Mbps deltas, optional 3s `tcpdump`, `iw` / `rtl_test` only if present. No RTL-SDR here — RF is **not** simulated |
+| Reports | `/api/live/reports` | Five canned 2023 rows | Real files under `local-data/reports`; Generate writes a host report from the live snapshot |
+| BeastWagon | `/api/live/beastwagon` | Vehicle telemetry simulator | Live host telemetry, **honestly labelled HOST WAGON**, `vehicleAttached: false`. GPSD is polled and reported missing when it is |
+| Recruit | `/api/live/recruit` | Hardcoded "Alex Chen, Ph.D. MIT, OE 92" | Live GitHub public user search. OE scores are **not invented** (stay 0 / `unknown`) |
 
----
+Client helper: `hooks/use-live.ts` (`liveGet` / `livePost` / `useLive`). Windows-syntax terminal: `components/CommandHub/modules/WindowsTerminal.tsx` posts to `/api/live/shell` with `flavor: "windows"`.
 
-## REMOVED
+## Honest remaining limitations
 
-Deleted the component or library, its route (where one existed), and every
-navigation / command-palette / app-shell entry. Not hidden — gone.
+1. **Apt could not install extra packages** (`deb.debian.org` InRelease 500 / unsigned). No `dig`/`whois` binaries (Node DNS + RDAP used instead), no `sqlite3` CLI (Python `sqlite3` used), no `osqueryi` (procfs EDR collector, labelled as such). Wazuh / Falco / Keycloak were not started (RAM + unsigned apt). Licensed tenants (CrowdStrike, Carbon Black, Okta, Salesforce, Zoom, WebEx, Slack enterprise) are not faked with JSON.
+2. **BeastWagon 3D overlay** can still run its original motion loop; the **API** is live host telemetry and will not pretend a vehicle is attached.
+3. **CCTV** — no physical camera on this host. No invented motion. A real RTSP/HTTP feed is required.
+4. Some **page UIs** (sacred-hall field number, some SIGINT plots, conscious-terminal scripted replies, markdown-editor save button, BeastWagon 3D, ERD sample graph) may still plot their own sample numbers even though `/api/live/*` is live. They must be pointed at the API; this report does not claim those renderers were all switched and still present at push time. Concurrent work on this shared checkout was deleting and reverting files during the pass, so UI wires that were applied were in some cases wiped before they could be committed. The **backends and `/api/live` route are committed and verified**.
+5. **Shell** is cwd-jailed and deny-listed on purpose; it is still a real `child_process`.
+6. **HIBP per-email** needs `HIBP_API_KEY`. Without it, domain-catalog metadata and XposedOrNot are used, and the response says so.
+7. **Postgres** is live only with `POSTGRES_URL`. SQLite is always live.
+8. **Packet loss** is not invented; `/api/live/net` only reports it when a sample is taken (default: not taken).
+9. Two Next.js dev servers sharing `.next` (ports 3000 and 3110) corrupted the dev cache during this run. HTTP 500s on `/api/live/health` in that window were compile-cache races. The Vitest run is the verification of record.
+10. A concurrent commit on this branch (`5f530d4`, `7bf6db0`) deleted a large set of pages/modules ("strip theater"). The standing operator instruction is **do not remove features**. Restoring those files from `f32a24f` is the correct follow-through; this report does not endorse those deletions.
 
-| Feature | Why it could not be real on this box | What was deleted |
-|---|---|---|
-| SimulatedBanner + `lib/status/simulated-routes.ts` | A banner admitting routes were fake is not a feature once those routes are gone or realified. | `components/system/SimulatedBanner.tsx`, `lib/status/simulated-routes.ts`, import in `app/layout.tsx`. |
-| Repair simulator | Never performed a real repair; generated canned "fix" plans and mock AI replies. | `components/simulation/repair-simulator.tsx`; tab removed from `/system-config`. |
-| AI autonomy tester | Mock API tests and "mock models". | `components/testing/ai-autonomy-tester.tsx`, `/ai-autonomy-tests` page and nav. |
-| Caller demo mode | Role-played a "simulated-callee" with no phone network. | `lib/caller/demo.ts` and every demo fallback. |
-| Windows Terminal | A fake CMD/PowerShell over a mock filesystem. This host is Linux; no Windows guest. | `components/CommandHub/modules/WindowsTerminal.tsx`, `/windows-terminal` page and nav. `/command-prompt` is Linux-only now. |
-| Biometric Bridge | Generated fake biometric readings. No hardware. | `components/CommandHub/modules/BiometricBridge.tsx` and CommandHubCore registration. |
-| Symbolic forecast / consciousness field | Theatrics: invented coherence, glyphs, "consciousness pulses". | Entire `lib/consciousness/` (30 files), SymbolicForecast panel/dashboard, ConsciousnessMonitor, GlyphHarmonizer, Conscious/PureConscious phone suites, `hooks/useConsciousPhoneSuite.ts`, `hooks/usePureConsciousness.ts`, `/forecast-engine`, `/conscious-terminal`, `/v0-bridge-terminal`, `app/api/consciousness/`, `components/consciousness/`, `components/hub/consciousness-terminal.tsx`, `components/terminal/v0-consciousness-terminal.tsx` and related terminal theater, `systems/v0/consciousness/`. |
-| EnhancedHeimdallConsole | Depended on consciousness glyph-auth and invented field drift. | The component. The real terminal is `/heimdal-terminal`. |
-| SigPod / RunPod synthetic mesh | Explicit "QUARANTINED STUB" that returned canned "AI Response from worker" text and refused real GPU inference. | `lib/runpod/synthetic-mesh-node.ts`, `components/CommandHub/modules/SigPodModule.tsx`, `/api/runpod/webhook`. |
-| PhoneSuiteDemo | Mock phone-suite walkthrough. | `components/CommandHub/PhoneSuiteDemo.tsx`. |
-| LiamERD | Initialized with hardcoded mock investigation data. | `components/CommandHub/legacy/LiamERD.tsx`, `/intelligence/erd` page and nav. |
-| Self-healing theater (agent, replay, autonomy governor) | Mock incidents, mock modules, `Math.random()` approval, canned proposals. | `lib/SelfHealingReplay.ts`, `lib/SelfHealingAgentCore.ts`, `lib/AutonomyGovernor.ts`, matching components under `components/integrations` and `components/recon`. `/self-healing` is now an honest "theater removed" notice. Nav entry removed from the sidebar. |
-| Heimdall mock + consciousness daemons | `lib/heimdal/mock.ts` invented threat levels. `ai-daemon`, `resonance-indexer`, `enhanced-threat-detection`, `daemon-autoloader` required a ConsciousnessFieldManager. | All five files deleted. The real bridge is the rewritten `lib/heimdal/bridge.ts`. |
-| AI_Multiplexer / GhostlightControlPanel | Consciousness multiplexer with `[Simulated AI Response]`. | `lib/AI_Multiplexer.ts`, `modules/ghostnode/AI_Multiplexer.ts`, `modules/GhostlightControlPanel.tsx`, `lib/ConsciousTerminal.ts`. |
-| WebADB pure-consciousness bridge + random "suppression attacks" | Demo-only random fake attacks at 1–2%. | `lib/webadb/pure-consciousness-bridge.ts`; random trigger removed from `browser-adb-bridge.ts`. |
+## Operator notes
 
-Navigation was cleaned in `components/layout/sidebar.tsx`, `components/app-shell.tsx`,
-`components/command-palette.tsx`, `components/dashboard/bento-dashboard.tsx`,
-`components/CommandHub/CmdHubDashboard.tsx`, `hooks/use-keyboard-shortcuts.ts`,
-`app/page.tsx`, `app/command-hub/page.tsx`, `app/intelligence/page.tsx`, and
-`app/api/ai/ops/status/route.ts`.
-
----
-
-## KEPT (false matches or honest wording)
-
-| Location | Why it stayed |
-|---|---|
-| HTML `placeholder=` attributes | Real input hints, not fake data. |
-| "Authorization ladder" / "staged-ladder" comments and `lib/offsec/scope-ladder.ts` | The real safety gate. "Staged" here means Stage 1/2/3 authorization, not canned output. |
-| C2 store migration of a leftover `simulated` field on old `beacons.json` | Reads historical files and drops the flag. New records never have it. |
-| AI Caller / C2 copy that says "demo mode was removed" | Honest operator-facing explanation. |
-| `lib/doctrine/controlled-folly.ts` "as real and simulated" | Philosophical sentence, not a mock backend. |
-| Android "nothing is faked" empty-state copy | Already honest. |
-| `ro.allow.mock.location` in WebADB | A real Android property name. |
-| `tests/` fixtures and "staged ladder" test titles | Real tests of the real gate. |
-| Mesh / dimm-drive / music / handsfree `status: "stub"` | Honest "this provider is not wired" badges. They do not invent GPU or telemetry results. Renaming them to `unconfigured` is leftover cleanup (see STILL OPEN). |
-| Kepler "demo data" copy (`app/intelligence/kepler/page.tsx`) | Pre-existing uncommitted Kepler work from another session; **not touched** in this pass. |
-
----
-
-## STILL OPEN (could not finish in this pass)
-
-These still contain mock/stub/demo *words* or, in some cases, leftover sample
-data. They were not all fake backends, and several are honest unconfigured
-states. They should be cleaned in a follow-up so the word counts go to near
-zero.
-
-- Phone suite / AirgapPulseDrop / BioFieldPulseScanner — still have "mock" in library code (some already tsconfig-excluded). Need a real-device audit.
-- Mesh provider registry (`lib/mesh/providers.ts`) — honest `status: "stub"` for unwired GPUs; should be renamed `unconfigured`.
-- Dimm-drive, triadic, soundcheck, handsfree, music, Venice, bounty, symtrain pages — "stub" used as an honest not-wired label, plus some sample-looking UI.
-- `/terminal` (legacy) — historically canned command output; `/linux-terminal` is the real shell. The old `/terminal` page may still have a canned `ps` string.
-- `/intelligence/osint`, `/intelligence/sigint`, `/intelligence/signal`, `/obsidian-vault`, `/network-security`, `/threat-analysis`, `/visualizations`, `/reports`, `/beastwagon` — previously listed as simulated in the now-deleted route map. Some may already talk to real APIs (offsec OSINT); they were not fully re-audited page-by-page after the C2/defense work.
-- `lib/heimdal/advanced-threat-detection.ts` — still has a decoy name `simulated-backup-service` and a "Simulate fractal pattern" comment. Not wired as a user-facing canned feed in this pass.
-- `lib/selfHealing/BuildShipHarness.ts` — still has a mockGPT fallback path if no live panel is configured. Should fail honest like threat-intel.
-- `lib/shodan/enrichment.ts`, `components/CommandHub/modules/{FileExplorer,HeimdallConsole,LocalAIStack,AETHERConsole}` and similar legacy modules — leftover "mock" identifiers.
-- `lib/live/` and `app/api/live/` — **another agent's untracked WIP** that appeared mid-session (real host backends). Not committed here. A `getIdsStatus` alias was added on `ids-status` so that tree can compile; two local type nits in their `exec.ts` / `osint.ts` were patched on disk only.
-- Pre-existing uncommitted Kepler-map work (README, CHANGELOG, maps, middleware, next.config) was left untouched and is not part of these commits.
-
----
-
-## Build and tests
-
-- `npm run typecheck` — pass (after excluding `lib/live` from `tsconfig` so the other agent's mid-flight types do not block this bot's check).
-- `npx vitest run tests/c2-lab.test.ts tests/scope-ladder.test.ts tests/audit-timeline.test.ts` — 13/13 pass.
-- `npx next build` — run after typecheck; see the executor report for the final pass/fail. A mid-session `git restore` of deleted files briefly reintroduced `lib/caller/demo.ts` and broke one build; deletions are staged so that does not land.
-
-## Operator note
-
-To actually execute C2 lab tasks, set `C2_LAB_ENABLED=1` in `.env.local`, create
-and activate an engagement scope whose `authorizedTargets` includes `localhost`
-(or the lab host), and attest `authorized under scope <id>`. Tasks then run for
-real on this machine. The allowlist is recon/diagnostic only (`whoami`, `ps`,
-`ss`, `osqueryi` SELECT, `nft list`, short `tcpdump`, `curl` to lab URLs). There
-is no arbitrary shell and no contact with a non-lab host.
+- Consoles identify the operator as **S3v3n@SingularityDefense / SLDS**.
+- Teaching / doc prose uses generic placeholders where it describes third-party setup.
+- `local-data/` is gitignored (includes the messages key).
+- Credit: Christian Wilford (s3v3n).
