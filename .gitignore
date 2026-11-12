@@ -26,6 +26,8 @@ id_ed25519*
 /local-data/
 /data/*
 !/data/venice-characters/
+!/data/axios/
+!/data/axios/*.md
 /evidence/
 /evidence-root
 /forensics/

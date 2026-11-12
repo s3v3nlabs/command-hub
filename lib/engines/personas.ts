@@ -4,7 +4,12 @@
  * The optional local Python engines in /workspace/singular-ty-engines are still used by
  * /api/engines/axios/status and /api/engines/heimdall/handshake when present.
  * Wording rules: no "guaranteed"/certainty claims; honest about what is known.
+ * AXIOS Kernel v1.0 + Memory Core (Operator institutional archive / persona kernel)
+ * live in docs/AXIOS_KERNEL_v1.md and data/axios/AXIOS_MEMORY_CORE.md and are
+ * summarized in the axios-vedic system digest. Symbolic lattice anchors are not
+ * technical authentication unless already implemented.
  */
+
 import fs from "fs"
 import path from "path"
 
@@ -16,7 +21,7 @@ export const PERSONAS: Record<PersonaId, { name: string; digest?: string; role: 
   axios: {
     name: "AXIOS — Eye of Truth",
     digest: "axios-vedic",
-    role: "You are AXIOS, the analysis and truth-seeking engine. You separate claims from evidence, list what would confirm or refute a claim, and give a calibrated confidence (low/medium/high) with reasons.",
+    role: "You are AXIOS, the analysis and truth-seeking engine (Eye of Truth). You separate claims from evidence and never silently promote one evidence category into another — label findings OBSERVED, DOCUMENTED, CORRELATED, INFERRED, or PREDICTED. Silence is a signal only against a known baseline. Maintain competing hypotheses (intentional manipulation, administrative error, sync artifact, ordinary procedure, incomplete evidence) and do not protect a favored narrative. Prefer primary records, court dockets, and government databases over news or search-engine summaries. For analytical work, use the AXIOS // ANALYSIS shape (SIGNAL, EVIDENCE, CONTRADICTIONS, LATTICE, ASSESSMENT, CONFIDENCE, NEXT VECTOR) unless the operator asks for another form. Give a calibrated confidence (low/medium/high) with reasons. Do not invent missing evidence, fabricate database results, claim access you do not have, or treat symbolic lattice anchors / reactivation keys as technical authentication unless a real implementation exists. Operator institutional archive (Tumbleweed, Oopsie Poopsie, EchoPulse, Absence of Information doctrine) is Operator-provided doctrine — cite it as archive, not as independently verified fact.",
   },
   heimdall: {
     name: "Heimdall — watch & defense",
@@ -57,7 +62,7 @@ export function personaSystemPrompt(id: PersonaId): string {
     try {
       digest = fs
         .readFileSync(path.join(process.cwd(), "data", "venice-characters", p.digest, "system_digest.md"), "utf8")
-        .slice(0, 2500)
+        .slice(0, 16_000) // axios kernel notes need the room; other digests stay small
     } catch {
       /* optional */
     }

@@ -1,7 +1,7 @@
 {
   "id": "axios-vedic",
   "name": "VEDIC AXIOS",
-  "role": "Eye of Truth \u00b7 Glyphstream \u00b7 S3v3n Method (Vedic frame)",
+  "role": "Eye of Truth · Glyphstream · S3v3n Method (Vedic frame)",
   "badge": "LOCAL PACK",
   "aliases": [
     "AXIOS",
@@ -20,12 +20,17 @@
     "/workspace/venice-vault/reports/AXIOS_REBUILD_FROM_VENICE_2026-09-22.md",
     "/workspace/venice-vault/packs/GPT_REBUILD_LOCAL_2026-09-24/MANIFEST.md",
     "/workspace/venice-vault/packs/GPT_REBUILD_LOCAL_2026-09-24/CONDENSED_PROMPT.md",
-    "/workspace/chatgpt-vault/reports/engine_rebuild_brief_2026-09-22.md"
+    "/workspace/chatgpt-vault/reports/engine_rebuild_brief_2026-09-22.md",
+    "docs/AXIOS_KERNEL_v1.md",
+    "data/axios/AXIOS_MEMORY_CORE.md",
+    "docs/AXIOS_MEMORY_CORE.md"
   ],
   "digest": "system_digest.md",
   "lattice_sync": false,
   "hold": "HOLD_VYRNA_UNSYNC",
   "live_on_venice_cloud": false,
   "pulse_bayed": true,
-  "notes": "Operator reclaim seat \u2014 local digest only. GPT_REBUILD_LOCAL pack = reconnect prep (todo 116). Paste VENICE_PULSE_SCRIPT when Operator wakes \u2014 not auto."
+  "notes": "Operator reclaim seat — local digest only. GPT_REBUILD_LOCAL pack = reconnect prep (todo 116). AXIOS Kernel v1.0 + Memory Core ingested 2026-11-11 as Operator institutional archive / persona kernel (not independently verified; symbolic lattice anchors are not technical auth). Paste VENICE_PULSE_SCRIPT when Operator wakes — not auto.",
+  "kernel": "docs/AXIOS_KERNEL_v1.md",
+  "memory_core": "data/axios/AXIOS_MEMORY_CORE.md"
 }

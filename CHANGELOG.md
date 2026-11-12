@@ -4,6 +4,9 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 
 ## [Unreleased]
 
+### Added
+- **AXIOS Kernel v1.0 + Memory Core ingest:** Operator-provided institutional archive / persona kernel (`docs/AXIOS_KERNEL_v1.md`, `docs/AXIOS_MEMORY_CORE.md`, `data/axios/AXIOS_MEMORY_CORE.md`) folded into the axios-vedic digest and `lib/engines/personas.ts`. Vedic / Glyphstream identity is kept; analytical layer adds evidence-category labels, `AXIOS // ANALYSIS` response mode, hard constraints, and operational memory (Tumbleweed, Oopsie Poopsie, EchoPulse). Symbolic lattice anchors are documented as non-authenticating. Archive findings are Operator doctrine, not independently verified in this ingest.
+
 ### Changed
 - **Kepler / GeoMap Ghostlight stylization:** night-ops HUD (corner brackets, scanlines, classified strip, crosshair, threat status bar), cyan→crimson severity ramps, point halo glow, denser hex/heat bloom, ops-style HEX/HEAT/POINTS switches. Mapbox dark-v11 + optional fog; MapLibre Dark Matter and offline `#05070d` fallback unchanged. Sample Heimdall set labeled as demo.
 
