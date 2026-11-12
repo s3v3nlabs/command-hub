@@ -374,6 +374,12 @@ const navigationItems: NavItem[] = [
     status: "new",
   },
   {
+    title: "Ghostlight Vault",
+    href: "/vault",
+    icon: Database,
+    status: "new",
+  },
+  {
     title: "Terminals & Bridges",
     icon: Terminal,
     children: [

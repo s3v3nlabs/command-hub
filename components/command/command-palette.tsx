@@ -87,6 +87,7 @@ export function CommandPalette() {
     }))
     const quick: Item[] = [
       { id: "q:marketplace", label: "Open Marketplace", route: "/marketplace", group: "quick", haystack: "marketplace modules install" },
+      { id: "q:vault", label: "Open Ghostlight Vault", route: "/vault", group: "quick", haystack: "ghostlight vault chatgpt search mcp" },
       { id: "q:audit", label: "Open Audit Timeline", route: "/audit", group: "quick", haystack: "audit timeline who did what" },
       { id: "q:attack", label: "Open ATT&CK Navigator", route: "/offsec/attack-navigator", group: "quick", haystack: "attack navigator heatmap mitre" },
     ]

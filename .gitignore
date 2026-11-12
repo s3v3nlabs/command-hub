@@ -47,3 +47,12 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 *.tar.gz
+
+# Ghostlight Vault runtime (tokens, local indexes, personal exports, venvs)
+**/.bearer_token
+**/PUBLIC_MCP_URL.txt
+**/RUNTIME_API_KEY.txt
+**/TUNNEL_ID.txt
+modules/ghostlight-vault/.venv/
+modules/ghostlight-vault/data/
+modules/ghostlight-vault/index/

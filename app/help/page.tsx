@@ -16,6 +16,7 @@ const LINKS: Array<{ href: string; title: string; blurb: string; external?: bool
   { href: "/operator", title: "Operator view", blurb: "Mobile/tablet field deck." },
   { href: "/dev-operator", title: "Dev Operator", blurb: "Defensive coding assistant (HOLD_VYRNA_UNSYNC)." },
   { href: "/compute", title: "Compute / AI Pool", blurb: "Multi-backend router, job queue, warm-pool, honest performance surface." },
+  { href: "/vault", title: "Ghostlight Vault", blurb: "Search a local ChatGPT export. MCP + REST for GPT and other AI nodes." },
   { href: "/offsec/engagements", title: "Engagements", blurb: "Scope, RoE, findings log." },
   { href: "/signalframe", title: "SignalFrame", blurb: "Ghostnode mil-tech window manager." },
 ]
@@ -27,6 +28,7 @@ const DOCS = [
   { name: "CONTRIBUTING.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/CONTRIBUTING.md" },
   { name: "SECURITY.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/SECURITY.md" },
   { name: "LEGAL.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/LEGAL.md" },
+  { name: "docs/GHOSTLIGHT_VAULT.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/docs/GHOSTLIGHT_VAULT.md" },
   { name: "docs/OFFSEC_SUITE.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/docs/OFFSEC_SUITE.md" },
   { name: "docs/MODULE_STATUS.md", path: "https://github.com/s3v3nlabs/command-hub/blob/main/docs/MODULE_STATUS.md" },
 ]
