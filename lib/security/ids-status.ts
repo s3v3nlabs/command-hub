@@ -1,6 +1,6 @@
 /**
  * Honest local IDS signals for Command Hub fortress.
- * Never invent nation-state theater. Label live vs simulated.
+ * Never invent nation-state theater. Only live signals from this host.
  * HOLD_VYRNA_UNSYNC — no lattice-sync claims.
  */
 
@@ -8,7 +8,7 @@ import fs from "fs"
 import path from "path"
 import os from "os"
 
-export type SignalKind = "live" | "simulated"
+export type SignalKind = "live" | "unavailable"
 
 export interface IdsEvent {
   id: string
@@ -59,7 +59,7 @@ export interface IdsStatusPayload {
   events: IdsEvent[]
   legend: {
     live: string
-    simulated: string
+    unavailable: string
   }
 }
 
@@ -243,15 +243,7 @@ export function buildIdsStatus(): IdsStatusPayload {
             source: "ids-status",
             message: "IDS status endpoint online — reporting honest local signals only",
             kind: "live",
-          },
-          {
-            id: "sim-baseline",
-            ts: now,
-            severity: "low",
-            source: "ids-console",
-            message: "Baseline console feed seeded (simulated) — no external IDS sensor attached",
-            kind: "simulated",
-          },
+          }
         ]
 
   const events = [...readEvents(), ...bootEvents].slice(0, MAX_EVENTS)
@@ -290,8 +282,8 @@ export function buildIdsStatus(): IdsStatusPayload {
     },
     events,
     legend: {
-      live: "Derived from process/fs/env presence or real counters on this box",
-      simulated: "UI/console seed only — not an external sensor or blocked-attacker claim",
+      live: "Derived from process/fs/env presence, osquery, nft/iptables, or real counters on this box",
+      unavailable: "A probe ran on this host and the tool or file was not present",
     },
   }
 }
@@ -401,3 +393,6 @@ export function getAccountRails(): AccountRail[] {
     },
   ]
 }
+
+/** Alias used by live threat feed. */
+export const getIdsStatus = buildIdsStatus

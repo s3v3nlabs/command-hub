@@ -3,16 +3,14 @@ export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
 import * as C from "@/lib/caller"
-import { finishDemoCall } from "@/lib/caller/demo"
 
-/** POST /api/caller/hangup { id } — end a live (Twilio) or demo call. */
+/** POST /api/caller/hangup { id } — end a live Twilio call. There is no demo mode. */
 export async function POST(req: Request) {
   const { id } = await req.json().catch(() => ({}) as any)
   const call = typeof id === "string" ? C.getCall(id) : null
   if (!call) return NextResponse.json({ ok: false, error: "call not found" }, { status: 404 })
-  if (call.mode === "demo") {
-    finishDemoCall(call.id, "ended-by-operator")
-    return NextResponse.json({ ok: true })
+  if (call.mode !== "live") {
+    return NextResponse.json({ ok: false, error: "only live Twilio calls can be hung up" }, { status: 400 })
   }
   try {
     if (call.twilioSid) await C.twilioHangup(call.twilioSid)

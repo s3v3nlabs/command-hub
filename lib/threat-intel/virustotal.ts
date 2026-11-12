@@ -30,19 +30,8 @@ export interface VirusTotalResult {
 export async function analyzeWithVirusTotal(target: string): Promise<VirusTotalResult | null> {
   const apiKey = process.env.VIRUSTOTAL_API_KEY
 
-  if (!apiKey) {
-    console.log("VirusTotal API key not configured, using mock data")
-    return {
-      source: "virustotal",
-      reputation: Math.floor(Math.random() * 100),
-      malicious: Math.floor(Math.random() * 5),
-      suspicious: Math.floor(Math.random() * 3),
-      total_scans: 75,
-      country: "US",
-      asn: 15169,
-      as_owner: "Google LLC",
-      confidence: 0.8,
-    }
+    if (!apiKey) {
+    return null
   }
 
   try {

@@ -40,12 +40,6 @@ const modules = [
     description: "Radio frequency monitoring and analysis",
   },
   {
-    title: "Entity Relationships",
-    route: "/intelligence/erd",
-    status: "online",
-    description: "Visualize connections between entities and organizations",
-  },
-  {
     title: "Recruitment Analysis",
     route: "/intelligence/recruit",
     status: "online",

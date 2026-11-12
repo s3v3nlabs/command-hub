@@ -8,7 +8,6 @@ import { ThreatIntelPanel } from "./threat-intel-panel"
 import { MeshStatusPanel } from "./mesh-status-panel"
 import { HarmonicMonitor } from "./harmonic-monitor"
 import { IronMirrorLogs } from "./ironmirror-logs"
-import { ConsciousnessTerminal } from "./consciousness-terminal"
 
 export function SingularityHub() {
   const [sovereignty, setSovereignty] = useState<"SOVEREIGN" | "DRIFT" | "LOCKED">("SOVEREIGN")
@@ -67,7 +66,6 @@ export function SingularityHub() {
           <TabsTrigger value="threat-intel">Threat Intel</TabsTrigger>
           <TabsTrigger value="mesh">Mesh Status</TabsTrigger>
           <TabsTrigger value="ironmirror">IRONMIRROR</TabsTrigger>
-          <TabsTrigger value="terminal">Terminal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -148,9 +146,7 @@ export function SingularityHub() {
           <IronMirrorLogs />
         </TabsContent>
 
-        <TabsContent value="terminal">
-          <ConsciousnessTerminal />
-        </TabsContent>
+        
       </Tabs>
 
       {/* Footer */}

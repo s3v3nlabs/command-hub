@@ -1,59 +1,23 @@
-import { SelfHealingAgentCore } from "@/components/integrations/SelfHealingAgentCore"
-import { SelfHealingVault } from "@/components/integrations/SelfHealingVault"
-import { SelfHealingReplay } from "@/components/integrations/SelfHealingReplay"
-import { AutonomyGovernor } from "@/components/integrations/AutonomyGovernor"
-import { SelfHealingRouterProvider } from "@/components/integrations/SelfHealingRouter"
 import { Header } from "@/components/layout/header"
 import { Sidebar } from "@/components/layout/sidebar"
-import { Window } from "@/components/ui/window"
-import { BrainCircuitIcon } from "lucide-react"
-import { TechPanel } from "@/components/ui/tech-panel"
-import { TypographyHeading2 } from "@/components/ui/typography"
-import { GridItem, GridLayout } from "@/components/ui/grid-layout"
 
 export default function SelfHealingPage() {
   return (
-    <div className="hub-shell flex bg-dark-base text-dark-800 dot-bg">
+    <div className="hub-shell flex bg-black text-zinc-200">
       <Sidebar />
-      <div className="hub-shell-main">
-        <Header title="SELF-HEALING SYSTEM" />
-        <main className="hub-shell-scroll p-6">
-          <Window
-            title="AUTONOMOUS REPAIR SYSTEM"
-            icon={<BrainCircuitIcon size={16} />}
-            variant="glass"
-            size="full"
-            className="mb-6"
-          >
-            <SelfHealingRouterProvider>
-              <GridLayout className="gap-6">
-                <GridItem colSpan={2}>
-                  <TechPanel cornerAccent borderAccent>
-                    <TypographyHeading2 className="mb-4">Agent Core</TypographyHeading2>
-                    <SelfHealingAgentCore />
-                  </TechPanel>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <TechPanel cornerAccent borderAccent>
-                    <TypographyHeading2 className="mb-4">Vault</TypographyHeading2>
-                    <SelfHealingVault />
-                  </TechPanel>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <TechPanel cornerAccent borderAccent>
-                    <TypographyHeading2 className="mb-4">Replay System</TypographyHeading2>
-                    <SelfHealingReplay />
-                  </TechPanel>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <TechPanel cornerAccent borderAccent>
-                    <TypographyHeading2 className="mb-4">Autonomy Governor</TypographyHeading2>
-                    <AutonomyGovernor />
-                  </TechPanel>
-                </GridItem>
-              </GridLayout>
-            </SelfHealingRouterProvider>
-          </Window>
+      <div className="flex-1 overflow-auto">
+        <Header title="SELF-HEALING" />
+        <main className="p-6 max-w-2xl space-y-3 text-sm">
+          <h1 className="text-xl font-semibold">Self-healing theater removed</h1>
+          <p>
+            The previous agent-core, vault, replay, and autonomy-governor panels on this page generated canned
+            incidents and mock proposals. They never repaired a real system. Those modules have been deleted.
+          </p>
+          <p>
+            Real defensive actions live in the lab tools: <code>/offsec/deception</code> (decoy/canary events),
+            the authorization ladder on <code>/offsec/engagements</code>, and host signals on{" "}
+            <code>/command-hub</code> and <code>/heimdal-terminal</code>.
+          </p>
         </main>
       </div>
     </div>

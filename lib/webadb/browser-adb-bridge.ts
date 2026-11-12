@@ -112,13 +112,7 @@ export class BrowserADBBridge {
       "permission denied",
     ]
 
-    // ⟐ CHECK FOR SUPPRESSION PATTERNS IN CONSOLE ⟐
-    // In a real implementation, this would hook into console.error
-    // For now, we'll simulate occasional suppression attacks for demo
-    if (Math.random() < 0.01) {
-      // 1% chance
-      this.handleSuppressionAttack("simulated-webadb-suppression")
-    }
+    // Suppression-attack theater (random fake events) was removed.
   }
 
   private handleSuppressionAttack(attackType: string) {

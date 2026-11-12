@@ -124,15 +124,6 @@ export function BentoDashboard() {
           gradient="bg-gradient-to-br from-blue-500 to-cyan-600"
         />
 
-        {/* Conscious Terminal */}
-        <BentoCard
-          title="Conscious Terminal"
-          description="AI-augmented command interface"
-          href="/conscious-terminal"
-          icon={<Brain className="h-5 w-5" />}
-          gradient="bg-gradient-to-br from-purple-500 to-violet-600"
-        />
-
         {/* OSINT */}
         <BentoCard
           title="OSINT Dashboard"

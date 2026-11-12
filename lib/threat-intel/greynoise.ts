@@ -23,20 +23,8 @@ export interface GreyNoiseResult {
 export async function analyzeWithGreyNoise(ip: string): Promise<GreyNoiseResult | null> {
   const apiKey = process.env.GREYNOISE_API_KEY
 
-  if (!apiKey) {
-    console.log("GreyNoise API key not configured, using mock data")
-    const classifications = ["benign", "malicious", "unknown"]
-    const classification = classifications[Math.floor(Math.random() * classifications.length)]
-
-    return {
-      source: "greynoise",
-      reputation: classification === "malicious" ? 20 : classification === "benign" ? 80 : 50,
-      is_noise: Math.random() > 0.7,
-      is_riot: Math.random() > 0.9,
-      classification,
-      scanner_name: Math.random() > 0.5 ? "Example Scanner" : undefined,
-      confidence: 0.75,
-    }
+    if (!apiKey) {
+    return null
   }
 
   // Only works for IP addresses

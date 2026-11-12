@@ -1,19 +1,30 @@
-import { analyzeHeimdal, getHeimdallStatus, resetHeimdallContext, type HeimdallMockResponse } from "./mock"
+/**
+ * Heimdall analysis bridge — talks to a real Heimdall API when configured.
+ * Never invents threat scores. If HEIMDALL_API_ENDPOINT + HEIMDALL_API_KEY
+ * are missing, callers get an honest unconfigured error.
+ */
 
 export interface HeimdallPrediction {
   threat_probability: number
   attack_vector: string[]
   confidence_score: number
-  time_to_threat: number // hours
+  time_to_threat: number
   recommended_actions: string[]
   signature_patterns: string[]
 }
 
 export interface HeimdallAnalysisRequest {
-  drift_data: any
-  historical_patterns: any[]
-  current_threat_landscape: any
-  target_profile: any
+  drift_data: unknown
+  historical_patterns: unknown[]
+  current_threat_landscape: unknown
+  target_profile: unknown
+}
+
+export class HeimdallUnconfiguredError extends Error {
+  constructor(message = "Heimdall API is not configured (set HEIMDALL_API_ENDPOINT and HEIMDALL_API_KEY)") {
+    super(message)
+    this.name = "HeimdallUnconfiguredError"
+  }
 }
 
 export class HeimdallBridge {
@@ -21,70 +32,26 @@ export class HeimdallBridge {
   private api_key: string
   private model_version: string
   private analysis_cache: Map<string, HeimdallPrediction>
-  private use_mock: boolean
 
   constructor(api_endpoint?: string, api_key?: string) {
-    this.api_endpoint = api_endpoint || process.env.HEIMDALL_API_ENDPOINT || "https://heimdall.internal/api/v1"
-    this.api_key = api_key || process.env.HEIMDALL_API_KEY || ""
+    this.api_endpoint = (api_endpoint || process.env.HEIMDALL_API_ENDPOINT || "").trim()
+    this.api_key = (api_key || process.env.HEIMDALL_API_KEY || "").trim()
     this.model_version = "v2.1.0"
     this.analysis_cache = new Map()
-    this.use_mock = process.env.NODE_ENV === "development" || !this.api_key.startsWith("sk-")
+  }
+
+  public isConfigured(): boolean {
+    return Boolean(this.api_endpoint && this.api_key)
   }
 
   public async predictThreatEvolution(request: HeimdallAnalysisRequest): Promise<HeimdallPrediction> {
+    if (!this.isConfigured()) throw new HeimdallUnconfiguredError()
     const cache_key = this.generateCacheKey(request)
-
-    // Check cache first
-    if (this.analysis_cache.has(cache_key)) {
-      return this.analysis_cache.get(cache_key)!
-    }
-
-    try {
-      let prediction: HeimdallPrediction
-
-      if (this.use_mock) {
-        // Use mock implementation
-        const mockResponse = await analyzeHeimdal(JSON.stringify(request))
-        prediction = this.convertMockToPrediction(mockResponse)
-      } else {
-        // Use real API implementation
-        prediction = await this.callRealHeimdallAPI(request)
-      }
-
-      // Cache the result
-      this.analysis_cache.set(cache_key, prediction)
-
-      return prediction
-    } catch (error) {
-      console.error("Heimdall Bridge Error:", error)
-      return this.getFallbackPrediction(request)
-    }
-  }
-
-  private convertMockToPrediction(mockResponse: HeimdallMockResponse): HeimdallPrediction {
-    return {
-      threat_probability: this.getThreatProbability(mockResponse.threat_level),
-      attack_vector: mockResponse.attack_vectors,
-      confidence_score: mockResponse.confidence,
-      time_to_threat: mockResponse.time_to_threat,
-      recommended_actions: mockResponse.recommended_actions,
-      signature_patterns: mockResponse.signature_patterns,
-    }
-  }
-
-  private getThreatProbability(level: string): number {
-    switch (level) {
-      case "critical":
-        return 85 + Math.random() * 10
-      case "high":
-        return 65 + Math.random() * 15
-      case "medium":
-        return 35 + Math.random() * 20
-      case "low":
-        return 10 + Math.random() * 15
-      default:
-        return 25
-    }
+    const cached = this.analysis_cache.get(cache_key)
+    if (cached) return cached
+    const prediction = await this.callRealHeimdallAPI(request)
+    this.analysis_cache.set(cache_key, prediction)
+    return prediction
   }
 
   private async callRealHeimdallAPI(request: HeimdallAnalysisRequest): Promise<HeimdallPrediction> {
@@ -105,121 +72,49 @@ export class HeimdallBridge {
         },
       }),
     })
-
     if (!response.ok) {
       throw new Error(`Heimdall API error: ${response.status} ${response.statusText}`)
     }
-
-    const result = await response.json()
+    const result = (await response.json()) as { prediction?: HeimdallPrediction }
+    if (!result?.prediction) throw new Error("Heimdall API returned no prediction")
     return result.prediction
   }
 
-  public async getStatus(): Promise<{ status: string; latency: number; model_version: string }> {
-    if (this.use_mock) {
-      return await getHeimdallStatus()
+  public async getStatus(): Promise<{ status: string; configured: boolean; latency: number; model_version: string; error?: string }> {
+    const started = Date.now()
+    if (!this.isConfigured()) {
+      return { status: "unconfigured", configured: false, latency: 0, model_version: this.model_version, error: "HEIMDALL_API_ENDPOINT / HEIMDALL_API_KEY not set" }
     }
-
     try {
-      const start = Date.now()
-      const response = await fetch(`${this.api_endpoint}/status`, {
+      const response = await fetch(this.api_endpoint, {
+        method: "GET",
         headers: { Authorization: `Bearer ${this.api_key}` },
       })
-      const latency = Date.now() - start
-
-      if (!response.ok) {
-        throw new Error(`Status check failed: ${response.status}`)
-      }
-
-      const status = await response.json()
       return {
-        status: status.status || "unknown",
-        latency,
-        model_version: status.model_version || this.model_version,
+        status: response.ok ? "ok" : `http_${response.status}`,
+        configured: true,
+        latency: Date.now() - started,
+        model_version: this.model_version,
+        error: response.ok ? undefined : await response.text().then((s) => s.slice(0, 200)),
       }
-    } catch (error) {
+    } catch (e) {
       return {
         status: "error",
-        latency: -1,
+        configured: true,
+        latency: Date.now() - started,
         model_version: this.model_version,
+        error: e instanceof Error ? e.message : String(e),
       }
     }
   }
 
-  public async resetContext(): Promise<{ success: boolean; message: string }> {
-    if (this.use_mock) {
-      return await resetHeimdallContext()
-    }
-
-    try {
-      const response = await fetch(`${this.api_endpoint}/reset`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${this.api_key}` },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Context reset failed: ${response.status}`)
-      }
-
-      const result = await response.json()
-      this.clearCache() // Clear local cache too
-
-      return {
-        success: true,
-        message: result.message || "Context reset successfully",
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: `Reset failed: ${error}`,
-      }
-    }
-  }
-
-  private generateCacheKey(request: HeimdallAnalysisRequest): string {
-    const key_data = {
-      drift_hash: JSON.stringify(request.drift_data).slice(0, 50),
-      patterns_count: request.historical_patterns.length,
-      timestamp: Math.floor(Date.now() / (1000 * 60 * 15)), // 15-minute cache buckets
-    }
-
-    return Buffer.from(JSON.stringify(key_data)).toString("base64").slice(0, 32)
-  }
-
-  private getFallbackPrediction(request: HeimdallAnalysisRequest): HeimdallPrediction {
-    return {
-      threat_probability: 45,
-      attack_vector: ["Reconnaissance", "Passive Intelligence Gathering"],
-      confidence_score: 60,
-      time_to_threat: 48,
-      recommended_actions: [
-        "Continue monitoring drift patterns",
-        "Update baseline configurations",
-        "Review threat intelligence feeds",
-      ],
-      signature_patterns: ["fallback_pattern", "generic_drift_signature"],
-    }
-  }
-
-  public clearCache(): void {
+  public reset(): void {
     this.analysis_cache.clear()
   }
 
-  public getCacheSize(): number {
-    return this.analysis_cache.size
-  }
-
-  public async healthCheck(): Promise<boolean> {
-    try {
-      const status = await this.getStatus()
-      return status.status === "operational" || status.status === "ok"
-    } catch {
-      return false
-    }
-  }
-
-  public isMockMode(): boolean {
-    return this.use_mock
+  private generateCacheKey(request: HeimdallAnalysisRequest): string {
+    return JSON.stringify(request)
   }
 }
 
-export default HeimdallBridge
+export const heimdallBridge = new HeimdallBridge()

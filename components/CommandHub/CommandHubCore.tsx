@@ -21,8 +21,6 @@ import LocalAIStack from "./modules/LocalAIStack"
 import NmapVault from "./modules/NmapVault"
 import ThreatIntelHub from "./modules/ThreatIntelHub"
 import ShodanInterface from "../legacy/ShodanInterface"
-import { SymbolicForecastPanel } from "./modules/SymbolicForecastPanel"
-import BiometricBridge from "./modules/BiometricBridge"
 
 interface ModuleConfig {
   id: string

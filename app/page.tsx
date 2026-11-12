@@ -115,13 +115,6 @@ export default function HomePage() {
       color: "bg-rose-500/10 text-rose-400 border-rose-500/20",
     },
     {
-      title: "v0 Bridge",
-      description: "WhisperMesh bridge terminal",
-      icon: Zap,
-      href: "/v0-bridge-terminal",
-      color: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-    },
-    {
       title: "Kepler Map",
       description: "Geospatial intel layers (Heimdal / MapOS)",
       icon: Map,

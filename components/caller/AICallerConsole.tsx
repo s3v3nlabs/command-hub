@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { PhoneCall, PhoneOff, ShieldCheck, Bot, History, Ban, Send, X } from "lucide-react"
 
 type Config = {
-  mode: "live" | "demo"
+  mode: "live" | "unconfigured"
   twilioConfigured: boolean
   publicBaseUrlSet: boolean
   fromNumber: string | null
@@ -171,8 +171,8 @@ export function AICallerConsole() {
         {cfg?.mode === "live" ? (
           <span className="rounded border border-emerald-500/60 bg-emerald-500/15 px-2 py-0.5 font-bold text-emerald-300">LIVE · TWILIO</span>
         ) : (
-          <span className="rounded border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 font-bold text-amber-300" data-testid="demo-badge">
-            DEMO MODE · simulated calls only
+          <span className="rounded border border-rose-500/60 bg-rose-500/15 px-2 py-0.5 font-bold text-rose-300" data-testid="unconfigured-badge">
+            UNCONFIGURED · no calls until Twilio is set
           </span>
         )}
         <span className="text-gray-400">from: {cfg?.fromNumber || "—"}</span>
@@ -180,14 +180,14 @@ export function AICallerConsole() {
           today: {cfg?.callsToday ?? 0}/{cfg?.dailyCap ?? "—"} live calls
         </span>
         <span className="text-gray-400">max {cfg ? Math.round(cfg.maxCallSeconds / 60) : "—"} min/call</span>
-        <span className="text-gray-400">LLM: {cfg?.llm.length ? cfg.llm.join(", ") : "none (scripted demo)"}</span>
+        <span className="text-gray-400">LLM: {cfg?.llm.length ? cfg.llm.join(", ") : "none (set an AI key)"}</span>
         <span className="text-gray-400">STT: {cfg?.stt.length ? cfg.stt.join(", ") : "none"}</span>
         <span className="text-gray-400">TTS: {cfg?.tts.length ? cfg.tts.join(", ") : "none"}</span>
       </div>
-      {cfg && cfg.mode === "demo" && (
-        <div className="rounded border border-amber-500/30 bg-amber-500/5 px-3 py-2 font-mono text-xs text-amber-200">
-          No real phone calls are placed in DEMO mode. To go live set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER and
-          PUBLIC_BASE_URL in .env.local, then run <code>npm run caller:bridge</code> behind a tunnel (see README → AI Caller setup).
+      {cfg && cfg.mode !== "live" && (
+        <div className="rounded border border-rose-500/30 bg-rose-500/5 px-3 py-2 font-mono text-xs text-rose-200">
+          This console only places real Twilio calls. Simulated/demo calls were removed. Set TWILIO_ACCOUNT_SID,
+          TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER and PUBLIC_BASE_URL in .env.local, then run <code>npm run caller:bridge</code> behind a tunnel.
         </div>
       )}
 
@@ -249,7 +249,7 @@ export function AICallerConsole() {
           <div className={panel}>
             <div className="mb-2 flex flex-wrap items-center gap-2 font-mono text-sm uppercase tracking-widest text-cyan-300">
               Live transcript
-              {callMode === "demo" && <span className="rounded border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 text-[10px] text-amber-300">DEMO</span>}
+              {callMode && callMode !== "live" && <span className="rounded border border-zinc-600 px-2 py-0.5 text-[10px] text-zinc-400">{callMode}</span>}
               {status && <span className="rounded border border-cyan-500/40 px-2 py-0.5 text-[10px] text-cyan-200">{status}</span>}
               {callId && <span className="text-[10px] text-gray-500">{callId}</span>}
             </div>
@@ -264,12 +264,10 @@ export function AICallerConsole() {
                         ? "bg-cyan-500/15 text-cyan-300"
                         : l.speaker === "callee"
                           ? "bg-emerald-500/15 text-emerald-300"
-                          : l.speaker === "simulated-callee"
-                            ? "bg-amber-500/15 text-amber-300"
-                            : "bg-white/5 text-gray-400")
+                          : "bg-white/5 text-gray-400")
                     }
                   >
-                    {l.speaker === "simulated-callee" ? "simulated callee" : l.speaker === "ai" ? "AI assistant" : l.speaker}
+                    {l.speaker === "ai" ? "AI assistant" : l.speaker}
                   </span>
                   <span className={l.speaker === "system" ? "text-gray-400" : "text-gray-100"}>{l.text}</span>
                 </div>
@@ -293,7 +291,7 @@ export function AICallerConsole() {
                     onClick={() => openHistory(c)}
                     className="flex w-full items-center gap-2 rounded border border-white/5 px-2 py-1.5 text-left font-mono text-xs hover:border-cyan-500/40"
                   >
-                    <span className={c.mode === "demo" ? "text-amber-300" : "text-emerald-300"}>{c.mode.toUpperCase()}</span>
+                    <span className={c.mode === "live" ? "text-emerald-300" : "text-zinc-400"}>{c.mode.toUpperCase()}</span>
                     <span className="text-gray-300">{maskNum(c.to)}</span>
                     <span className="flex-1 truncate text-gray-500">{c.objective}</span>
                     <span className="text-gray-400">{c.status}</span>
@@ -341,13 +339,13 @@ export function AICallerConsole() {
           <div className="w-full max-w-lg rounded-md border border-cyan-400/50 bg-[#05080c] p-5 font-mono text-sm text-gray-200 shadow-[0_0_40px_rgba(34,211,238,0.15)]">
             <div className="mb-3 flex items-center gap-2 text-base uppercase tracking-widest text-cyan-300">
               <ShieldCheck className="h-5 w-5" /> Confirm call
-              {prep.mode === "demo" && <span className="ml-auto rounded border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 text-[10px] text-amber-300">DEMO — no real call</span>}
+              {prep.mode !== "live" && <span className="ml-auto rounded border border-rose-500/60 bg-rose-500/15 px-2 py-0.5 text-[10px] text-rose-300">NOT LIVE — cannot dial</span>}
             </div>
             <dl className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-1.5 text-xs">
               <dt className="text-gray-500">To</dt>
               <dd>{prep.to}</dd>
               <dt className="text-gray-500">From</dt>
-              <dd>{prep.from || "— (demo)"}</dd>
+              <dd>{prep.from || "—"}</dd>
               <dt className="text-gray-500">Objective</dt>
               <dd className="whitespace-pre-wrap">{objective}</dd>
               <dt className="text-gray-500">Opens with</dt>
@@ -372,7 +370,7 @@ export function AICallerConsole() {
                 onClick={confirmDial}
                 className={`${btn} border-emerald-400/70 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20`}
               >
-                <PhoneCall className="h-4 w-4" /> Confirm &amp; {prep.mode === "demo" ? "simulate" : "dial"}
+                <PhoneCall className="h-4 w-4" /> Confirm &amp; dial
               </button>
             </div>
           </div>

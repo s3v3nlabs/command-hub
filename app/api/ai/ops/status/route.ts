@@ -64,7 +64,6 @@ export async function GET() {
       localNav: [
         { id: "phone-suite", label: "Phone Suite", href: "/phone-suite" },
         { id: "kepler", label: "Kepler", href: "/intelligence/kepler" },
-        { id: "v0-bridge", label: "v0 Bridge", href: "/v0-bridge-terminal" },
         { id: "heimdal", label: "Heimdal Terminal", href: "/heimdal-terminal" },
         { id: "reclaim", label: "Reclaim / Eye of Truth", href: "/reclaim" },
         { id: "operator-twin", label: "Operator Twin", href: "/operator-twin" },

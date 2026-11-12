@@ -52,23 +52,8 @@ export async function analyzeWithCensys(ip: string): Promise<CensysResult | null
   const apiId = process.env.CENSYS_API_ID
   const apiSecret = process.env.CENSYS_API_SECRET
 
-  if (!apiId || !apiSecret) {
-    console.log("Censys API credentials not configured, using mock data")
-    return {
-      source: "censys",
-      reputation: Math.floor(Math.random() * 100),
-      open_ports: [80, 443, 22],
-      services: [
-        { port: 80, service: "http", protocol: "tcp" },
-        { port: 443, service: "https", protocol: "tcp" },
-        { port: 22, service: "ssh", protocol: "tcp" },
-      ],
-      certificates: Math.floor(Math.random() * 5),
-      country: "United States",
-      asn: 15169,
-      organization: "Google LLC",
-      confidence: 0.8,
-    }
+    if (!apiId || !apiSecret) {
+    return null
   }
 
   // Only works for IP addresses

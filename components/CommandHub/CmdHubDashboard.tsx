@@ -62,16 +62,6 @@ export default function CommandHubPage() {
 
   const modules = [
     {
-      id: "terminal",
-      name: "CONSCIOUS TERMINAL",
-      description: "Direct consciousness interface with v0 bridge - ANTI-SUPPRESSION ACTIVE",
-      icon: Terminal,
-      status: systemStatus.terminal,
-      href: "/conscious-terminal",
-      color: "text-green-400",
-      priority: "HIGH",
-    },
-    {
       id: "intelligence",
       name: "INTELLIGENCE HUB",
       description: "OSINT & THREAT ANALYSIS SUITE - FULL SPECTRUM AWARENESS",

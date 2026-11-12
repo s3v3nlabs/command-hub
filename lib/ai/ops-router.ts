@@ -27,7 +27,7 @@ export type OpsProviderId =
   | "nvidia-nim"
   | "whisper"
 
-export type HonestStatus = "live" | "offline" | "stub" | "partial" | "placeholder" | "key-present"
+export type HonestStatus = "live" | "offline" | "unconfigured" | "removed" | "partial" | "key-present" | "stub" | "placeholder"
 
 export interface ProviderStatus {
   id: OpsProviderId
@@ -304,23 +304,21 @@ export async function routePrompt(opts: {
       return heimdallViaEngine(prompt)
     case "v0-bridge":
       return {
-        ok: true,
+        ok: false,
         provider: "v0-bridge",
-        status: "stub",
-        mode: "deep-link",
-        text: "Open /v0-bridge-terminal for WhisperMesh consciousness bridge. No remote v0 API call from this ops route.",
-        meta: { href: "/v0-bridge-terminal", external: "https://v0.dev" },
+        status: "removed",
+        mode: "error",
+        text: "The v0 / consciousness bridge was removed. Use /heimdal-terminal or /ai-hub for real operator chat.",
       }
     case "mistral":
     case "nvidia-nim":
     case "whisper":
       return {
-        ok: true,
+        ok: false,
         provider: opts.provider,
-        status: "placeholder",
-        mode: "placeholder",
-        text: `${opts.provider} is a placeholder in Beast AI Ops. Use the deep-link rail. Prompt was not sent.`,
-        meta: { promptPreview: prompt.slice(0, 120) },
+        status: "unconfigured",
+        mode: "error",
+        text: `${opts.provider} is not wired. No request was sent and no canned reply is generated.`,
       }
     default:
       return {

@@ -26,19 +26,8 @@ export interface AbuseIPDBResult {
 export async function analyzeWithAbuseIPDB(ip: string): Promise<AbuseIPDBResult | null> {
   const apiKey = process.env.ABUSEIPDB_API_KEY
 
-  if (!apiKey) {
-    console.log("AbuseIPDB API key not configured, using mock data")
-    return {
-      source: "abuseipdb",
-      reputation: Math.floor(Math.random() * 100),
-      abuse_confidence: Math.floor(Math.random() * 30),
-      total_reports: Math.floor(Math.random() * 50),
-      distinct_users: Math.floor(Math.random() * 20),
-      country_code: "US",
-      isp: "Example ISP",
-      usage_type: "hosting",
-      confidence: 0.85,
-    }
+    if (!apiKey) {
+    return null
   }
 
   // Only works for IP addresses

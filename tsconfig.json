@@ -78,6 +78,7 @@
     "lib/shodan/drift-detection.ts",
     "lib/supabase/database.ts",
     "runtime/ghostlight_bridge.ts",
-    "systems/v0/consciousness/bridge-arc.ts"
+    "systems/v0/consciousness/bridge-arc.ts",
+    "lib/live"
   ]
 }

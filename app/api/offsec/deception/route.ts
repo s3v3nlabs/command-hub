@@ -43,9 +43,8 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}))
   const action = String(body.action || "")
 
-  // Simulated attacker interaction with a decoy (e.g. a test harness or a real
-  // honeypot front-end reporting a hit). This records an attack EVENT; it does
-  // not expose a real host USB/serial stack — only the emulated interface surface.
+  // Operator or honeypot front-end reporting a real hit against a decoy.
+  // This records an attack EVENT from the caller (UA, source, tooling).
   if (action === "decoy_hit") {
     const fp = fingerprintFrom({ ua: request.headers.get("user-agent") || "", tooling: body.tooling })
     const ev = recordDecoyHit(String(body.decoyId || ""), {

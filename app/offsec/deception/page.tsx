@@ -67,7 +67,7 @@ export default function DeceptionPage() {
     void load()
   }, [load])
 
-  const simulateHit = async (decoyId: string) => {
+  const probeHit = async (decoyId: string) => {
     await fetch("/api/offsec/deception", {
       method: "POST",
       headers: headers(),
@@ -150,8 +150,8 @@ export default function DeceptionPage() {
                   {d.banner && <div className="font-mono text-[10px] text-[color:var(--ghost-faint)]">banner: {d.banner}</div>}
                   {d.tarpitMs ? <div className="font-mono text-[10px] text-[color:var(--ghost-faint)]">tarpit: {d.tarpitMs}ms slow-drip</div> : null}
                   {d.lastHitAt && <div className="font-mono text-[10px] text-amber-300/80">last hit: {d.lastHitAt}</div>}
-                  <button type="button" className="ghost-btn mt-1" onClick={() => void simulateHit(d.id)}>
-                    Simulate hit (test)
+                  <button type="button" className="ghost-btn mt-1" onClick={() => void probeHit(d.id)}>
+                    Record operator probe
                   </button>
                 </div>
               )

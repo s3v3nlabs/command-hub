@@ -51,26 +51,8 @@ export interface OTXResult {
 export async function analyzeWithOTX(target: string): Promise<OTXResult | null> {
   const apiKey = process.env.OTX_API_KEY
 
-  if (!apiKey) {
-    console.log("OTX API key not configured, using mock data")
-    return {
-      source: "otx",
-      reputation: Math.floor(Math.random() * 100),
-      pulse_count: Math.floor(Math.random() * 10),
-      malware_count: Math.floor(Math.random() * 5),
-      country: "United States",
-      asn: "AS15169",
-      hostname: "example.com",
-      pulses: [
-        {
-          name: "Example Threat Pulse",
-          description: "Mock threat intelligence data",
-          tags: ["malware", "botnet"],
-          created: new Date().toISOString(),
-        },
-      ],
-      confidence: 0.8,
-    }
+    if (!apiKey) {
+    return null
   }
 
   try {

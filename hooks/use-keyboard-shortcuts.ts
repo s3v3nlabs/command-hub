@@ -55,7 +55,7 @@ export function useKeyboardShortcuts(customShortcuts?: Shortcut[]) {
         } else if (shortcut.key === 'p' && shortcut.ctrl && shortcut.shift) {
           router.push('/phone-suite')
         } else if (shortcut.key === 't' && shortcut.ctrl && shortcut.shift) {
-          router.push('/conscious-terminal')
+          router.push('/linux-terminal')
         } else if (shortcut.key === 'o' && shortcut.ctrl && shortcut.shift) {
           router.push('/intelligence/osint')
         } else {

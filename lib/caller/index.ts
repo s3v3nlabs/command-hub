@@ -7,7 +7,7 @@ export type CallRecord = {
   to: string
   objective: string
   script?: string
-  mode: "live" | "demo"
+  mode: "live" | "unconfigured"
   status: string
   twilioSid?: string
   createdAt: string
@@ -17,7 +17,7 @@ export type CallRecord = {
   error?: string
   llmProvider?: string | null
 }
-export type TranscriptEntry = { t: string; speaker: "ai" | "callee" | "system" | "simulated-callee"; text: string; meta?: any }
+export type TranscriptEntry = { t: string; speaker: "ai" | "callee" | "system"; text: string; meta?: any }
 
 const c: any = core
 export const normalizeNumber: (raw: unknown) => { ok: true; number: string } | { ok: false; error: string } = c.normalizeNumber
@@ -28,7 +28,7 @@ export const maxCallSeconds: () => number = c.maxCallSeconds
 export const twilioConfigured: () => boolean = c.twilioConfigured
 export const publicBaseUrl: () => string = c.publicBaseUrl
 export const mediaStreamUrl: () => string = c.mediaStreamUrl
-export const mode: () => "live" | "demo" = c.mode
+export const mode: () => "live" | "unconfigured" = c.mode
 export const maskNumber: (n: string) => string = c.maskNumber
 export const listDnc: () => Array<{ number: string; reason: string; addedAt: string }> = c.listDnc
 export const isDnc: (n: string) => boolean = c.isDnc

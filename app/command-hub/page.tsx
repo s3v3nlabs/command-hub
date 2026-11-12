@@ -34,7 +34,7 @@ import {
   PhoneCall,
 } from "lucide-react"
 
-type SignalKind = "live" | "simulated"
+type SignalKind = "live" | "unavailable"
 
 interface AccountRail {
   id: string
@@ -65,7 +65,7 @@ interface IdsPayload {
   modules?: Array<{ id: string; label: string; available: boolean; kind: SignalKind }>
   lastScan?: { at: string; kind: SignalKind; summary: string }
   events?: IdsEvent[]
-  legend?: { live: string; simulated: string }
+  legend?: { live: string; unavailable: string }
   accountRails?: AccountRail[]
   process?: { pid: number; node: string; platform: string; rssMb: number }
 }
@@ -75,10 +75,8 @@ const FORTRESS_LINKS = [
   { id: "operator-twin", name: "Operator Twin", href: "/operator-twin", icon: User },
   { id: "phone-suite", name: "Phone Suite", href: "/phone-suite", icon: Smartphone },
   { id: "kepler", name: "Kepler", href: "/intelligence/kepler", icon: Map },
-  { id: "v0-bridge", name: "v0 Bridge", href: "/v0-bridge-terminal", icon: Layers },
   { id: "evidence", name: "Evidence Explorer", href: "/evidence-explorer", icon: Archive },
   { id: "network", name: "Network Security", href: "/network-security", icon: Network },
-  { id: "self-heal", name: "Self-Healing", href: "/self-healing", icon: Zap },
   { id: "threat", name: "Threat Analysis", href: "/threat-analysis", icon: AlertTriangle },
   { id: "privacy", name: "Privacy Fortress", href: "/privacy", icon: EyeOff },
   { id: "modules", name: "Module Bay", href: "/modules", icon: Package },
@@ -150,7 +148,7 @@ export default function CommandHubPage() {
             HIGH SECURITY
           </Badge>
           <span className="text-xs text-dark-600 font-mono">
-            Ghostlight · Account Rails · IDS (live vs simulated)
+            Ghostlight · Account Rails · IDS (live host signals)
           </span>
           <Button
             size="sm"
@@ -316,7 +314,7 @@ export default function CommandHubPage() {
           <div id="ids" className="scroll-mt-4">
             <TechPanel
               title="INTRUSION DETECTION · HIGH SECURITY"
-              subtitle="HONEST LOCAL SIGNALS · LIVE VS SIMULATED LABELS"
+              subtitle="HONEST LOCAL SIGNALS · LIVE HOST ONLY"
               cornerAccent={true}
               borderAccent={true}
             >
@@ -421,7 +419,7 @@ export default function CommandHubPage() {
 
               {ids?.legend && (
                 <p className="mt-3 font-mono text-[10px] text-gray-600">
-                  live = {ids.legend.live} · simulated = {ids.legend.simulated}
+                  live = {ids.legend.live}{ids.legend.unavailable ? ` · unavailable = ${ids.legend.unavailable}` : ""}
                 </p>
               )}
 
@@ -433,7 +431,7 @@ export default function CommandHubPage() {
                 </Link>
                 <Link href="/self-healing">
                   <Button size="sm" variant="outline" className="h-7 text-[10px] font-mono border-gray-600 bg-transparent">
-                    Self-Healing
+                    Self-Healing (retired theater)
                   </Button>
                 </Link>
                 <Link href="/threat-analysis">

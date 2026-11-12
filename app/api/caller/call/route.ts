@@ -5,12 +5,11 @@ import { NextResponse } from "next/server"
 import crypto from "crypto"
 import { pickChatProvider } from "@/lib/llm"
 import * as C from "@/lib/caller"
-import { startDemoCall } from "@/lib/caller/demo"
 
 /**
  * POST /api/caller/call { to, objective, script?, confirmToken }
  * Requires a confirm token from /api/caller/prepare (explicit operator Confirm).
- * Live mode → Twilio REST (caller ID = TWILIO_FROM_NUMBER only). Otherwise → DEMO simulation.
+ * Live mode → Twilio REST (caller ID = TWILIO_FROM_NUMBER only). Unconfigured → 503 (demo mode was removed).
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}) as any)
@@ -21,17 +20,19 @@ export async function POST(req: Request) {
   const script = typeof body.script === "string" ? body.script.trim().slice(0, 4000) : ""
   const v = C.verifyConfirmToken(String(body.confirmToken || ""), n.number, objective)
   if (!v.ok) return NextResponse.json({ ok: false, error: v.error }, { status: 403 })
-  const live = C.mode() === "live"
+  if (C.mode() !== "live") {
+    return NextResponse.json({
+      ok: false,
+      error: "caller_unconfigured",
+      detail: "Twilio is not configured (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM, PUBLIC_BASE_URL). Demo/simulated calls were removed — this endpoint only places real calls.",
+    }, { status: 503 })
+  }
+  const live = true
   const pol = C.policyCheck(n.number, live)
   if (!pol.ok) return NextResponse.json({ ok: false, error: pol.error }, { status: 409 })
 
   const id = `call_${Date.now().toString(36)}_${crypto.randomBytes(3).toString("hex")}`
   const llmProvider = await pickChatProvider(process.env.CALLER_LLM_PROVIDER || "auto")
-  if (!live) {
-    const rec = C.upsertCall({ id, to: n.number, objective, script, mode: "demo", status: "demo-active", llmProvider })
-    startDemoCall(rec)
-    return NextResponse.json({ ok: true, id, mode: "demo", status: rec.status })
-  }
   if (!llmProvider) {
     return NextResponse.json({ ok: false, error: "No AI provider configured for the conversation (set XAI_API_KEY / OPENAI_API_KEY / VENICE_API_KEY / GROQ_API_KEY or run Ollama)" }, { status: 503 })
   }

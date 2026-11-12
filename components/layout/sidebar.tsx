@@ -162,12 +162,6 @@ const navigationItems: NavItem[] = [
     status: "active",
   },
   {
-    title: "Hub Bus Terminal",
-    href: "/conscious-terminal",
-    icon: Brain,
-    status: "new",
-  },
-  {
     title: "File Browser",
     href: "/file-browser",
     icon: FolderOpen,
@@ -236,11 +230,6 @@ const navigationItems: NavItem[] = [
         icon: Users,
       },
       {
-        title: "ERD Viewer",
-        href: "/intelligence/erd",
-        icon: Database,
-      },
-      {
         title: "Kepler Map",
         href: "/intelligence/kepler",
         icon: Map,
@@ -278,12 +267,6 @@ const navigationItems: NavItem[] = [
     icon: AlertTriangle,
   },
   {
-    title: "Self-Healing",
-    href: "/self-healing",
-    icon: Zap,
-    status: "beta",
-  },
-  {
     title: "Visualizations",
     href: "/visualizations",
     icon: BarChart3,
@@ -301,11 +284,6 @@ const navigationItems: NavItem[] = [
         title: "Integration Tests",
         href: "/integration-tests",
         icon: Layers,
-      },
-      {
-        title: "AI Autonomy Tests",
-        href: "/ai-autonomy-tests",
-        icon: Brain,
       },
       {
         title: "System Config",
@@ -387,9 +365,7 @@ const navigationItems: NavItem[] = [
       { title: "Heimdal Terminal", href: "/heimdal-terminal", icon: Shield },
       { title: "Reclaim / Heimdallr", href: "/reclaim", icon: Eye, status: "new" },
       { title: "Linux Terminal", href: "/linux-terminal", icon: Terminal },
-      { title: "Windows Terminal", href: "/windows-terminal", icon: Monitor },
       { title: "Command Prompt", href: "/command-prompt", icon: Terminal },
-      { title: "v0 Bridge Terminal", href: "/v0-bridge-terminal", icon: Layers },
       { title: "Graphene Bridge", href: "/graphene-bridge", icon: Network },
     ],
   },
@@ -427,12 +403,6 @@ const navigationItems: NavItem[] = [
     title: "Terminal Dashboard",
     href: "/terminal-dashboard",
     icon: Cpu,
-  },
-  {
-    title: "Forecast Engine",
-    href: "/forecast-engine",
-    icon: Activity,
-    status: "new",
   },
   {
     title: "Reports",
