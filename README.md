@@ -22,6 +22,21 @@ npx next start -p 3100
 
 Full install: [INSTALL.md](./INSTALL.md) · Usage: [USAGE.md](./USAGE.md) · Updating: [UPDATING.md](./UPDATING.md) · Security: [SECURITY.md](./SECURITY.md) · Legal: [LEGAL.md](./LEGAL.md) · OffSec suite: [docs/OFFSEC_SUITE.md](./docs/OFFSEC_SUITE.md)
 
+## Termux phone companion
+
+The full Next.js hub does **not** run well on a phone. A light companion client lives in [`companions/termux/`](./companions/termux/) — it talks to a remote hub (laptop / VPS / Tailscale) and gives you an operator deck, health ping, Black Aurora redeem helper, SignalFrame presence, and deep-links. It does **not** run Ghidra, the Android Lab, Docker, or the Next.js suite on-device.
+
+```bash
+pkg install python git -y
+git clone https://github.com/s3v3nlabs/command-hub.git
+cd command-hub/companions/termux
+bash install.sh
+bash start.sh
+# open http://127.0.0.1:8788  and point Setup at http://<hub-ip>:3100
+```
+
+The hub host must listen on a reachable interface: `npx next start -H 0.0.0.0 -p 3100`. Details: [companions/termux/README.md](./companions/termux/README.md).
+
 ## Black Aurora Labs (invite portal)
 
 Invite-only access packaging with a monochrome classified-terminal UI:
@@ -204,6 +219,7 @@ A typical 3-minute call costs roughly $0.08 to $0.15 all-in.
 - `components/`: UI (CommandHub, signalframe, venice, music, voice, and more)
 - `lib/`: engines, mesh, privacy, AI router, and other libraries
 - `docs/`: module docs (WhisperMesh, Music Hub, Voice Bus, SymTrain, and others)
+- `companions/termux/`: Termux phone companion (FastAPI client — not a phone-hosted hub)
 
 ## Author
 

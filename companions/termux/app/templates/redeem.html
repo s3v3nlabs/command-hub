@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Black Aurora redeem{% endblock %}
+{% block body %}
+  <p class="honesty">
+    Soft-check an invite first (does <b>not</b> consume a use). Redeem only when
+    you are ready — redeem is a one-way consume on single-use codes.
+  </p>
+
+  <section class="card">
+    <h2>Invite code</h2>
+    <form method="post" action="/redeem" autocomplete="off">
+      <label for="code">Code</label>
+      <input id="code" name="code" type="text" required minlength="6"
+             placeholder="LHG9RGWZ or GhostNode::LHG9RGWZ"
+             value="{{ last_code or '' }}"
+             autocapitalize="characters" spellcheck="false">
+      <label for="redeemed_by">Your name (optional, recorded on redeem)</label>
+      <input id="redeemed_by" name="redeemed_by" type="text" maxlength="120"
+             value="{{ last_name or cfg.operator_name }}" autocapitalize="off">
+      <div class="btn-row">
+        <button class="btn secondary" type="submit" name="action" value="check">Soft check</button>
+        <button class="btn" type="submit" name="action" value="redeem"
+                onclick="return confirm('Redeem will consume one use of this invite. Continue?');">
+          Redeem
+        </button>
+      </div>
+    </form>
+  </section>
+
+  {% if result %}
+    <section class="card">
+      <h2>{{ "Redeem result" if result.redeemed else "Soft check" }}</h2>
+      <p class="kv">HTTP <b>{{ result.status or "—" }}</b>
+        · {{ "ok" if result.ok else (result.error or "not accepted") }}</p>
+      {% if result.data and result.data.invite %}
+        <p class="kv">Label <b>{{ result.data.invite.label or "—" }}</b></p>
+        <p class="kv">Status <b>{{ result.data.invite.status or "—" }}</b></p>
+        {% if result.data.invite.expiresAt %}
+          <p class="kv">Expires <b>{{ result.data.invite.expiresAt }}</b></p>
+        {% endif %}
+      {% endif %}
+      {% if result.data and result.data.label %}
+        <p class="kv">Label <b>{{ result.data.label }}</b></p>
+      {% endif %}
+      {% if result.data and result.data.reason %}
+        <p class="kv">Reason <b>{{ result.data.reason }}</b></p>
+      {% endif %}
+      {% if result.data and result.data.honesty %}
+        <p class="hint">{{ result.data.honesty }}</p>
+      {% endif %}
+      {% if result.data and result.data.instructions %}
+        <p class="hint">{{ result.data.instructions }}</p>
+      {% endif %}
+      {% if result.data and result.data.downloadGrant %}
+        <p class="kv">Download grant (short-lived, treat as a secret):</p>
+        <div class="mono">{{ result.data.downloadGrant }}</div>
+      {% endif %}
+
+      <p class="kv">Open on the remote hub:</p>
+      <div class="quick">
+        <a href="{{ result.drop_url }}" target="_blank" rel="noopener">Drop page</a>
+        <a href="{{ result.access_url }}" target="_blank" rel="noopener">Access page</a>
+        <a href="{{ result.verify_url }}" target="_blank" rel="noopener">Verify page</a>
+      </div>
+      <p class="hint">A public GitHub repo cannot be clone-gated by this code. The portal gates a server-side bundle on the hub host.</p>
+    </section>
+  {% endif %}
+{% endblock %}

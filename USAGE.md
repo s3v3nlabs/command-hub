@@ -22,12 +22,28 @@ Authorized, lawful use only — see [LEGAL.md](./LEGAL.md). Written authorizatio
 | Dev Operator | `/dev-operator` | Defensive coding assistant (HOLD_VYRNA_UNSYNC) |
 | Compute / AI Pool | `/compute` | Multi-backend router, job queue, warm-pool; honest perf surface |
 | Help | `/help` | In-hub docs index |
+| Termux companion | `companions/termux` (phone client @ `:8788`) | Talks to a remote hub; not a phone-hosted Next.js build |
 | WIP Lab | `/offsec/lab` | Honest non-functional shells |
 
 Command builders only **render text** for you to copy into your own authorized terminal. The hub does not auto-run exploits.
 
 
 
+
+
+## Termux phone companion
+
+The full hub is a Next.js 15 app and is **not** a good Termux install. A light Python companion client lives at [`companions/termux/`](./companions/termux/README.md):
+
+```bash
+pkg install python git -y
+git clone https://github.com/s3v3nlabs/command-hub.git
+cd command-hub/companions/termux
+bash install.sh && bash start.sh
+# open http://127.0.0.1:8788 and point Setup at the remote hub
+```
+
+It pings `/api/modules`, `/api/audit/timeline`, and `/api/offsec/attack-navigator`, offers workspace-preset chips as a local filter, deep-links into the remote hub, can soft-check / redeem a Black Aurora invite, and can send a SignalFrame presence heartbeat. It does not run Ghidra, the Android Lab, Docker, or the Next.js suite on the phone. The hub host must bind a reachable interface (`npx next start -H 0.0.0.0 -p 3100`).
 
 ## Compute / AI Acceleration
 

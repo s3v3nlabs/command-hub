@@ -7,6 +7,7 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 ## 2026-11-11
 
 ### Added
+- **Termux phone companion:** `companions/termux/` — FastAPI operator client for Android/Termux. Talks to a remote hub (health ping, operator deck, workspace chips as local filters, Black Aurora redeem helper, SignalFrame presence, deep-links). Honest about not hosting Next.js / Ghidra / Android Lab / Docker on-device.
 - **Black Aurora Labs invite portal:** `/black-aurora` (+ verify/drop/access/admin) — real invite-token backend (single-use/expiry/revoke), gated git-bundle/tarball download, monochrome classified UI. Honest about public-repo clone limits. See `docs/black-aurora/`.
 - **Compute / AI Acceleration:** `/compute` + `/api/compute` + `lib/compute/*` — multi-backend router (Ollama/RunPod/OpenAI-compat), bounded job queue (async + worker_threads), warm-pool, speculative race, circuit-breaker failover; honest performance surface (quantization/GPU/KV/batching documented-only). Debunks virtual-RAM-to-compute claims. See `docs/COMPUTE.md`.
 - **ATT&CK navigator heatmap:** `/offsec/attack-navigator` — Heimdall/deception-observed techniques lit on a live enterprise heatmap.

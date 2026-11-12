@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Setup{% endblock %}
+{% block body %}
+  <p class="honesty">
+    Point this companion at a <b>remote</b> Command Hub — a laptop, VPS, or Tailscale
+    node already running the full Next.js app. The phone does not host the hub.
+  </p>
+
+  <section class="card">
+    <h2>Hub connection</h2>
+    <form method="post" action="/setup" autocomplete="off">
+      <label for="hub_base_url">Hub base URL</label>
+      <input id="hub_base_url" name="hub_base_url" type="url" required
+             placeholder="http://100.x.x.x:3100"
+             value="{{ cfg.hub_base_url }}"
+             inputmode="url" autocapitalize="off" spellcheck="false">
+      <p class="hint">
+        LAN IP, Tailscale IP, or public HTTPS. The hub must listen on a reachable
+        interface, e.g. <code>npx next start -H 0.0.0.0 -p 3100</code>.
+        <code>127.0.0.1</code> only works if the hub is on this same device
+        (or via <code>adb reverse</code>).
+      </p>
+
+      <label for="hub_api_token">Operator token (optional)</label>
+      <input id="hub_api_token" name="hub_api_token" type="password"
+             placeholder="{{ 'leave blank to keep the saved token' if cfg.has_token else 'HUB_API_TOKEN — only if the hub requires it' }}"
+             autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p class="hint">
+        {% if cfg.has_token %}
+          A token is already saved on this phone (never shown). Enter a new one to replace it.
+        {% else %}
+          Needed when the hub has <code>HUB_API_TOKEN</code> or <code>SECURE_MODE=1</code>.
+          Used for the audit timeline and ATT&amp;CK navigator. Stored only in
+          gitignored <code>config.local.json</code> (mode 0600).
+        {% endif %}
+      </p>
+      {% if cfg.has_token %}
+        <label class="check"><input type="checkbox" name="clear_token" value="1"> Clear saved token</label>
+      {% endif %}
+
+      <label for="operator_name">Operator name</label>
+      <input id="operator_name" name="operator_name" type="text"
+             maxlength="60" value="{{ cfg.operator_name }}"
+             placeholder="termux-op" autocapitalize="off">
+      <p class="hint">Used when sending a SignalFrame presence heartbeat or note.</p>
+
+      <label class="check">
+        <input type="checkbox" name="tls_insecure" value="1" {% if cfg.tls_insecure %}checked{% endif %}>
+        Allow insecure TLS (lab / self-signed only)
+      </label>
+      <p class="hint">Off by default. Only for a lab hub with a self-signed cert.</p>
+
+      <button class="btn" type="submit">Save &amp; ping</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Honesty</h2>
+    <p class="hint">
+      Config stays on this device. It is gitignored and is never pushed to GitHub.
+      This companion cannot mint Black Aurora invites, run RE engines, or start an
+      Android Lab. Those live on the hub host.
+    </p>
+  </section>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Presence{% endblock %}
+{% block body %}
+  <p class="honesty">
+    SignalFrame multi-operator presence — heartbeat so the hub shows you online,
+    and optional engagement notes. Same-origin store on the hub; this phone is just a client.
+  </p>
+
+  {% if presence_error %}
+    <div class="flash error">Could not load presence: {{ presence_error }}</div>
+  {% endif %}
+
+  <section class="card">
+    <h2>Heartbeat</h2>
+    <form method="post" action="/presence">
+      <input type="hidden" name="action" value="heartbeat">
+      <label for="operator_name">Name</label>
+      <input id="operator_name" name="operator_name" type="text" maxlength="60"
+             required value="{{ cfg.operator_name }}" autocapitalize="off">
+      <label for="workspace">Workspace (optional)</label>
+      <select id="workspace" name="workspace">
+        <option value="">—</option>
+        {% for w in workspaces %}
+          <option value="{{ w.id }}">{{ w.label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn" type="submit">Send heartbeat</button>
+    </form>
+    {% if presence %}
+      <p class="hint" style="margin-top:0.7rem">
+        {{ presence.online|length if presence.online is iterable and presence.online is not mapping else (presence.online or 0) }} online
+        · {{ presence.note or presence.transport or "" }}
+      </p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Online operators</h2>
+    {% set online = presence.online if presence else [] %}
+    {% if online is mapping %}
+      {# status endpoint sometimes returns a count; listing is a list #}
+      <p class="empty">{{ online }} online (detail unavailable).</p>
+    {% elif online %}
+      <ul class="ops">
+        {% for op in online %}
+          {% if op is mapping %}
+            <li>
+              <span class="dot" style="background: {{ op.color or '#3ee08f' }}; box-shadow: 0 0 6px {{ op.color or '#3ee08f' }}"></span>
+              <span>{{ op.name or op.id }}</span>
+              <span class="meta" style="color:var(--faint);font-size:0.65rem;margin-left:auto">{{ op.workspace or "" }}</span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Nobody currently listed. Send a heartbeat to appear.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Post a note</h2>
+    <form method="post" action="/presence">
+      <input type="hidden" name="action" value="note">
+      <label for="engagement_id">Engagement id</label>
+      <input id="engagement_id" name="engagement_id" type="text" required maxlength="100"
+             value="{{ last_engagement or 'field' }}" autocapitalize="off" spellcheck="false">
+      <label for="body">Note</label>
+      <textarea id="body" name="body" required maxlength="4000" placeholder="Short field note…"></textarea>
+      <button class="btn secondary" type="submit">Post note</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Recent notes</h2>
+    {% set notes = presence.notes if presence and presence.notes else [] %}
+    {% if notes %}
+      <ul class="notes">
+        {% for n in notes %}
+          <li>
+            <div class="meta">{{ n.createdAt or "" }} · {{ n.from or "operator" }} · {{ n.engagementId or "" }}</div>
+            <div>{{ n.body }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No notes on the hub yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

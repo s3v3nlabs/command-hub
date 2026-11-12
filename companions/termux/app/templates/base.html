@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070a">
+  <meta name="color-scheme" content="dark">
+  <meta name="application-name" content="Command Hub Companion">
+  <title>{% block title %}Operator Companion{% endblock %} · Singular/ty</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <strong>Singular/ty</strong>
+      <span>Command Hub · phone companion</span>
+    </div>
+    <div class="status-led" title="hub reachability">
+      {% if cfg.configured %}
+        <span class="led {% if reachable is defined and reachable %}ok{% elif reachable is defined %}bad{% else %}warn{% endif %}"></span>
+      {% else %}
+        <span class="led warn"></span>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% if flash %}
+      <div class="flash {{ flash_kind or 'info' }}">{{ flash }}</div>
+    {% endif %}
+    {% block body %}{% endblock %}
+    <footer class="credit">
+      Companion v{{ version }} — a phone client, not a phone-hosted hub.<br>
+      {{ credit }}
+    </footer>
+  </main>
+
+  <nav class="bottom" aria-label="Companion">
+    <a href="/" class="{{ 'on' if nav == 'deck' else '' }}"><span class="ico">▣</span>Deck</a>
+    <a href="/open" class="{{ 'on' if nav == 'open' else '' }}"><span class="ico">↗</span>Open</a>
+    <a href="/redeem" class="{{ 'on' if nav == 'redeem' else '' }}"><span class="ico">◉</span>Redeem</a>
+    <a href="/presence" class="{{ 'on' if nav == 'presence' else '' }}"><span class="ico">◎</span>Presence</a>
+    <a href="/setup" class="{{ 'on' if nav == 'setup' else '' }}"><span class="ico">⚙</span>Setup</a>
+  </nav>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

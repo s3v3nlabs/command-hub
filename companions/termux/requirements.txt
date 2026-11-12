@@ -1,0 +1,10 @@
+# Slim stack for Termux (Android / Bionic).
+# - fastapi < 0.110 keeps pydantic v1, which installs without a Rust
+#   toolchain on most Termux setups (pydantic v2 needs pydantic-core).
+# - uvicorn without [standard] avoids uvloop/httptools compile steps.
+fastapi>=0.99.1,<0.110
+pydantic>=1.10.13,<2
+starlette>=0.27,<0.37
+uvicorn>=0.27,<0.31
+jinja2>=3.1,<4
+python-multipart>=0.0.9

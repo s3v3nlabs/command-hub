@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% set reachable = ping.reachable %}
+{% block title %}Operator deck{% endblock %}
+{% block body %}
+  <p class="honesty">
+    This is a <b>companion client</b>. It talks to a remote Command Hub and does
+    <b>not</b> run Ghidra, the Android Lab, Docker, or the full Next.js suite on this phone.
+  </p>
+
+  <section class="card">
+    <h2>Link status</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Hub</div>
+        <div class="v {{ 'ok' if ping.reachable else 'bad' }}">{{ "REACHABLE" if ping.reachable else "DOWN" }}</div>
+        <div class="s">{{ cfg.hub_base_url }}{% if ping.home_status %} · HTTP {{ ping.home_status }}{% endif %}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Auth</div>
+        {% set auth = ping.audit_auth %}
+        <div class="v {{ 'ok' if auth == 'ok' else ('warn' if auth == 'unauthorized' or auth == 'forbidden' else 'bad') }}">
+          {% if not cfg.has_token %}NO TOKEN{% elif auth == 'ok' %}ACCEPTED{% elif auth == 'unauthorized' %}REJECTED{% elif auth == 'forbidden' %}FORBIDDEN{% elif auth == 'unreachable' %}N/A{% else %}{{ auth|upper }}{% endif %}
+        </div>
+        <div class="s">
+          {% if not cfg.has_token %}optional Bearer for gated APIs
+          {% elif auth == 'ok' %}HUB_API_TOKEN accepted
+          {% elif auth == 'unauthorized' %}token missing or wrong
+          {% else %}{{ ping.audit_error or ping.navigator_error or "gated APIs" }}{% endif %}
+        </div>
+      </div>
+      <div class="stat">
+        <div class="k">Modules</div>
+        <div class="v {{ 'ok' if module_count else 'warn' }}">{{ module_count if module_count is not none else "—" }}</div>
+        <div class="s">{{ ping.modules_error or "from /api/modules" }}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Heimdall</div>
+        <div class="v">{{ events_observed if events_observed is not none else "—" }}</div>
+        <div class="s">
+          {% if ping.navigator_auth == 'unauthorized' %}token required
+          {% elif ping.navigator_error %}{{ ping.navigator_error }}
+          {% else %}events observed{% endif %}
+        </div>
+      </div>
+    </div>
+    {% if ping.error and not ping.reachable %}
+      <p class="hint">{{ ping.error }} — check Setup, and confirm the hub listens on a reachable interface (<code>-H 0.0.0.0 -p 3100</code>), LAN, or Tailscale.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Workspace filter</h2>
+    <p class="hint">Local filter only — does not change the remote hub workspace.</p>
+    <div class="chips" id="ws-chips" role="group" aria-label="Workspace presets">
+      {% for w in workspaces %}
+        <button type="button" class="chip{% if w.id == 'all' %} active{% endif %}"
+                data-ws="{{ w.id }}"
+                data-featured="{{ w.featured|join(',') }}"
+                style="--chip-accent: {{ w.accent }}"
+                aria-pressed="{{ 'true' if w.id == 'all' else 'false' }}">{{ w.label }}</button>
+      {% endfor %}
+    </div>
+    <p class="hint" id="ws-tagline">No preset — show everything.</p>
+  </section>
+
+  <section class="card">
+    <h2>Operator deck</h2>
+    {% if modules %}
+      <div class="mods" id="mod-grid">
+        {% for m in modules if m.route %}
+          <a class="mod" data-route="{{ m.route }}" href="{{ cfg.hub_base_url }}{{ m.route }}" target="_blank" rel="noopener">
+            <span>{{ m.label }}</span><span class="arrow">›</span>
+          </a>
+        {% endfor %}
+      </div>
+      <p class="empty" id="mod-empty" hidden>No modules in this workspace preset (unknown routes are dropped).</p>
+    {% else %}
+      <p class="empty">No modules loaded. {{ ping.modules_error or "Point Setup at a running hub." }}</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Top ATT&amp;CK</h2>
+    {% if techniques %}
+      <div class="tags">
+        {% for t in techniques %}
+          <span class="tag" title="{{ t.name }}">{{ t.id }} ×{{ t.hits }}</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty">
+        {% if ping.navigator_auth == 'unauthorized' or ping.navigator_auth == 'forbidden' %}
+          Gated — set a valid operator token in Setup to read the live navigator.
+        {% else %}
+          No techniques yet (or the navigator is empty).
+        {% endif %}
+      </p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Recent audit</h2>
+    {% if audit %}
+      <ul class="audit">
+        {% for e in audit %}
+          <li>
+            <span class="t">{{ e.clock or e.ts }}</span>
+            <span class="a" title="{{ e.category }} · {{ e.source }}">{{ e.action }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">
+        {% if ping.audit_auth == 'unauthorized' or ping.audit_auth == 'forbidden' %}
+          Gated — set a valid operator token in Setup to read the audit timeline.
+        {% else %}
+          No audit entries.
+        {% endif %}
+      </p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Quick open (remote hub)</h2>
+    <div class="quick">
+      {% for path, label in quick_links %}
+        <a href="{{ cfg.hub_base_url }}{{ path }}" target="_blank" rel="noopener">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+{% block scripts %}
+  <script src="/static/app.js" defer></script>
+{% endblock %}

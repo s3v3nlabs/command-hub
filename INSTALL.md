@@ -51,3 +51,16 @@ To hand a tester a code-gated copy without relying on a public `git clone`:
 2. Send the code + drop URL. The tester downloads a git bundle / tarball from the portal.
 3. Or set `BLACK_AURORA_MODE=github-private` and make the GitHub repo private (documented path).
 
+## Termux (phone companion, not a full install)
+
+The Next.js hub does not run well on Termux. Use the companion client instead — it talks to a remote hub:
+
+```bash
+pkg install python git -y
+git clone https://github.com/s3v3nlabs/command-hub.git
+cd command-hub/companions/termux
+bash install.sh && bash start.sh
+```
+
+Open http://127.0.0.1:8788 and point Setup at the machine running this install (`npx next start -H 0.0.0.0 -p 3100`). See [companions/termux/README.md](./companions/termux/README.md).
+

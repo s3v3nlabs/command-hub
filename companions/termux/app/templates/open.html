@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Quick open{% endblock %}
+{% block body %}
+  <p class="honesty">
+    These open the <b>remote</b> Command Hub in your Android browser — they are not
+    on-device pages. If a tab does not appear, long-press a link or run
+    <code>am start -a android.intent.action.VIEW -d '{{ cfg.hub_base_url }}/operator'</code>
+    in Termux.
+  </p>
+
+  <section class="card">
+    <h2>Remote routes</h2>
+    <div class="quick">
+      {% for path, label in quick_links %}
+        <a href="{{ cfg.hub_base_url }}{{ path }}" target="_blank" rel="noopener">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Hub base</h2>
+    <div class="mono">{{ cfg.hub_base_url }}</div>
+    <a class="btn secondary" href="{{ cfg.hub_base_url }}/" target="_blank" rel="noopener">Open hub home</a>
+  </section>
+{% endblock %}
