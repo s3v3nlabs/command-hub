@@ -20,7 +20,7 @@ npm install && npm run build
 npx next start -p 3100
 ```
 
-Full install: [INSTALL.md](./INSTALL.md) · Usage: [USAGE.md](./USAGE.md) · Updating: [UPDATING.md](./UPDATING.md) · Security: [SECURITY.md](./SECURITY.md) · Legal: [LEGAL.md](./LEGAL.md) · OffSec suite: [docs/OFFSEC_SUITE.md](./docs/OFFSEC_SUITE.md)
+Full install: [INSTALL.md](./INSTALL.md) · Usage: [USAGE.md](./USAGE.md) · Updating: [UPDATING.md](./UPDATING.md) · Security: [SECURITY.md](./SECURITY.md) · Legal: [LEGAL.md](./LEGAL.md) · OffSec suite: [docs/OFFSEC_SUITE.md](./docs/OFFSEC_SUITE.md) · Ghostlight Vault: [docs/GHOSTLIGHT_VAULT.md](./docs/GHOSTLIGHT_VAULT.md)
 
 ## Termux phone companion
 
@@ -65,6 +65,19 @@ Details: [USAGE.md § Black Aurora](./USAGE.md) · [docs/black-aurora/](./docs/b
 
 
 
+
+
+## Ghostlight Vault
+
+Search a local ChatGPT data export from the hub, and share the same tool with GPT and other AI nodes over MCP or REST.
+
+```bash
+cd modules/ghostlight-vault
+./run.sh                                          # venv + token + server on 127.0.0.1:8765
+PYTHONPATH=src .venv/bin/python -m ghostlight_vault import /path/to/conversations.json
+```
+
+In `.env.local` set `GHOSTLIGHT_VAULT_URL=http://127.0.0.1:8765` and `GHOSTLIGHT_VAULT_TOKEN` (same value as the server token, never commit it), then open **`/vault`**. Full setup, tunnels, and per-client configs (ChatGPT, Claude Desktop/Code, Cursor, Grok, Ollama, Venice, curl): [docs/GHOSTLIGHT_VAULT.md](./docs/GHOSTLIGHT_VAULT.md) · [modules/ghostlight-vault/README.md](./modules/ghostlight-vault/README.md).
 
 **Module status:** see [docs/MODULE_STATUS.md](docs/MODULE_STATUS.md) for an honest per-route table (Working / Works with API key / Stub). Routes that still show sample data display a **SIMULATED** banner.
 

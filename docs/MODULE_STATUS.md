@@ -55,6 +55,7 @@ Status legend:
 | AI Caller (Grok Bot caller) | `/ai-caller` | Working (demo) / Works with key | Real calls: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `PUBLIC_BASE_URL` + bridge; STT/TTS key (OpenAI, or Deepgram/ElevenLabs/LMNT); any LLM key. See README "AI Caller setup" |
 | Recon | `/recon` | Partial | KEV feed is **real** (CISA, no key). Scanner and leak monitor are simulated |
 | Compute / AI Pool | `/compute` | Works with local/RunPod | `LOCAL_LLM_*` / `COMPUTE_BACKENDS` / `RUNPOD_*` |
+| Ghostlight Vault | `/vault` | Works with local service | Packaged server at `modules/ghostlight-vault/` (`./run.sh`). Hub proxy: `GHOSTLIGHT_VAULT_URL`, `GHOSTLIGHT_VAULT_TOKEN`. Honest degraded state when the service is down. See [docs/GHOSTLIGHT_VAULT.md](GHOSTLIGHT_VAULT.md) |
 | AI Hub (engine chat) | `/ai-hub` | Works with key | Any of `XAI_API_KEY`, `OPENAI_API_KEY`, `VENICE_API_KEY`, `GROQ_API_KEY`, or local Ollama |
 | Heimdal terminal | `/heimdal-terminal` | Works with key | Same LLM keys; the metrics panels are labelled SAMPLE |
 | Operator Twin | `/operator-twin` | Works with key | LLM key; local index in `TWIN_INDEX_DIR` |

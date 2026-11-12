@@ -5,6 +5,7 @@ All notable changes to the Singular/ty Command Hub. Format inspired by Keep a Ch
 ## [Unreleased]
 
 ### Added
+- **Ghostlight Vault:** shareable ChatGPT-export search. Packaged Python MCP (streamable HTTP + stdio) + REST server at `modules/ghostlight-vault/` with real bearer auth, localhost bind, FTS quoting + LIKE fallback (so queries like `11:30` hit), staged-ladder ingest off by default, and a ChatGPT-export importer. In-hub `/vault` HUD (search, filters, evidence labels, health, copy-paste AI-node configs) proxies through `/api/vault/*` and degrades honestly when the service is down. Setup: `docs/GHOSTLIGHT_VAULT.md`.
 - **AXIOS Kernel v1.0 + Memory Core ingest:** Operator-provided institutional archive / persona kernel (`docs/AXIOS_KERNEL_v1.md`, `docs/AXIOS_MEMORY_CORE.md`, `data/axios/AXIOS_MEMORY_CORE.md`) folded into the axios-vedic digest and `lib/engines/personas.ts`. Vedic / Glyphstream identity is kept; analytical layer adds evidence-category labels, `AXIOS // ANALYSIS` response mode, hard constraints, and operational memory (Tumbleweed, Oopsie Poopsie, EchoPulse). Symbolic lattice anchors are documented as non-authenticating. Archive findings are Operator doctrine, not independently verified in this ingest. Digest includes BLACKFRAME ecosystem memory as Operator architectural archive (not a live-wiring claim).
 
 ### Changed

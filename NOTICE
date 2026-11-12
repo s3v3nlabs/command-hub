@@ -83,6 +83,21 @@ Other hub-internal credits:
   - hive-lab-sim Monte-Carlo methodology (Christian Wilford / Singular/ty) — model inspiration for the threat-field engine
   - Ghostnode / SignalFrame mil-tech theme — Singular/ty original work
 
+
+Ghostlight Vault (modules/ghostlight-vault/) third-party runtime (not vendored;
+installed by the operator via requirements.txt):
+  - MCP Python SDK (Anthropic, Model Context Protocol)  https://github.com/modelcontextprotocol/python-sdk
+      MIT License
+  - Starlette (Encode)                                  https://github.com/encode/starlette
+      BSD 3-Clause License
+  - Uvicorn (Encode)                                    https://github.com/encode/uvicorn
+      BSD 3-Clause License
+
+The packaged server is original Singular/ty work (Apache-2.0), written by
+Christian Wilford (s3v3n), Founder, Singular/ty Defense Solutions, LLC.
+It indexes a standard ChatGPT data export (conversations.json) the operator
+provides; no OpenAI conversation content is redistributed with this repository.
+
 Authorized use only. See LEGAL.md. This NOTICE does not modify the License.
 
 --------------------------------------------------------------------------------

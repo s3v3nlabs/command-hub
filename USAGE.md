@@ -21,6 +21,7 @@ Authorized, lawful use only — see [LEGAL.md](./LEGAL.md). Written authorizatio
 | CCTV wall | `/intelligence/cctv` | Multi-feed wall + per-tile recon metadata |
 | Dev Operator | `/dev-operator` | Defensive coding assistant (HOLD_VYRNA_UNSYNC) |
 | Compute / AI Pool | `/compute` | Multi-backend router, job queue, warm-pool; honest perf surface |
+| Ghostlight Vault | `/vault` | Search a local ChatGPT export. MCP + REST for GPT and other AI nodes. See [docs/GHOSTLIGHT_VAULT.md](docs/GHOSTLIGHT_VAULT.md). |
 | Help | `/help` | In-hub docs index |
 | Termux companion | `companions/termux` (phone client @ `:8788`) | Talks to a remote hub; not a phone-hosted Next.js build |
 | Device Bridge PWA | `/companion` · `/companion/bridge` · `/companion/hub-view` | Phone ↔ hub WebRTC cam/mic + telemetry; install to home screen |
