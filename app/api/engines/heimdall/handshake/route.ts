@@ -23,9 +23,9 @@ const TIMEOUT_MS = 12000
 const CHILD_ENV_ALLOW = ["PATH", "HOME", "LANG", "LC_ALL", "TZ"]
 let inFlight = false
 
-function childEnv(): NodeJS.ProcessEnv {
-  const e: NodeJS.ProcessEnv = { PYTHONUNBUFFERED: "1", PYTHONDONTWRITEBYTECODE: "1" }
-  for (const k of CHILD_ENV_ALLOW) if (process.env[k]) e[k] = process.env[k]
+function childEnv(): Record<string, string> {
+  const e: Record<string, string> = { PYTHONUNBUFFERED: "1", PYTHONDONTWRITEBYTECODE: "1" }
+  for (const k of CHILD_ENV_ALLOW) { const v = process.env[k]; if (v) e[k] = v }
   return e
 }
 
@@ -86,7 +86,7 @@ function runHandshake(): Promise<{
   return new Promise((resolve) => {
     const child = spawn(python, [scriptPath, "--handshake"], {
       cwd: ENGINES_ROOT,
-      env: childEnv(),
+      env: childEnv() as unknown as NodeJS.ProcessEnv,
       stdio: ["ignore", "pipe", "pipe"],
     })
     let stdout = ""
