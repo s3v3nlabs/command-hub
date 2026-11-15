@@ -9,7 +9,7 @@ import { authorize } from "@/lib/AutonomyGovernor"
 import { mintCommanderToken } from "@/lib/security/commander-token"
 
 /** Files that must stay free of Math.random (grows as F-items are fixed). */
-export const RANDOM_FREE = ["lib/AutonomyGovernor.ts", "lib/selfHealing/Governor.ts", "lib/selfHealing/Replay.ts", "lib/selfHealing/HealGate.ts"]
+export const RANDOM_FREE = ["lib/AutonomyGovernor.ts", "lib/selfHealing/Governor.ts", "lib/selfHealing/Replay.ts", "lib/selfHealing/HealGate.ts", "lib/selfHealing/AgentCore.ts"]
 
 beforeEach(() => {
   process.env.COMMANDER_TOKEN_SECRET = "test-secret-not-real-0123456789abcdef"
@@ -32,6 +32,11 @@ describe("AutonomyGovernor (F1)", () => {
     const t = mintCommanderToken({ action: "delete all logs", target: "autonomy" })
     expect(authorize("delete all logs", { commanderToken: t })).toMatchObject({ authorized: true })
     expect(authorize("delete all logs", { commanderToken: t }).authorized).toBe(false)
+  })
+  it("analyzeDrift is deterministic (F10)", async () => {
+    const { analyzeDrift } = await import("@/lib/selfHealing/AgentCore")
+    const r = Array.from({ length: 200 }, () => analyzeDrift("system running fine"))
+    expect(new Set(r.map((x) => `${x.severity}|${x.confidence}|${x.quantumSignature}`)).size).toBe(1)
   })
   it("no Math.random in authz / replay / drift paths (T2)", () => {
     for (const f of RANDOM_FREE) {
