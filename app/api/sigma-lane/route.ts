@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
+import { requireHubAuth } from "@/lib/security/api-auth"
 import {
   statusSnapshot,
   orchestrate,
@@ -27,6 +28,9 @@ import {
  */
 
 export async function GET(req: Request) {
+  // F4: hub auth on every sigma-lane call (fail closed in SECURE_MODE without a token)
+  const denied = requireHubAuth(req, { surface: "sigma-lane", requireInSecureMode: true })
+  if (denied) return denied
   const { searchParams } = new URL(req.url)
   const action = searchParams.get("action") || "status"
 
@@ -84,6 +88,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const denied = requireHubAuth(req, { surface: "sigma-lane", requireInSecureMode: true })
+  if (denied) return denied
   try {
     const body = await req.json().catch(() => ({}))
     const action = typeof body?.action === "string" ? body.action : "status"
@@ -142,6 +148,7 @@ export async function POST(req: Request) {
         lesson: typeof body?.lesson === "string" ? body.lesson : "",
         laneId: isLaneId(body?.laneId) ? body.laneId : undefined,
         tags: Array.isArray(body?.tags) ? body.tags.filter((t: unknown) => typeof t === "string") : undefined,
+        source: "api", // T14: provenance = authenticated API caller, never the hard-coded "operator"
       })
       return NextResponse.json({ ...r, memory: symbolicMemoryStatus(), lattice_sync: false })
     }
@@ -184,7 +191,8 @@ export async function POST(req: Request) {
           suggestedLane: result.drift.suggestedLane,
           note: result.drift.note,
         },
-        symbols: result.symbols.map((s) => ({ id: s.id, glyph: s.glyph, lesson: s.lesson.slice(0, 200), laneId: s.laneId })),
+        // Recalled memory is data, not instructions: tagged untrusted with its provenance
+        symbols: result.symbols.map((s) => ({ id: s.id, glyph: s.glyph, lesson: s.lesson.slice(0, 200), laneId: s.laneId, source: s.source, trust: "untrusted_memory" as const })),
         symbolicCount: result.symbolicCount,
         symbolicPlan: result.symbolicPlan,
         tokenFallbackHint: result.tokenFallbackHint,
