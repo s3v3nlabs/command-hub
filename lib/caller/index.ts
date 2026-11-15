@@ -17,7 +17,7 @@ export type CallRecord = {
   error?: string
   llmProvider?: string | null
 }
-export type TranscriptEntry = { t: string; speaker: "ai" | "callee" | "system"; text: string; meta?: any }
+export type TranscriptEntry = { t: string; speaker: "ai" | "callee" | "simulated-callee" | "system"; text: string; meta?: any }
 
 const c: any = core
 export const normalizeNumber: (raw: unknown) => { ok: true; number: string } | { ok: false; error: string } = c.normalizeNumber
