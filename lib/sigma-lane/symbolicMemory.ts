@@ -22,7 +22,7 @@ export interface SymbolicEntry {
   laneId?: LaneId
   tags: string[]
   createdAt: string
-  source: "sigma-lane" | "consciousness-bridge" | "operator"
+  source: "sigma-lane" | "consciousness-bridge" | "operator" | "api"
 }
 
 type StoredPlain = { v: 1; enc: false; entry: SymbolicEntry }

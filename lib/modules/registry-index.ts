@@ -168,3 +168,28 @@ export function setInstallState(
   writeInstallState(state)
   return { ok: true, state }
 }
+
+/**
+ * F9 (blue-team review): the API boundary for install-state changes. install / enable are
+ * refused unless the registry index loaded with a VERIFIED detached signature and the module
+ * id is present and valid in that index. uninstall / disable are always allowed.
+ * setInstallState() above is the raw state writer; routes must call this instead.
+ * Christian Wilford (s3v3n), Founder, Singular/ty Defense Solutions, LLC.
+ */
+export async function gatedSetInstallState(
+  id: string,
+  action: "install" | "uninstall" | "enable" | "disable",
+  opts: { loader?: () => Promise<LoadedIndex> } = {},
+): Promise<{ ok: boolean; state: InstallState; error?: string }> {
+  if (action === "uninstall" || action === "disable") {
+    if (action === "uninstall" && !readInstallState()[id]) return { ok: true, state: readInstallState() }
+    return setInstallState(id, action)
+  }
+  const loaded = await (opts.loader ?? loadRegistryIndex)()
+  if (!loaded.ok || !loaded.index) return { ok: false, state: readInstallState(), error: "registry_unavailable" }
+  if (loaded.signature?.verified !== true) return { ok: false, state: readInstallState(), error: "registry_signature_not_verified" }
+  const entry = loaded.index.modules.find((m) => m.id === id) as ({ valid?: boolean } & { id: string }) | undefined
+  if (!entry) return { ok: false, state: readInstallState(), error: "module_not_in_index" }
+  if (entry.valid === false) return { ok: false, state: readInstallState(), error: "module_manifest_invalid" }
+  return setInstallState(id, action)
+}

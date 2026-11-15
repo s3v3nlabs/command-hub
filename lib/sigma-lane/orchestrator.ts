@@ -145,11 +145,13 @@ export function learnFromTask(input: {
   lesson: string
   laneId?: LaneId
   tags?: string[]
+  /** Provenance of the caller (API routes pass "api"); defaults to "sigma-lane", never assumed "operator". */
+  source?: "sigma-lane" | "consciousness-bridge" | "operator" | "api"
 }): ReturnType<typeof storeSymbol> {
   return storeSymbol({
     ...input,
     laneId: input.laneId ?? getLaneState().laneId,
-    source: "operator",
+    source: input.source ?? "sigma-lane",
   })
 }
 

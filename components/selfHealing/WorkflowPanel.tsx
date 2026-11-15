@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { analyzeDrift } from "@/lib/selfHealing/AgentCore"
-import { authorize } from "@/lib/selfHealing/Governor"
-import { simulateReplay } from "@/lib/selfHealing/Replay"
 import { storeProposal, getProposals } from "@/lib/selfHealing/Vault"
 import { getMultiModelResponses } from "@/lib/selfHealing/BuildShipHarness"
 import { logVault } from "@/lib/vaultWriter"
@@ -18,6 +16,9 @@ export default function SelfHealingWorkflow() {
   const [proposals, setProposals] = useState<any[]>([])
   const [selectedProposal, setSelectedProposal] = useState<any>(null)
   const [modelResponses, setModelResponses] = useState<any[]>([])
+  // Hub API token + Commander token (minted via POST /api/commander/token). Memory only, never persisted.
+  const [hubToken, setHubToken] = useState("")
+  const [commanderToken, setCommanderToken] = useState("")
 
   // Add a log entry
   const addLog = (message: string) => {
@@ -108,31 +109,45 @@ export default function SelfHealingWorkflow() {
     // Get consensus action
     const consensus = findConsensus(modelResponses)
 
-    // Request authorization
-    const authResult = authorize(consensus.action, {
-      confidence: consensus.agreement,
-      source: "AI panel consensus",
-      severity: selectedProposal.analysis.confidence > 0.8 ? "high" : "medium",
-    })
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    if (hubToken) headers.Authorization = `Bearer ${hubToken}`
+    const proposal = { ...selectedProposal, action: consensus.action }
 
-    addLog(`🔒 Authorization ${authResult.approved ? "GRANTED" : "DENIED"}: ${authResult.reason}`)
+    // F3: replay FIRST (server-side, deterministic, simulated — the patch is not executed)
+    const rp = await fetch("/api/self-healing", { method: "POST", headers, body: JSON.stringify({ stage: "replay", proposal }) })
+      .then((r) => r.json())
+      .catch((e) => ({ ok: false, error: String(e) }))
+    if (!rp.ok || !rp.passed) {
+      addLog(`🔄 Replay ${rp.ok ? "FAILED" : "unavailable"}: ${rp.error ?? (rp.checks || []).filter((c: any) => !c.ok).map((c: any) => c.check).join(", ")}`)
+      setStatus("denied")
+      return
+    }
+    addLog(`🔄 Replay passed (simulated) · replayId ${rp.replayId} · patch ${String(rp.patchHash).slice(0, 12)}…`)
+
+    // F2: authorisation happens on the server with a Commander token bound to patch + replay
+    const authResult = await fetch("/api/self-healing", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ stage: "heal", action: "heal", proposal, replayId: rp.replayId, commanderToken: commanderToken || null }),
+    })
+      .then((r) => r.json())
+      .catch((e) => ({ ok: false, approved: false, error: String(e) }))
+
+    addLog(
+      `🔒 Authorization ${authResult.approved ? "GRANTED" : "DENIED"}: ${authResult.approved ? authResult.reason : authResult.error}` +
+        (authResult.approved ? "" : ` — mint a Commander token for action "heal", target "patch:${rp.patchHash}", ref "${rp.replayId}"`),
+    )
 
     if (authResult.approved) {
       setStatus("executing")
-      addLog("🔧 Executing repair action...")
-
-      // Simulate repair process
+      addLog("🔧 Executing repair action (simulated — no system change is made)...")
       await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Simulate replay to verify
-      const replayResult = await simulateReplay(selectedProposal)
-
-      addLog(`🔄 Repair verification: ${replayResult.replayResult.success ? "SUCCESS" : "FAILURE"}`)
+      const replayResult = { replayResult: { success: true } }
 
       // Play voice confirmation
       try {
         const message = replayResult.replayResult.success
-          ? "Repair action completed successfully"
+          ? "Simulated repair completed after replay and Commander approval"
           : "Repair action failed verification"
         const audioBlob = await speak(message)
         if (audioBlob) {
@@ -213,6 +228,24 @@ export default function SelfHealingWorkflow() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="password"
+            value={hubToken}
+            onChange={(e) => setHubToken(e.target.value)}
+            placeholder="Hub API token"
+            autoComplete="off"
+            className="w-36 rounded border border-gray-700 bg-black px-2 py-1 text-xs text-gray-200"
+          />
+          <input
+            type="password"
+            value={commanderToken}
+            onChange={(e) => setCommanderToken(e.target.value)}
+            placeholder="Commander token"
+            autoComplete="off"
+            className="w-44 rounded border border-gray-700 bg-black px-2 py-1 text-xs text-gray-200"
+          />
+        </div>
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={detectIssue}

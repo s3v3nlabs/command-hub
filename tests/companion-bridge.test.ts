@@ -244,12 +244,15 @@ describe("isHubAuthorized", () => {
   afterEach(() => {
     process.env = { ...prev }
   })
-  it("is open in lab, denied in SECURE_MODE without a token, matched when a token is set", () => {
+  it("is open only in an explicit lab (F7 fail-closed), denied in SECURE_MODE without a token, matched when a token is set", () => {
     delete process.env.HUB_API_TOKEN
     delete process.env.OPERATOR_API_TOKEN
     delete process.env.HEIMDALL_API_KEY
     process.env.SECURE_MODE = "0"
     const bare = new Request("http://x/")
+    delete process.env.HUB_OPEN_LAB
+    expect(isHubAuthorized(bare)).toBe(false)
+    process.env.HUB_OPEN_LAB = "1"
     expect(isHubAuthorized(bare)).toBe(true)
     process.env.SECURE_MODE = "1"
     expect(isSecureMode()).toBe(true)
@@ -259,6 +262,7 @@ describe("isHubAuthorized", () => {
     expect(isHubAuthorized(bare)).toBe(false)
     const ok = new Request("http://x/", { headers: { Authorization: "Bearer secret-token" } })
     expect(isHubAuthorized(ok)).toBe(true)
+    delete process.env.HUB_OPEN_LAB
     expect(extractHubToken(ok)).toBe("secret-token")
     const bad = new Request("http://x/", { headers: { Authorization: "Bearer no" } })
     expect(isHubAuthorized(bad)).toBe(false)

@@ -14,7 +14,8 @@ export function analyzeDrift(input: string): DriftAnalysisResult {
   const mediumKeywords = ["notice", "alert", "unusual", "unexpected", "deviation"]
   const lowKeywords = ["info", "debug", "trace", "verbose", "normal"]
 
-  let confidence = 0.3 + Math.random() * 0.4 // Base confidence 0.3-0.7
+  // F10 (blue-team review): deterministic — same input, same severity. Base 0.5, keyword-adjusted.
+  let confidence = 0.5
 
   const hasCritical = words.some((word) => criticalKeywords.includes(word))
   const hasHigh = words.some((word) => highKeywords.includes(word))
@@ -28,13 +29,11 @@ export function analyzeDrift(input: string): DriftAnalysisResult {
 
   const severity = confidence > 0.8 ? "critical" : confidence > 0.6 ? "high" : confidence > 0.4 ? "medium" : "low"
 
+  // Signature label = 32-bit hash of the input (a deterministic id, not a security property)
   const generateQuantumSignature = () => {
-    const chars = "abcdef0123456789"
-    let result = "Σ-DRIFT-"
-    for (let i = 0; i < 8; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return result
+    let h = 0
+    for (let i = 0; i < input.length; i++) h = ((h << 5) - h + input.charCodeAt(i)) | 0
+    return `Σ-DRIFT-${(h >>> 0).toString(16).padStart(8, "0")}`
   }
 
   const notes = `Drift analysis reveals ${severity} level patterns in system behavior. Confidence: ${(confidence * 100).toFixed(1)}%. ${
