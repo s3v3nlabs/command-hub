@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       if (!isLaneId(lane)) {
         return NextResponse.json({ ok: false, error: "laneId required (focus|build|empathy|defense|creative|comms|crown)" }, { status: 400 })
       }
-      const result = action === "retune" ? retune(lane as LaneId) : { ok: true as const, ...setLane(lane as LaneId), deltaT: 0 as const }
+      const result = action === "retune" ? retune(lane as LaneId) : { ok: true as const, ...setLane(lane as LaneId) }
       return NextResponse.json({
         ...result,
         state: getLaneState(),

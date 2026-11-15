@@ -183,8 +183,10 @@ export function setLane(id: LaneId, opts?: { path?: LanePath }): LaneRuntimeStat
     ...runtime,
     laneId: id,
     path: opts?.path ?? "SYMBOLIC_FAST",
-    deltaT: 0, // retune ⇒ neutralize Δt
-    coherence: Math.min(0.99, runtime.coherence + 0.02),
+    // F5: a lane change does NOT clear accumulated drift. Only an explicit, authenticated
+    // returnToLane()/retune (drift.ts) neutralises Δt.
+    deltaT: runtime.deltaT,
+    coherence: runtime.coherence,
     setAt: new Date().toISOString(),
     hold: "HOLD_VYRNA_UNSYNC",
     lattice_sync: false,
