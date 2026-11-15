@@ -9,7 +9,7 @@ import { authorize } from "@/lib/AutonomyGovernor"
 import { mintCommanderToken } from "@/lib/security/commander-token"
 
 /** Files that must stay free of Math.random (grows as F-items are fixed). */
-export const RANDOM_FREE = ["lib/AutonomyGovernor.ts"]
+export const RANDOM_FREE = ["lib/AutonomyGovernor.ts", "lib/selfHealing/Governor.ts", "lib/selfHealing/Replay.ts", "lib/selfHealing/HealGate.ts"]
 
 beforeEach(() => {
   process.env.COMMANDER_TOKEN_SECRET = "test-secret-not-real-0123456789abcdef"
