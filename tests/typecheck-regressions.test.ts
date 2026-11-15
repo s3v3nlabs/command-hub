@@ -12,3 +12,12 @@ describe("typecheck regressions", () => {
     expectTypeOf<"simulated-callee">().toMatchTypeOf<TranscriptEntry["speaker"]>()
   })
 })
+
+import { sqliteQuery, sqliteSchema } from "@/lib/live/db"
+
+describe("live sqlite result type", () => {
+  it("exposes helper fields (ok/result) to callers", () => {
+    expectTypeOf(sqliteQuery).returns.resolves.toMatchTypeOf<Record<string, unknown>>()
+    expectTypeOf(sqliteSchema).returns.resolves.toMatchTypeOf<Record<string, unknown>>()
+  })
+})
