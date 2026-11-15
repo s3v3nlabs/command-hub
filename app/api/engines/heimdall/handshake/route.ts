@@ -3,12 +3,38 @@ export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
 import { spawn } from "child_process"
+import crypto from "crypto"
 import fs from "fs"
 import path from "path"
+import { requireHubAuth } from "@/lib/security/api-auth"
 
-const ENGINES_ROOT = "/workspace/singular-ty-engines"
+/*
+ * F6 hardening (blue-team review):
+ *  • hub auth on GET/POST (requireInSecureMode);
+ *  • the script must match HEIMDALL_HANDSHAKE_SHA256 (sha256 of run_heimdall.py) — unset or
+ *    mismatched → ok:false and nothing is spawned (fail closed);
+ *  • the child gets an allowlisted env only (no hub tokens / keys);
+ *  • one handshake at a time (429 while one is running).
+ * Christian Wilford (s3v3n), Founder, Singular/ty Defense Solutions, LLC.
+ */
+const ENGINES_ROOT = process.env.HEIMDALL_ENGINES_ROOT?.trim() || "/workspace/singular-ty-engines"
 const SCRIPT = "run_heimdall.py"
 const TIMEOUT_MS = 12000
+const CHILD_ENV_ALLOW = ["PATH", "HOME", "LANG", "LC_ALL", "TZ"]
+let inFlight = false
+
+function childEnv(): NodeJS.ProcessEnv {
+  const e: NodeJS.ProcessEnv = { PYTHONUNBUFFERED: "1", PYTHONDONTWRITEBYTECODE: "1" }
+  for (const k of CHILD_ENV_ALLOW) if (process.env[k]) e[k] = process.env[k]
+  return e
+}
+
+function pinCheck(scriptPath: string): string | null {
+  const pin = process.env.HEIMDALL_HANDSHAKE_SHA256?.trim().toLowerCase()
+  if (!pin || !/^[0-9a-f]{64}$/.test(pin)) return "script_not_pinned (set HEIMDALL_HANDSHAKE_SHA256)"
+  const got = crypto.createHash("sha256").update(fs.readFileSync(scriptPath)).digest("hex")
+  return got === pin ? null : "script_hash_mismatch"
+}
 
 /** Never surface secrets / keys in API responses */
 function sanitize(text: string): string {
@@ -46,6 +72,10 @@ function runHandshake(): Promise<{
       detail: `Missing ${SCRIPT}`,
     })
   }
+  const pinErr = pinCheck(scriptPath)
+  if (pinErr) {
+    return Promise.resolve({ ok: false, exitCode: null, stdout: "", detail: pinErr })
+  }
   const pyCandidates = [
     path.join(ENGINES_ROOT, ".venv/bin/python"),
     "/usr/bin/python3",
@@ -56,7 +86,7 @@ function runHandshake(): Promise<{
   return new Promise((resolve) => {
     const child = spawn(python, [scriptPath, "--handshake"], {
       cwd: ENGINES_ROOT,
-      env: { ...process.env, PYTHONUNBUFFERED: "1" },
+      env: childEnv(),
       stdio: ["ignore", "pipe", "pipe"],
     })
     let stdout = ""
@@ -103,15 +133,21 @@ function runHandshake(): Promise<{
  * GET/POST /api/engines/heimdall/handshake
  * Local Heimdall handshake only. Always lattice_sync: false.
  */
-export async function GET() {
-  return handshakeHandler()
+export async function GET(req: Request) {
+  return handshakeHandler(req)
 }
 
-export async function POST() {
-  return handshakeHandler()
+export async function POST(req: Request) {
+  return handshakeHandler(req)
 }
 
-async function handshakeHandler() {
+async function handshakeHandler(req: Request) {
+  const denied = requireHubAuth(req, { surface: "heimdall-handshake", requireInSecureMode: true })
+  if (denied) return denied
+  if (inFlight) {
+    return NextResponse.json({ ok: false, error: "handshake_in_progress", hold: "HOLD_VYRNA_UNSYNC", lattice_sync: false }, { status: 429 })
+  }
+  inFlight = true
   try {
     const result = await runHandshake()
     const payload = extractJson(result.stdout)
@@ -163,5 +199,7 @@ async function handshakeHandler() {
       },
       { status: 500 },
     )
+  } finally {
+    inFlight = false
   }
 }
