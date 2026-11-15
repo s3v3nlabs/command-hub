@@ -301,8 +301,9 @@ export function AiAutonomyTester() {
             replayDetails.push(
               `✓ Replay simulation functional: ${replayResult.replayResult.success ? "SUCCESS" : "FAILED"}`,
             )
-            replayDetails.push(`  Confidence: ${replayResult.replayResult.metrics.confidence.toFixed(2)}`)
-            replayDetails.push(`  Stability: ${replayResult.replayResult.metrics.stability.toFixed(2)}`)
+            replayDetails.push(
+              `  Deterministic checks: ${replayResult.replayResult.metrics.checksPassed}/${replayResult.replayResult.metrics.checksTotal} (simulated replay, no system change)`,
+            )
 
             if (!replayResult.replayResult.success) {
               replayIssues.push("Replay simulation indicates instability")
