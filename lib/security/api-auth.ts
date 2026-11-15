@@ -1,10 +1,14 @@
 /**
- * Shared hub API authz helper.
- * When HUB_API_TOKEN / OPERATOR_API_TOKEN is set, require it.
- * When SECURE_MODE=1 and no token is configured, deny high-risk mutating routes
- * rather than silently allowing them.
+ * Shared hub API authz helper — FAIL CLOSED (F7, blue-team review).
+ * When HUB_API_TOKEN / OPERATOR_API_TOKEN / HEIMDALL_API_KEY is set, require it
+ * (constant-time compare).
+ * When no token is configured, every surface is denied — unless the operator explicitly opts
+ * into a local open lab with HUB_OPEN_LAB=1, which still never opens privileged surfaces
+ * (requireInSecureMode) and is ignored under SECURE_MODE.
+ * Christian Wilford (s3v3n), Founder, Singular/ty Defense Solutions, LLC.
  */
 
+import crypto from "crypto"
 import { NextResponse } from "next/server"
 import { recordFailedApiAuth, recordIdsThreat } from "@/lib/security/ids-status"
 
@@ -16,6 +20,17 @@ function configuredToken(): string | null {
     ""
   if (!t || t.includes("placeholder")) return null
   return t
+}
+
+function tokenMatches(presented: string | null, token: string): boolean {
+  if (!presented) return false
+  const a = crypto.createHash("sha256").update(presented).digest()
+  const b = crypto.createHash("sha256").update(token).digest()
+  return crypto.timingSafeEqual(a, b)
+}
+
+export function isOpenLab(): boolean {
+  return (process.env.HUB_OPEN_LAB === "1" || process.env.HUB_OPEN_LAB === "true") && !isSecureMode()
 }
 
 export function isSecureMode(): boolean {
@@ -46,7 +61,7 @@ export function requireHubAuth(
   const secure = isSecureMode()
 
   if (token) {
-    if (!presented || presented !== token) {
+    if (!tokenMatches(presented, token)) {
       recordFailedApiAuth(`${opts.surface}:bad_token`)
       recordIdsThreat({
         severity: "medium",
@@ -62,8 +77,8 @@ export function requireHubAuth(
     return null
   }
 
-  // No token configured
-  if (secure || opts.requireInSecureMode) {
+  // No token configured → fail closed, except an explicit open lab on non-privileged surfaces
+  if (secure || opts.requireInSecureMode || !isOpenLab()) {
     recordFailedApiAuth(`${opts.surface}:secure_mode_no_token`)
     recordIdsThreat({
       severity: "high",
@@ -75,7 +90,7 @@ export function requireHubAuth(
       {
         ok: false,
         error: "forbidden_secure_mode",
-        detail: "Set HUB_API_TOKEN and pass Authorization: Bearer <token>",
+        detail: "Set HUB_API_TOKEN and pass Authorization: Bearer <token> (or HUB_OPEN_LAB=1 for a local lab, non-privileged surfaces only)",
         surface: opts.surface,
       },
       { status: 403 },
@@ -89,10 +104,9 @@ export function requireHubAuth(
 export function isHubAuthorized(req: Request): boolean {
   const token = configuredToken()
   const presented = extractHubToken(req)
-  if (token) return !!presented && presented === token
-  // SECURE_MODE with no token configured: not authorized for privileged surfaces.
-  if (isSecureMode()) return false
-  return true
+  if (token) return tokenMatches(presented, token)
+  // No token configured: only an explicit open lab (never under SECURE_MODE).
+  return isOpenLab()
 }
 
 export function hasConfiguredHubToken(): boolean {
