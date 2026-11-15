@@ -52,7 +52,7 @@ async function dnsBundle(name: string) {
         for (const item of arr) {
           if (typeof item === "string") entries.push({ type, name, value: item })
           else if (item && typeof item === "object") {
-            const o = item as Record<string, unknown>
+            const o = item as unknown as Record<string, unknown>
             if (type === "MX" && "exchange" in o) entries.push({ type, name, value: `${o.priority} ${o.exchange}` })
             else if (type === "SOA" && "nsname" in o) entries.push({ type, name, value: `${o.nsname} ${o.hostmaster} serial=${o.serial}` })
             else if (type === "CAA" && "issue" in o) entries.push({ type, name, value: String(o.issue || o.iodef || JSON.stringify(o)) })

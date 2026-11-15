@@ -39,12 +39,12 @@ function runHelper(payload: unknown, timeoutMs = 8000): Promise<Record<string, u
   })
 }
 
-export async function sqliteSchema() {
+export async function sqliteSchema(): Promise<Record<string, unknown>> {
   const r = await runHelper({ op: "schema" })
   return { ...r, live: true, backend: r.backend || "python sqlite3 (live)" }
 }
 
-export async function sqliteQuery(sql: string) {
+export async function sqliteQuery(sql: string): Promise<Record<string, unknown>> {
   const r = await runHelper({ op: "query", sql })
   return { ...r, live: true, backend: r.backend || "python sqlite3 (live)" }
 }
